@@ -1,0 +1,938 @@
+aliases:
+    phone = brick
+
+options:
+    prefix: §e§lBee§fLife §8»
+    phoneTitle: §eTéléphone
+
+    smsFrom: §6SMS de §e<contact>§6: §e<message>
+    smsTo: §6SMS à §e<contact>§6: §e<message>
+
+    callFrom: §d[Appel] §e<contact> §6-> §eMoi: §e<message>
+    callTo: §d[Appel] §eMoi §6-> §e<contact>: §e<message>
+
+
+#
+#   EVENTS
+#
+
+on join:
+    getNumber(player)
+
+on rightclick with phone:
+    openPhone(player)
+
+on load:
+    clear {phone::temp::*}
+
+on quit:
+    phoneCallEnd(player)
+    clear {phone::temp::%player%::*}
+
+on death:
+    phoneCallEnd(player)
+
+on talk:
+    # Messages
+    if {phone::temp::%player%::message} is set:
+        cancel event
+        sendMessage(player, event-text)
+
+    # Appels
+    if {phone::temp::%player%::call} is set:
+        cancel event
+        sendCallMessage(player, event-text)
+
+
+#
+#   FUNCTIONS
+#
+
+# ______________
+#
+# Numbers
+
+function getNumber(p: player) :: integer:
+    if {phone::numbers::%{_p}%} isn't set:
+
+        set {_b} to false
+        while {_b} is false:
+            set {_n} to "555%random integer between 100 and 999%" parsed as integer
+            if {phone::numbers::*} doesn't contain {_n}:
+                set {_b} to true
+        set {phone::numbers::%{_p}%} to {_n}
+
+    return {phone::numbers::%{_p}%}
+
+function getPlayerFromNumber(i: integer) :: text:
+    loop {phone::numbers::*}:
+        if loop-value = {_i}:
+            return loop-index
+            stop
+
+# ______________
+#
+# Contacts
+
+function removeContact(p: player, t: text):
+    clear {phone::contacts::%{_p}%::%{_t}%}
+
+function addContact(p: player, t: text):
+    send beesign "" and "§eNom §6↑" and {_t} and "§eNuméro §6↑" to {_p}
+
+function getContacts(p: player) :: texts:
+    return {phone::contacts::%{_p}%::*}
+
+function getContactFromNumber(p: player, i: integer) :: text:
+    loop {phone::contacts::%{_p}%::*}:
+        if "%loop-value%" = "%{_i}%":
+            return loop-index
+    return "%{_i}%"
+
+function getContactFromNumberOrName(p: player, i: integer) :: text:
+    loop {phone::contacts::%{_p}%::*}:
+        if "%loop-value%" = "%{_i}%":
+            return loop-index
+    set {_name} to "%getCharacterPrenom(getPlayerFromNumber({_i}) parsed as player)% %first character of getCharacterNom(getPlayerFromNumber({_i}) parsed as player)%."
+    return {_name}
+
+function getNumberFromContact(p: player, t: text) :: text: # TO TEST
+    loop {phone::contacts::%{_p}%::*}:
+        if loop-index = "%{_t}%":
+            set {_r} to loop-value
+    return {_r}
+
+# ______________
+#
+# Settings
+
+function isInDirectory(p: player) :: boolean:
+    if {phone::settings::%{_p}%::directory} isn't set:
+        set {phone::settings::%{_p}%::directory} to true
+    return {phone::settings::%{_p}%::directory}
+
+# ______________
+#
+# Messages
+
+function writeMessage(p: player, i: integer):
+    if getPlayerFromNumber({_i}) isn't set:
+        send "{@prefix} §cNuméro non attribué !" to {_p} # todo
+        stop
+
+    set {_t} to getPlayerFromNumber({_i}) parsed as player
+    if {_t} is offline:
+        send "{@prefix} §cJoueur introuvable !" to {_p} # todo
+        stop
+
+    send "{@prefix} §eÉcrivez votre sms dans le chat, tape cancel pour annuler." to {_p} # todo
+    set {phone::temp::%{_p}%::message} to {_t}
+
+function sendMessage(p: player, m: text):
+    set {_t} to {phone::temp::%{_p}%::message}
+    clear {phone::temp::%{_p}%::message}
+
+    if {_m} is "cancel":
+        send "{@prefix} §eMessage annulé" to {_p} # todo
+        stop
+    
+    set {_smsTo} to "{@smsTo}"
+    replace "<contact>" in {_smsTo} with getContactFromNumber({_p}, getNumber({_t}))
+    replace "<message>" in {_smsTo} with {_m}
+    
+    set {_smsFrom} to "{@smsFrom}"
+    replace "<contact>" in {_smsFrom} with getContactFromNumber({_t}, getNumber({_p}))
+    replace "<message>" in {_smsFrom} with {_m}
+
+    send {_smsTo} to {_p}
+    send {_smsFrom} to {_t}
+    send toast to {_t} entitled "§eVous avez reçu un nouveau message" with desc ""
+
+# ______________
+#
+# Appels
+
+function sendCallRequest(p: player, i: integer):
+    if getPlayerFromNumber({_i}) isn't set:
+        send "{@prefix} §cLe numéro n'est pas attribué" to {_p} # todo
+        stop
+
+    set {_t} to getPlayerFromNumber({_i}) parsed as player
+    if {_t} is offline:
+        send "{@prefix} §cLe joueur est hors-ligne" to {_p} # todo
+        stop
+
+    if isCalled({_p}) is true:
+        send "{@prefix} §cVous êtes déjà en appel !" to {_p} # todo
+        stop
+    else if isCaller({_p}) is true:
+        send "{@prefix} §cVous êtes déjà en appel !" to {_p} # todo
+        stop
+    else if isInCall({_p}) is true:
+        send "{@prefix} §cVous êtes déjà en appel !" to {_p} # todo
+        stop
+
+    if isCalled({_t}) is true:
+        send "{@prefix} §c%getContactFromNumber({_p}, getNumber({_t}))% est déjà en appel !" to {_p} # todo
+        stop
+    else if isCaller({_t}) is true:
+        send "{@prefix} §c %getContactFromNumber({_p}, getNumber({_t}))% est déjà en appel !" to {_p} # todo
+        stop
+    else if isInCall({_t}) is true:
+        send "{@prefix} §c%getContactFromNumber({_p}, getNumber({_t}))% est déjà en appel !" to {_p} # todo
+        stop
+
+    set {phone::temp::%{_p}%::callRequestSender} to {_t}
+    set {phone::temp::%{_t}%::callRequestReceiver} to {_p}
+
+    send "{@prefix} §eAppel en cours vers %getContactFromNumber({_p}, {_i})%" to {_p} # todo
+
+    send toast to {_t} entitled "§eAppel entrant: §6%getContactFromNumber({_t}, getNumber({_p}))%" with desc ""
+    send "{@prefix} §e%getContactFromNumber({_t}, getNumber({_p}))% vous appelle" to {_t} # todo
+
+function phoneCallAccept(p: player):
+    if {phone::temp::%{_p}%::callRequestReceiver} isn't set:
+        send "{@prefix} §cPersonne ne vous a appellé" to {_p} # todo
+        stop
+
+    set {_t} to {phone::temp::%{_p}%::callRequestReceiver}
+    if {_t} is offline:
+        send "{@prefix} §cLe joueur est hors-ligne" to {_p} # todo
+        stop
+    
+    if {phone::temp::%{_t}%::callRequestSender} isn't {_p}:
+        send "{@prefix} §cIl ne t'as pas appellé !" to {_p}
+        stop
+    
+    clear {phone::temp::%{_p}%::callRequestReceiver}
+    clear {phone::temp::%{_t}%::callRequestSender}
+
+    set {phone::temp::%{_p}%::call} to {_t}
+    set {phone::temp::%{_t}%::call} to {_p}
+
+    send toast to {_p} entitled "§eAppel en cours: §6%getContactFromNumber({_p}, getNumber({_t}))%" with desc ""
+    send "{@prefix} §aVous avez accepté l'appel de %getContactFromNumber({_p}, getNumber({_t}))%" to {_p} # todo
+
+    send toast to {_t} entitled "§eAppel en cours: §6%getContactFromNumber({_t}, getNumber({_p}))%" with desc ""
+    send "{@prefix} §a%getContactFromNumber({_t}, getNumber({_p}))% a accepté votre appel" to {_t} # todo
+
+function phoneCallEnd(p: player):
+    if isCalled({_p}) is true:
+        set {_t} to {phone::temp::%{_p}%::callRequestReceiver}
+        clear {phone::temp::%{_p}%::callRequestReceiver}
+        send toast to {_p} entitled "§eAppel en terminé:" with desc ""
+        send "{@prefix} §eAppel terminé" to {_p}
+
+    else if isCaller({_p}) is true:
+        set {_t} to {phone::temp::%{_p}%::callRequestSender}
+        clear {phone::temp::%{_p}%::callRequestSender}
+        send toast to {_p} entitled "§eAppel en terminé:" with desc ""
+        send "{@prefix} §eAppel terminé" to {_p}
+
+    else if isInCall({_p}) is true:
+        set {_t} to {phone::temp::%{_p}%::call}
+        clear {phone::temp::%{_p}%::call}
+        send toast to {_p} entitled "§eAppel en terminé:" with desc ""
+        send "{@prefix} §eAppel terminé" to {_p}
+    
+    if {_t} is online:
+        phoneCallEnd({_t})
+
+function sendCallMessage(p: player, m: text):
+    set {_t} to {phone::temp::%{_p}%::call}
+    if {_t} is offline:
+        send "{@prefix} §cLe joueur est hors-ligne" to {_p} # todo
+        stop
+
+    set {_callTo} to "{@callTo}"
+    replace "<contact>" in {_callTo} with getContactFromNumber({_p}, getNumber({_t}))
+    replace "<message>" in {_callTo} with {_m}
+
+    set {_callFrom} to "{@callFrom}"
+    replace "<contact>" in {_callFrom} with getContactFromNumber({_t}, getNumber({_p}))
+    replace "<message>" in {_callFrom} with {_m}
+
+    send {_callTo} to {_p}
+    send {_callFrom} to {_t}
+
+function isCalled(p: player) :: boolean:
+    if {phone::temp::%{_p}%::callRequestReceiver} is set:
+        return true
+    return false
+
+function isCaller(p: player) :: boolean:
+    if {phone::temp::%{_p}%::callRequestSender} is set:
+        return true
+    return false
+
+function isInCall(p: player) :: boolean:
+    if {phone::temp::%{_p}%::call} is set:
+        return true
+    return false
+
+function getCaller(p: player) :: player:
+    if isCalled({_p}) is true:
+        return {phone::temp::%{_p}%::callRequestReceiver}
+    else if isInCall({_p}) is true:
+        return {phone::temp::%{_p}%::call}
+
+# ______________
+#
+# GUI
+
+# Accueil
+function openPhone(p: player):
+    set {_b} to a new book
+    set {_b}'s book title to "none"
+    set {_b}'s book author to "none"
+
+    set {_tc} to a text component with text "§f•••••                 100%%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "         §fAccueil%nl%%nl%%nl%"
+    add {_tc} to {_text::*}
+        
+    set {_tc} to a text component with text "  §eContacts%nl%"
+    add click event with action RUN_COMMAND with execute "/phone contact" to {_tc}
+    add hover event with action SHOW_TEXT with "§fGérer vos contacts" to {_tc}
+    add {_tc} to {_text::*}
+        
+    set {_tc} to a text component with text "  §eAnnuaire%nl%%nl%%nl%"
+    add click event with action RUN_COMMAND with execute "/phone directory" to {_tc}
+    add hover event with action SHOW_TEXT with "§fAccéder à l'annuaire" to {_tc}
+    add {_tc} to {_text::*}
+        
+    set {_tc} to a text component with text "  §eParamètres%nl%"
+    add click event with action RUN_COMMAND with execute "/phone settings" to {_tc}
+    add hover event with action SHOW_TEXT with "§fAccéder aux paramètres" to {_tc}
+    add {_tc} to {_text::*}
+
+    set {_tc} to a text component with text "  §eGPS%nl%"
+    add click event with action RUN_COMMAND with execute "/phone gps" to {_tc}
+    add hover event with action SHOW_TEXT with "§fAccéder au GPS" to {_tc}
+    add {_tc} to {_text::*}
+
+    clear {phone::temp::%{_p}%::printerNumber}
+    loop {printer::*}:
+        if {printer::%loop-value%::owner} is {_p}:
+            add 1 to {phone::temp::%{_p}%::printerNumber}
+
+    if {phone::temp::%{_p}%::printerNumber} is set:
+        set {_tc} to a text component with text "  §ePrinter(s)%nl%"
+        add click event with action RUN_COMMAND with execute "/phone printer" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAccéder à vos printers" to {_tc}
+        add {_tc} to {_text::*}
+
+    add text component {_text::*} to book {_b}
+    
+    open book {_b} to {_p}
+
+# Contacts
+function openPhoneContact(p: player, page: integer):
+    if {_page} < 0:
+        openPhoneContact({_p}, 0)
+        stop
+
+    set {phone::temp::%{_p}%::contactPage} to {_page}
+
+    set {_b} to a new book
+    set {_b}'s book title to "none"
+    set {_b}'s book author to "none"
+
+    set {_tc} to a text component with text "§f•••••                 100%%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "§f§l<"
+    add click event with action RUN_COMMAND with execute "/phone" to {_tc}
+    add hover event with action SHOW_TEXT with "§fRetournez à l'accueil" to {_tc}
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "      §fContacts%nl%%nl%"
+    add {_tc} to {_text::*}
+
+    if size of {phone::contacts::%{_p}%::*} = 0:
+        set {_index} to 1
+        set {_tc} to a text component with text "%nl%  §7Aucun contact :/"
+        add {_tc} to {_text::*}
+    else:
+        set {_spaces} to 0
+        set {_index} to 0
+        set {_indexMin} to {_page} * 7
+        loop {phone::contacts::%{_p}%::*}:
+            add 1 to {_index}
+            if {_index} < {_indexMin} + 1:
+                continue
+            else if {_index} > {_indexMin} + 7:
+                exit loop
+            else:
+                add 1 to {_spaces}
+
+                set {_tc} to a text component with text " §f§l• §f§o%loop-index%%nl%"
+                add click event with action RUN_COMMAND with execute "/phone contactinfo %loop-index%" to {_tc}
+                add hover event with action SHOW_TEXT with "§7Gérer le contact" to {_tc}
+                add {_tc} to {_text::*}
+
+    # Saut de lignes
+    set {_index} to 0
+    set {_tcs} to ""
+    loop {_text::*}:
+        set {_tcs} to "%{_tcs}%%loop-value%"
+    set {_nl::*} to split {_tcs} at nl
+    set {_nls} to size of {_nl::*} - 1
+
+    set {_d} to 12 - {_nls}
+    set {_nl} to ""
+    loop {_d} times:
+        set {_nl} to "%{_nl}%%nl%"
+
+    set {_tc} to a text component with text "%{_nl}%§a[Ajouter]"
+    add click event with action RUN_COMMAND with execute "/phone addcontact" to {_tc}
+    add hover event with action SHOW_TEXT with "§7Créer un contact" to {_tc}
+    add {_tc} to {_text::*}
+
+    if {_page} = 0:
+        set {_tc} to a text component with text "%nl%§7[Préc.]"
+    else:
+        set {_tc} to a text component with text "%nl%§e[Préc.]"
+        add click event with action RUN_COMMAND with execute "/phone contact %{_page} - 1%" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAfficher la page précédente" to {_tc}
+    add {_tc} to {_text::*}
+
+    set {_tc} to a text component with text "   §f%{_page} + 1%   "
+    add {_tc} to {_text::*}
+
+    if size of {phone::contacts::%{_p}%::*} > 7 * ({_page} + 1):
+        set {_tc} to a text component with text "§e[Suivant.]"
+        add click event with action RUN_COMMAND with execute "/phone contact %{_page} + 1%" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAfficher la page suivante" to {_tc}
+    else:
+        set {_tc} to a text component with text "§7[Suivant.]"
+    add {_tc} to {_text::*}
+
+    add text component {_text::*} to book {_b}
+    
+    open book {_b} to {_p}
+
+function openPhoneContactInfo(p: player, t: text):
+    set {_b} to a new book
+    set {_b}'s book title to "none"
+    set {_b}'s book author to "none"
+
+    set {_tc} to a text component with text "§f•••••                 100%%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "§f§l<"
+    add click event with action RUN_COMMAND with execute "/phone contact" to {_tc}
+    add hover event with action SHOW_TEXT with "§fRetournez aux contacts" to {_tc}
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "      §fContacts%nl%%nl% §e• §f§l%{_t}%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_number} to {phone::contacts::%{_p}%::%{_t}%}
+
+    set {_tc} to a text component with text "§fNuméro : §o%{_number}%%nl%%nl%%nl%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "   §e[SMS]"
+    add click event with action RUN_COMMAND with execute "/phone sms %{_number}%" to {_tc}
+    add hover event with action SHOW_TEXT with "§fEnvoyer un message" to {_tc}
+    add {_tc} to {_text::*}
+    
+
+    set {_tc} to a text component with text " §f• "
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "§e[Appel]%nl%%nl%"
+    #add click event with action RUN_COMMAND with execute "/phone call %{_number}%" to {_tc}
+    add hover event with action SHOW_TEXT with "§6Les appels sont en maintenance !" to {_tc}
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "     §c[Supprimer]"
+    add click event with action RUN_COMMAND with execute "/phone delcontact %{_t}%" to {_tc}
+    add hover event with action SHOW_TEXT with "§cAttention, cette action est irréversible." to {_tc}
+    add {_tc} to {_text::*}
+
+    add text component {_text::*} to book {_b}
+    
+    open book {_b} to {_p}
+
+# Annuaire
+function openPhoneDirectory(p: player, page: integer):
+    if {_page} < 0:
+        openPhoneDirectory({_p}, 0)
+        stop
+
+    set {_b} to a new book
+    set {_b}'s book title to "none"
+    set {_b}'s book author to "none"
+
+    set {_tc} to a text component with text "§f•••••                 100%%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "§f§l<"
+    add click event with action RUN_COMMAND with execute "/phone" to {_tc}
+    add hover event with action SHOW_TEXT with "§fRetournez à l'accueil" to {_tc}
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "      §fAnnuaire%nl%%nl%"
+    add {_tc} to {_text::*}
+
+    set {_spaces} to 0
+    set {_index} to 0
+    set {_indexMin} to {_page} * 7
+    loop all players:
+        if isInDirectory(loop-player) is false:
+            continue
+        add 1 to {_index}
+        if {_index} < {_indexMin} + 1:
+            continue
+        else if {_index} > {_indexMin} + 7:
+            exit loop
+        else:
+            add 1 to {_spaces}
+
+            set {_tc} to a text component with text " §f§l• §f§o%getContactFromNumberOrName({_p}, getNumber(loop-player))%%nl%"
+            add click event with action RUN_COMMAND with execute "/phone directoryinfo %getNumber(loop-player)%" to {_tc}
+            add hover event with action SHOW_TEXT with "§7Accéder au contact" to {_tc}
+            add {_tc} to {_text::*}
+
+    # Saut de lignes
+    set {_index} to 0
+    set {_tcs} to ""
+    loop {_text::*}:
+        set {_tcs} to "%{_tcs}%%loop-value%"
+    set {_nl::*} to split {_tcs} at nl
+    set {_nls} to size of {_nl::*} - 1
+
+    set {_d} to 13 - {_nls}
+    set {_nl} to ""
+    loop {_d} times:
+        set {_nl} to "%{_nl}%%nl%"
+
+    if {_page} = 0:
+        set {_tc} to a text component with text "%{_nl}%§7[Préc.]"
+    else:
+        set {_tc} to a text component with text "%{_nl}%§e[Préc.]"
+        add click event with action RUN_COMMAND with execute "/phone directory %{_page} - 1%" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAfficher la page précédente" to {_tc}
+    add {_tc} to {_text::*}
+
+    set {_tc} to a text component with text "   §f%{_page} + 1%   "
+    add {_tc} to {_text::*}
+
+    if size of all players > 7 * ({_page} + 1):
+        set {_tc} to a text component with text "§e[Suivant.]"
+        add click event with action RUN_COMMAND with execute "/phone directory %{_page} + 1%" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAfficher la page suivante" to {_tc}
+    else:
+        set {_tc} to a text component with text "§7[Suivant.]"
+    add {_tc} to {_text::*}
+
+    add text component {_text::*} to book {_b}
+    
+    open book {_b} to {_p}
+
+function openPhoneDirectoryInfo(p: player, i: integer):
+    set {_b} to a new book
+    set {_b}'s book title to "none"
+    set {_b}'s book author to "none"
+
+    set {_tc} to a text component with text "§f•••••                 100%%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "§f§l<"
+    add click event with action RUN_COMMAND with execute "/phone directory" to {_tc}
+    add hover event with action SHOW_TEXT with "§fRetournez à l'annuaire" to {_tc}
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "      §fAnnuaire%nl%%nl% §e• §f§l%getContactFromNumberOrName({_p}, {_i})%%nl%%nl%"
+    add {_tc} to {_text::*}
+
+    set {_tc} to a text component with text "§fNuméro : §o%{_i}%%nl%%nl%%nl%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "   §e[SMS]"
+    add click event with action RUN_COMMAND with execute "/phone sms %{_i}%" to {_tc}
+    add hover event with action SHOW_TEXT with "§fEnvoyer un message" to {_tc}
+    add {_tc} to {_text::*}
+    
+
+    set {_tc} to a text component with text " §f• "
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "§e[Appel]%nl%%nl%"
+    add click event with action RUN_COMMAND with execute "/phone call %{_i}%" to {_tc}
+    add hover event with action SHOW_TEXT with "§6Les appels sont en maintenance !" to {_tc}
+    add {_tc} to {_text::*}
+    
+    loop getContacts({_p}):
+        if loop-value is "%{_i}%":
+            set {_v} to true
+            exit loop
+    
+    if {_v} is true:
+        set {_tc} to a text component with text "      §7[Ajouter]"
+    else:
+        set {_tc} to a text component with text "      §a[Ajouter]"
+        add click event with action RUN_COMMAND with execute "/phone addcontact %{_i}%" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAjouter ce numéro en contact" to {_tc}
+    add {_tc} to {_text::*}
+
+    add text component {_text::*} to book {_b}
+    
+    open book {_b} to {_p}
+
+function openPhoneSettings(p: player):
+    set {_b} to a new book
+    set {_b}'s book title to "none"
+    set {_b}'s book author to "none"
+
+    set {_tc} to a text component with text "§f•••••                 100%%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "§f§l<"
+    add click event with action RUN_COMMAND with execute "/phone" to {_tc}
+    add hover event with action SHOW_TEXT with "§fRetournez à l'accueil" to {_tc}
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "    §fParamètres%nl%%nl%"
+    add {_tc} to {_text::*}
+        
+    set {_tc} to a text component with text "§6Numéro: §e%getNumber({_p})%%nl%"
+    add {_tc} to {_text::*}
+        
+    set {_tc} to a text component with text "§6Annuaire: "
+    add {_tc} to {_text::*}
+
+    if isInDirectory({_p}) is true:
+        set {_tc} to a text component with text "§a[Oui]"
+        add hover event with action SHOW_TEXT with "§fNe plus apparaître dans l'annuaire" to {_tc}
+    else:
+        set {_tc} to a text component with text "§c[Non]"
+        add hover event with action SHOW_TEXT with "§fApparaître dans l'annuaire" to {_tc}
+
+    add click event with action RUN_COMMAND with execute "/phone settings directory" to {_tc}
+    add {_tc} to {_text::*}
+
+    add text component {_text::*} to book {_b}
+    
+    open book {_b} to {_p}
+
+function openPhoneAllPrinter(p: player, page: integer):
+    if {_page} < 0:
+        openPhoneAllPrinter({_p}, 0)
+        stop
+
+    set {phone::temp::%{_p}%::printerPage} to {_page}
+    clear {phone::temp::%{_p}%::printerNumber}
+
+    set {_b} to a new book
+    set {_b}'s book title to "none"
+    set {_b}'s book author to "none"
+
+    set {_tc} to a text component with text "§f•••••                 100%%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "§f§l<"
+    add click event with action RUN_COMMAND with execute "/phone" to {_tc}
+    add hover event with action SHOW_TEXT with "§fRetournez à l'accueil" to {_tc}
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "      §fPrinter(s)%nl%%nl%"
+    add {_tc} to {_text::*}
+
+    loop {printer::*}:
+        if {printer::%loop-value%::owner} is {_p}:
+            add 1 to {phone::temp::%{_p}%::printerNumber}
+
+    set {_spaces} to 0
+    set {_index} to 0
+    set {_indexMin} to {_page} * 2
+
+    loop {printer::*}:
+        if {printer::%loop-value%::owner} is {_p}:
+            add 1 to {_index}
+            if {_index} < {_indexMin} + 1:
+                continue
+            else if {_index} > {_indexMin} + 2:
+                exit loop
+            else:
+                add 1 to {_spaces}
+
+                if {printer::%loop-value%::state} is not set:
+                    set {_tc} to a text component with text "%nl% §f§l• §6§oPrinter §en°%loop-index%%nl%"
+                    add hover event with action SHOW_TEXT with "§7Printer n°%loop-index%" to {_tc}
+                    add {_tc} to {_text::*}
+                else if {printer::%loop-value%::state} is "off":
+                    set {_tc} to a text component with text "%nl% §f§l• §6§oPrinter n°%loop-index%%nl%"
+                    add hover event with action SHOW_TEXT with "§7Printer n°%loop-index%" to {_tc}
+                    add {_tc} to {_text::*}
+                else:
+                    set {_tc} to a text component with text " §f§l• §6§oPrinter n°%loop-index%%nl%"
+                    add hover event with action SHOW_TEXT with "§7Printer n°%loop-index%" to {_tc}
+                    add {_tc} to {_text::*}
+
+                if {printer::%loop-value%::state} is not set:
+                    set {_tc} to a text component with text "      §f§l• §a§oStatus : §cEteint%nl%%nl%"
+                    add {_tc} to {_text::*}
+                else if {printer::%loop-value%::state} is "planting":
+                    set {_tc} to a text component with text "      §f§l• §a§oStatus : §cPlanté%nl%%nl%"
+                    add {_tc} to {_text::*}
+                else if {printer::%loop-value%::state} is "off":
+                    set {_tc} to a text component with text "      §f§l• §a§oStatus : §cEteint%nl%%nl%"
+                    add {_tc} to {_text::*}
+                else if {printer::%loop-value%::state} is "none":
+                    set {_tc} to a text component with text "      §f§l• §a§oStatus : §cEteint%nl%%nl%"
+                    add {_tc} to {_text::*}
+                else:
+                    set {_tc} to a text component with text "      §f§l• §a§oPapier : §e%{printer::%loop-value%::paper}%%%%nl%"
+                    add {_tc} to {_text::*}
+
+                    set {_tc} to a text component with text "      §f§l• §a§oEncre : §e%{printer::%loop-value%::ink}%%%%nl%"
+                    add {_tc} to {_text::*}
+
+                    set {_tc} to a text component with text "      §f§l• §a§oArgent : §e%{printer::%loop-value%::money}%$%nl%"
+                    add {_tc} to {_text::*}
+
+    # Saut de lignes
+    set {_index} to 0
+    set {_tcs} to ""
+    loop {_text::*}:
+        set {_tcs} to "%{_tcs}%%loop-value%"
+    set {_nl::*} to split {_tcs} at nl
+    set {_nls} to size of {_nl::*} - 1
+
+    set {_d} to 12 - {_nls}
+    set {_nl} to ""
+    loop {_d} times:
+        set {_nl} to "%{_nl}%%nl%"
+
+    if {_page} = 0:
+        set {_tc} to a text component with text "%nl%%{_nl}%§7[Préc.]"
+    else:
+        set {_tc} to a text component with text "%nl%%{_nl}%§e[Préc.]"
+        add click event with action RUN_COMMAND with execute "/phone printer %{_page} - 1%" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAfficher la page précédente" to {_tc}
+    add {_tc} to {_text::*}
+
+    set {_tc} to a text component with text "   §f%{_page} + 1%   "
+    add {_tc} to {_text::*}
+
+    if {phone::temp::%{_p}%::printerNumber} > 2 * ({_page} + 1):
+        set {_tc} to a text component with text "§e[Suivant.]"
+        add click event with action RUN_COMMAND with execute "/phone printer %{_page} + 1%" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAfficher la page suivante" to {_tc}
+    else:
+        set {_tc} to a text component with text "§7[Suivant.]"
+    add {_tc} to {_text::*}
+
+    add text component {_text::*} to book {_b}
+    
+    open book {_b} to {_p}
+
+
+function openPhoneGPS(p: player, page: integer):
+    if {_page} < 0:
+        openPhoneGPS({_p}, 0)
+        stop
+
+    set {phone::temp::%{_p}%::gpsPage} to {_page}
+    clear {phone::temp::%{_p}%::gpsNumber}
+
+    set {_b} to a new book
+    set {_b}'s book title to "none"
+    set {_b}'s book author to "none"
+
+    set {_tc} to a text component with text "§f•••••                 100%%%nl%%nl%"
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "§f§l<"
+    add click event with action RUN_COMMAND with execute "/phone" to {_tc}
+    add hover event with action SHOW_TEXT with "§fRetournez à l'accueil" to {_tc}
+    add {_tc} to {_text::*}
+    
+    set {_tc} to a text component with text "      §fGPS%nl%%nl%"
+    add {_tc} to {_text::*}
+
+    loop skript-yaml nodes with keys "GPS" from "beeGPS" without string checks:
+        add 1 to {phone::temp::%{_p}%::gpsNumber}
+
+    set {_spaces} to 0
+    set {_index} to 0
+    set {_indexMin} to {_page} * 6
+
+    loop skript-yaml nodes with keys "GPS" from "beeGPS" without string checks:
+        add 1 to {_index}
+        if {_index} < {_indexMin} + 1:
+            continue
+        else if {_index} > {_indexMin} + 6:
+            exit loop
+        else:
+            add 1 to {_spaces}
+
+        set {_name} to skript-yaml value "GPS.%loop-value%.name" from "beeGPS"
+        set {_tc} to a text component with text "%nl% §f§l• §o§6%{_name}%"
+        add click event with action RUN_COMMAND with execute "/phone setgps %loop-value%" to {_tc}
+        add hover event with action SHOW_TEXT with "§7Clique pour aller à la localisation" to {_tc}
+        add {_tc} to {_text::*}
+
+    # Saut de lignes
+    set {_index} to 0
+    set {_tcs} to ""
+    loop {_text::*}:
+        set {_tcs} to "%{_tcs}%%loop-value%"
+    set {_nl::*} to split {_tcs} at nl
+    set {_nls} to size of {_nl::*} - 1
+
+    set {_d} to 12 - {_nls}
+    set {_nl} to ""
+    loop {_d} times:
+        set {_nl} to "%{_nl}%%nl%"
+
+    set {_tc} to a text component with text "%{_nl}%§c[Annuler]"
+    add click event with action RUN_COMMAND with execute "/phone removeGPS" to {_tc}
+    add hover event with action SHOW_TEXT with "§7Annuler la destination" to {_tc}
+    add {_tc} to {_text::*}
+
+    if {_page} = 0:
+        set {_tc} to a text component with text "%nl%§7[Préc.]"
+    else:
+        set {_tc} to a text component with text "%nl%§e[Préc.]"
+        add click event with action RUN_COMMAND with execute "/phone gps %{_page} - 1%" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAfficher la page précédente" to {_tc}
+    add {_tc} to {_text::*}
+
+    set {_tc} to a text component with text "   §f%{_page} + 1%   "
+    add {_tc} to {_text::*}
+
+    if {phone::temp::%{_p}%::gpsNumber} > 6 * ({_page} + 1):
+        set {_tc} to a text component with text "§e[Suivant.]"
+        add click event with action RUN_COMMAND with execute "/phone gps %{_page} + 1%" to {_tc}
+        add hover event with action SHOW_TEXT with "§fAfficher la page suivante" to {_tc}
+    else:
+        set {_tc} to a text component with text "§7[Suivant.]"
+    add {_tc} to {_text::*}
+
+    add text component {_text::*} to book {_b}
+    
+    open book {_b} to {_p}
+
+
+
+# ______________
+
+
+#
+#   COMMANDS
+#
+
+command /phone [<text>] [<text>]:
+    trigger:
+        if arg-1 isn't set:
+            openPhone(player)
+
+        # Message
+        else if arg-1 is "sms":
+            if arg-2 is set:
+                writeMessage(player, arg-2 parsed as integer)
+
+        # Contacts
+        else if arg-1 is "contact":
+            if arg-2 isn't set:
+                set {_p} to 0
+            else:
+                set {_p} to arg-2 parsed as integer
+            openPhoneContact(player, {_p})
+
+        else if arg-1 is "contactinfo":
+            if arg-2 is set:
+                openPhoneContactInfo(player, arg-2)
+
+        else if arg-1 is "addcontact":
+            set {_p} to ""
+            if arg-2 is set:
+                set {_p} to arg-2
+            addContact(player, {_p})
+
+        else if arg-1 is "delcontact":
+            if arg-2 is set:
+                removeContact(player, arg-2)
+                openPhoneContact(player, {phone::temp::%player%::contactPage})
+
+        # Annuaire
+        else if arg-1 is "directory":
+            if arg-2 isn't set:
+                set {_p} to 0
+            else:
+                set {_p} to arg-2 parsed as integer
+            openPhoneDirectory(player, {_p})
+        
+        else if arg-1 is "directoryinfo":
+            if arg-2 is set:
+                openPhoneDirectoryInfo(player, arg-2 parsed as integer)
+
+        # Paramètres
+        else if arg-1 is "settings":
+            if arg-2 is set:
+                if {phone::settings::%player%::directory} is false:
+                    set {phone::settings::%player%::directory} to true
+                else:
+                    set {phone::settings::%player%::directory} to false
+            openPhoneSettings(player)
+
+        # Appels
+        #else if arg-1 is "call":
+        #    if arg-2 is set:
+        #        if arg-2 is "accept":
+        #            phoneCallAccept(player)
+        #            stop
+        #        else if arg-2 is "end":
+        #            phoneCallEnd(player)
+        #            stop
+        #
+        #        sendCallRequest(player, arg-2 parsed as integer)
+
+        else if arg-1 is "printer":
+            if arg-2 isn't set:
+                set {_p} to 0
+            else:
+                set {_p} to arg-2 parsed as integer
+            openPhoneAllPrinter(player, {_p})
+
+        else if arg-1 is "gps":
+            if arg-2 isn't set:
+                set {_p} to 0
+            else:
+                set {_p} to arg-2 parsed as integer
+            openPhoneGPS(player, {_p})
+
+        else if arg-1 is "setgps":
+            if arg-2 is set:
+                setGPS(player, arg-2 parsed as Number)
+
+        else if arg-1 is "removegps":
+            removeGPS(player)
+
+        #else if arg-1 is "call":
+        #    if arg-2 is set:
+        #        if arg-2 is "accept":
+        #            if {phone::temp::call::%getNumber(player)%} isn't set:
+        #                send "nobody called"
+        #                stop
+        #            set {_i} to {phone::temp::call::%getNumber(player)%}
+        #            clear {phone::temp::call::%getNumber(player)%}
+        #            set {_t} to getPlayerFromNumber({_i}) parsed as player
+        #            if {_t} is offline:
+        #                send "player offline"
+        #                stop
+        #            set {phone::temp::callInProgress::%getNumber(player)%} to {_i}
+        #            set {phone::temp::callInProgress::%{_i}%} to getNumber(player)
+        #        else if arg-2 is "decline":
+        #            if {phone::temp::call::%getNumber(player)%} isn't set:
+        #                send "nobody called"
+        #                stop
+        #            clear {phone::temp::call::%getNumber(player)%}
+        #            send "phone end"
+        #        else:
+        #            phoneCall(player, arg-2 parsed as integer)

@@ -1,0 +1,381 @@
+'1':
+    name: citoyen
+    showname: '&eCitoyen'
+    salary: 100
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2007'
+    slot: 0
+    maxPlayers: 1000
+    vip: false
+    location: -1095.5, 56, 230.5
+    category: legal
+
+'2':
+    name: employecommunal
+    showname: '&eEmployé communal'
+    salary: 150
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2014'
+    slot: 1
+    maxPlayers: 5
+    vip: false
+    location: -1138, 54, 234
+    category: legal
+
+'3':
+    name: vendeurarme
+    showname: '&eVendeur d''armes'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2013'
+    slot: 2
+    maxPlayers: 5
+    vip: false
+    location: -1087, 56, 283
+    category: legal
+
+'4':
+    name: mayor
+    showname: '&eMaire'
+    salary: 2500
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2013'
+    slot: 3
+    maxPlayers: 1
+    vip: false
+    location: -1088, 66, 219.5
+    category: legal
+
+'5':
+    name: brinks
+    showname: '&eConvoyeur Brinks'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2009'
+    slot: 3
+    maxPlayers: 4
+    vip: false
+    location: -799, 65, 308
+    category: legal
+
+'6':
+    name: banquier
+    showname: '&eBanquier'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2008'
+    slot: 4
+    maxPlayers: 2
+    vip: false
+    location: -1044, 55, 257
+    category: legal
+
+'7':
+    name: cuisinier
+    showname: '&eCuisinier'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2011'
+    slot: 5
+    maxPlayers: 2
+    vip: false
+    location: -934, 65, 370
+    category: legal
+
+'8':
+    name: agentdepolice
+    showname: '&eAgent de police'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2012'
+    slot: 6
+    maxPlayers: 8
+    vip: false
+    location: -1091, 54, 156
+    category: legal
+    kit:
+        '0':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: STONE_SHOVEL
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eM4A1§e ▪ «30»
+                lore:
+                - §8Clique-droit pour §etirer
+                - §8Clique-gauche pour §eviser
+                - §8Lâcher §o(A) §8pour §erecharger
+                - §8Police
+        '1':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: GOLDEN_PICKAXE
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eDesert-Eagle§e «7»
+                lore:
+                - §8Clique-droit pour §etirer
+                - §8Clique-gauche pour §eviser
+                - §8Lâcher §o(A) §8pour §erecharger
+                - §8Police
+        '2':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: BLAZE_ROD
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eMenottes
+        '3':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: PAPER
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eCarnet d'amendes
+        '4':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: LIGHT_GRAY_DYE
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eBélier
+
+'9':
+    name: commissairepolice
+    showname: '&9Commissaire de police'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2010'
+    slot: 18
+    maxPlayers: 1
+    vip: true
+    location: -1091, 54, 156
+    category: legal
+    kit:
+        '0':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: BLAZE_ROD
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eMenottes
+        '1':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: STONE_SHOVEL
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eM4A1§e ▪ «30»
+                lore:
+                - §8Clique-droit pour §etirer
+                - §8Clique-gauche pour §eviser
+                - §8Lâcher §o(A) §8pour §erecharger
+        '2':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: GOLDEN_PICKAXE
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eDesert-Eagle§e «7»
+                lore:
+                - §8Clique-droit pour §etirer
+                - §8Clique-gauche pour §eviser
+                - §8Lâcher §o(A) §8pour §erecharger
+        '3':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: STONE_PICKAXE
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eM14§e ▪ «8»
+                lore:
+                - §8Clique-droit pour §etirer
+                - §8Clique-gauche pour §eviser
+                - §8Lâcher §o(A) §8pour §erecharger
+        '4':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: LIGHT_GRAY_DYE
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eBélier
+        '5':
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: PAPER
+            meta:
+                ==: ItemMeta
+                meta-type: UNSPECIFIC
+                display-name: §eCarnet d'amendes
+
+'10':
+    name: fabriquantweed
+    showname: '&cFabricant de Weed'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2016'
+    slot: 10
+    maxPlayers: 4
+    vip: false
+    location: -748, 65, 355
+    category: illegal
+
+'11':
+    name: fabriquantmeth
+    showname: '&cFabricant de Meth'
+    salary: 200
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2021'
+    slot: 11
+    maxPlayers: 3
+    vip: false
+    location: -944, 54, 92
+    category: illegal
+
+'12':
+    name: hackatm
+    showname: '&cHackeur d''ATM'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2015'
+    slot: 9
+    maxPlayers: 2
+    vip: false
+    location: -996, 54, 284
+    category: illegal
+
+'13':
+    name: hitman
+    showname: '&cTueur à gage'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2024'
+    slot: 18
+    maxPlayers: 1
+    vip: true
+    location: -1029, 54, 351
+    category: illegal
+
+'14':
+    name: robber
+    showname: '&cBraqueur'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2023'
+    slot: 12
+    maxPlayers: 2
+    vip: false
+    location: -1040, 54, 241
+    category: illegal
+
+'15':
+    name: thief
+    showname: '&cVoleur'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2022'
+    slot: 13
+    maxPlayers: 2
+    vip: false
+    location: -822, 54, 169
+    category: illegal
+
+'16':
+    name: gangster
+    showname: '&cGangster'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2025'
+    slot: 14
+    maxPlayers: 6
+    vip: false
+    location: -969, 54, 161
+    category: illegal
+
+'17':
+    name: mafieux
+    showname: '&cMafieux'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2026'
+    slot: 15
+    maxPlayers: 6
+    vip: false
+    location: -854, 96, 512
+    category: illegal
+
+'18':
+    name: ubereats
+    showname: '&eUber-Eats'
+    salary: 250
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: IRON_HORSE_ARMOR
+    custommodeldata: '2011'
+    slot: 7
+    maxPlayers: 2
+    vip: false
+    location: -952, 65, 354
+    category: legal

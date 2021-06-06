@@ -1,0 +1,45 @@
+#FAIRE REGION WOLDGUARD POUR EMPECHER LE GARS DE SORTIR
+
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Police
+    jail: -1100, 44, 160
+    spawn: -1111, 54, 179
+
+function jailGUI(p: Player, t: Player):
+    if getJobRawName(getPlayerJob({_p})) is "agentdepolice" or "commissairepolice":
+        create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+
+            make gui slot 3 with green terracotta named "§aValidé" with lore "§8Cliquez-ici pour validé la mise en prison":
+                if target of {_p} is {_t}:
+                    if {cops::handcuff::%{_t}%} is set:
+                        if "%region at {_p}'s location%" contains "jail":
+                            send "{@prefix} §7Tu as mis en prison §e%getCharacterPrenom({_t})% §e%getCharacterNom({_t})%§7(%{_t}%)." to {_p}
+                            send "{@prefix} §7Tu es désormais en prison pour §e240 secondes §7l'agent qui t'as mis en prison est §e§e%getCharacterPrenom({_p})% §e%getCharacterNom({_p})%§7(%{_p}%)." to {_t}
+                            jailP({_p}, {_t})
+                            close {_p}'s inventory
+                        else:
+                            send "{@prefix} §cImpossible, vous devez être dans une cellule !" to {_p}
+                    else:
+                        send "{@prefix} §cImpossible, le joueur n'est pas menotté." to {_p}
+
+            make gui slot 6 with red terracotta named "§cAnnulé" with lore "§8Cliquez-ici pour annulé la mise en prison":
+                close {_p}'s inventory
+            
+        open last gui to {_p}
+
+function jailP(p: Player, target: Player):
+    teleport {_target} to location {@jail} in world "beelife"
+    set {jail::%{_target}%} to true
+    wait 240 seconds
+    if {jail::%{_target}%} is set:
+        clear {jail::%{_target}%}
+        teleport {_target} to location {@spawn} in world "beelife"
+
+on join:
+    if {jail::%player%} is true:
+        clear {jail::%{_target}%}
+        jailP(player, player)
+
+on load:
+    clear {jail::*}

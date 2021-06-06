@@ -1,0 +1,160 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    radius: 20
+    cooldown: 2 seconds
+
+#_____________
+# FUNCTIONS
+
+function chatHrpToggle(p: player):
+    if {chat::*} contains {_p}:
+        remove {_p} from {chat::*}
+    else:
+        add {_p} to {chat::*}
+
+function chatHrpIsVisible(p: player) :: boolean:
+    set {_s} to true
+    if {chat::*} contains {_p}:
+        set {_s} to false
+    return {_s}
+
+function chatSendHrp(p: player, t: text):
+    if chatHrpIsVisible({_p}) is false:
+        send "{@prefix} §cVous avez désactivé le chat HRP !" to {_p}
+        stop
+
+    if chatPlayerCooldown({_p}) is true:
+        loop all players:
+            if chatHrpIsVisible(loop-player) is true:
+                send "§d[HRP] §r%{_p}'s prefix%%{_p}% §8» §r%{_t}%" to loop-player
+
+function chatSendAno(p: player, t: text):
+    if chatPlayerCooldown({_p}) is true:
+        send formatted "§4[Anonyme] §8» §r%{_t}%" to all players
+
+function chatSendAdvert(p: player, t: text):
+    if chatPlayerCooldown({_p}) is true:
+        broadcast "§6[Publicité] §7%getCharacterPrenom({_p})% %getCharacterNom({_p})% §8» §6%{_t}%"
+
+function chatPlayerCooldown(p: player) :: boolean:
+    if {chat::cooldown::%{_p}%} is set:
+        if difference between {chat::cooldown::%{_p}%} and now < {@cooldown}:
+            send "{@prefix} Veuillez patienter entre les messages !" to {_p}
+            return false
+    set {chat::cooldown::%{_p}%} to now
+    return true
+
+command /hrp <text>:
+    usage: {@prefix} §7Essayez plutôt: §f/hrp §c<message>
+    trigger:
+        chatSendHrp(player, arg-1)
+
+command /ano <text>:
+    usage: {@prefix} §7Essayez plutôt: §f/ano §c<message>
+    trigger:
+        chatSendAno(player, arg-1)
+
+command /advert <text>:
+    usage: {@prefix} §7Essayez plutôt: §f/advert §c<message>
+    aliases: /pub
+    trigger:
+        chatSendAdvert(player, arg-1)
+
+command /me <text>:
+    usage: {@prefix} §7Essayez plutôt: §f/me §c<action>
+    trigger:
+        if chatPlayerCooldown({_p}) is false:
+            stop
+
+        send "§8Tu §7%arg-1%"
+        loop players in radius {@radius} around player:
+            if loop-player isn't player:
+                send "§8Quelqu'un §7%arg-1%" to loop-player
+
+        # Creating several lines
+        set {_l} to 1
+        set {_lines::1} to ""
+
+        set {_message} to "§7*%arg-1%*"
+        replace ";" with "" in {_message}
+
+        set {_words::*} to {_message} split at " "
+        loop {_words::*}:
+            if {_lines::%{_l}%} isn't set:
+                set {_lines::%{_l}%} to ""
+            set {_p} to {_lines::%{_l}%}
+            set {_lines::%{_l}%} to "%{_p}%%loop-value% "
+            if {_lines::%{_l}%}'s length >= 24:
+                add 1 to {_l}
+
+        # Displaying theses lines
+        set {_l} to size of {_lines::*}
+        set {_c} to 3
+        loop {_l} time:
+            bind hologram ({_lines::%{_l}%}'s length - 1) first characters of {_lines::%{_l}%} to player for 3 seconds offset by 0, {_c}, 0
+            remove 1 from {_l}
+            add 0.25 to {_c}
+
+        bind hologram "§7\/" to player for 3 seconds offset by 0, 2.75, 0
+
+#_____________
+# EVENTS
+
+on chat:
+    cancel event
+
+    set {_values::player} to player
+    set {_values::text} to message
+    set {_values::boolean} to false
+
+    # Checking if it's an HRP message
+    if message starts with "!":
+        if message's length is greater than 1:
+            set {_values::text} to message's length - 1 last characters of message
+            set {_values::boolean} to true
+
+    # Calling custom event
+    set {_event} to custom event "talk" with values {_values::*}
+    call event {_event}
+
+    if {_event} is cancelled:
+        stop
+
+    # HRP
+    if {_values::boolean} is true:
+        chatSendHrp(player, message's length - 1 last characters of message)
+    # RP
+    else:
+        if chatPlayerCooldown(player) is false:
+            stop
+
+        send "§8Vous avez dit §f%message%"
+        loop players in radius {@radius} around player:
+            if loop-player isn't player:
+                send "§8Quelqu'un a dit §f%message%" to loop-player
+
+        # Creating several lines
+        set {_l} to 1
+        set {_lines::1} to ""
+
+        set {_message} to message
+        replace ";" with "" in {_message}
+
+        set {_words::*} to {_message} split at " "
+        loop {_words::*}:
+            if {_lines::%{_l}%} isn't set:
+                set {_lines::%{_l}%} to ""
+            set {_p} to {_lines::%{_l}%}
+            set {_lines::%{_l}%} to "%{_p}%%loop-value% "
+            if {_lines::%{_l}%}'s length >= 24:
+                add 1 to {_l}
+
+        # Displaying theses lines
+        set {_l} to size of {_lines::*}
+        set {_c} to 3
+        loop {_l} time:
+            bind hologram ({_lines::%{_l}%}'s length - 1) first characters of {_lines::%{_l}%} to player for 3 seconds offset by 0, {_c}, 0
+            remove 1 from {_l}
+            add 0.25 to {_c}
+
+        bind hologram "§7\/" to player for 3 seconds offset by 0, 2.75, 0

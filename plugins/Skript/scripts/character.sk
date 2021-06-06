@@ -1,0 +1,55 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    cooldown: 5 minutes
+    defaultBank: 1000
+    defaultWallet: 500
+
+function isCharacterDefined(p: player) :: boolean:
+    if {character::%{_p}%::1} is set:
+        if {character::%{_p}%::2} is set:
+            return true
+    return false
+
+function setCharacter(p: player, firstName: text, lastName: text):
+    set {character.lastChanged::%{_p}%} to now
+    set {character::%{_p}%::1} to "%first character of {_firstName} in uppercase%%({_firstName}'s length - 1) last characters of {_firstName} in lowercase%"
+    set {character::%{_p}%::2} to "%first character of {_lastName} in uppercase%%({_lastName}'s length - 1) last characters of {_lastName} in lowercase%"
+    send toast to {_p} entitled "Vous avez modifié votre identité !" with desc ""
+    send "{@prefix} §7Vous êtes maintenant §e%{character::%{_p}%::1}% §e%{character::%{_p}%::2}% §7!" to {_p}
+    scoreboardUpdate({_p})
+
+function getCharacter(p: player) :: texts:
+    return {character::%{_p}%::*}
+	
+function getCharacterPrenom(p: player) :: text:
+    return {character::%{_p}%::1}
+	
+function getCharacterNom(p: player) :: text:
+    return {character::%{_p}%::2}
+
+function getPlayerByFirstName(t: text) :: player:
+    loop all players:
+        if getCharacterPrenom(loop-player) is {_t}:
+            return loop-player
+            stop
+
+function changeName(p: Player):
+    if {character.lastChanged::%{_p}%} is set:
+        set {_d} to difference between {character.lastChanged::%{_p}%} and now
+        if {_d} < {@cooldown}:
+            send "{@prefix} §cVous devez attendre §e%translateDate(difference between {_d} and {@cooldown})% §cavant le prochain changement d'identité !" to {_p}
+            stop
+        send beesign "" and "§ePrénom §6↑" and "" and "§eNom §6↑" to {_p}
+
+command /name:
+  trigger:
+    changeName(player)
+
+on join:
+    if isCharacterDefined(player) is false:
+        wait a second
+        send beesign "" and "§ePrénom §6↑" and "" and "§eNom §6↑" to player
+        setBank(player, {@defaultBank})
+        setWallet(player, {@defaultWallet})
+    else:
+        send resource pack from "http://62.210.168.153/pack/1dkAoxPS/BeeLife0.55.zip" to player

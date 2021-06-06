@@ -1,0 +1,282 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    guiclass: §e§lBee§fGang §8» Classement
+    price: 1000
+
+function createGang(p: player, n: text) :: text:
+    if getPlayerGang({_p}) is set:
+        return "already in a gang"
+
+    if isGang({_n}) is true:
+        return "already exists"
+
+    add {_n} to {gangs::*}
+    add {_p} to {gangs::%{_n}%::members::*}
+    set {gangs::%{_n}%::member::%{_p}%} to "leader"
+    set {gangs::%{_n}%::bank} to 0
+    return "success"
+
+function removeGang(n: text) :: text:
+    if isGang({_n}) is false:
+        return "not a gang"
+    
+    if getGangBank({_n}) isn't 0:
+        return "bank not empty"
+    
+    loop getGangInventory({_n}):
+        if loop-value isn't air:
+            set {_v} to true
+    if {_v} is true:
+        return "inventory not empty"
+    
+    broadcast "{@prefix} §6Le gang §e%{_n}% §6vient d'être dissout !"
+    
+    remove {_n} from {gangs::*}
+    loop {gangs::%{_n}%::members::*}:
+        clear {gangs::%{_n}%::member::%loop-value%}
+    clear {gangs::%{_n}%::members::*}
+    clear {gangs::%{_n}%::bank}
+    clear {gangs::%{_n}%::inventory}
+    return "success"
+
+command /test:
+    trigger:
+        loop {gangs::*}:
+            remove loop-value from {gangs::*}
+            loop {gangs::%loop-value%::members::*}:
+                clear {gangs::%loop-value-1%::members::%loop-value-2%}
+            clear {gangs::%loop-value%::members::*}
+            clear {gangs::%loop-value%::bank}
+            clear {gangs::%loop-value%::inventory}
+
+function getGangs() :: texts:
+    return {gangs::*}
+
+function isGang(n: text) :: boolean:
+    if {gangs::*} contains {_n}:
+        return true
+    return false
+
+function getGangMembers(n: text) :: players:
+    return {gangs::%{_n}%::members::*}
+
+function getGangBank(n: text) :: number:
+    return {gangs::%{_n}%::bank}
+
+function getGangInventory(n: text) :: items:
+    return {gangs::%{_n}%::inventory::*}
+
+function getPlayerGangRole(t: object) :: text:
+    set {_g} to getPlayerGang("%{_t}%")
+    set {_r} to {gangs::%{_g}%::member::%{_t}%}
+    return "%{_r}%"
+
+function getPlayerGang(p: object) :: text:
+    loop getGangs():
+        loop getGangMembers(loop-value):
+            if loop-value-2's name is "%{_p}%":
+                return loop-value-1
+                stop
+
+function setGangBank(n: text, a: number):
+    if isGang({_n}) is false:
+        stop
+    set {gangs::%{_n}%::bank} to {_a}
+
+function addGangBank(n: text, a: number):
+    if isGang({_n}) is false:
+        stop
+    setGangBank({_n}, getGangBank({_n}) + {_a})
+
+function removeGangBank(n: text, a: number):
+    if isGang({_n}) is false:
+        stop
+    setGangBank({_n}, getGangBank({_n}) - {_a})
+
+function setPlayerGangRole(t: text, r: text):
+    set {_g} to getPlayerGang({_t})
+    if {_g} isn't set:
+        stop
+
+    set {gangs::%{_g}%::member::%{_t}%} to {_r}
+
+    if {_t} parsed as player is online:
+        send "{@prefix} §7Vous avez été promu au rang de §e%translateRole(getPlayerGangRole({_t}))% §7!" to {_t} parsed as player
+
+function translateRole(t: text) :: text:
+    if {_t} is "leader":
+        return "Chef"
+    else if {_t} is "mod":
+        return "Aîné"
+    return "Membre"
+
+# Invite
+
+function gangInvite(p: player, t: player):
+    if getPlayerGang({_p}) isn't set:
+        stop
+
+    if getPlayerGangRole({_p}) isn't "leader" or "mod":
+        send "{@prefix} §cVous n'avez pas le grade requit pour inviter des joueurs à rejoindre votre gang !" to {_p}
+        stop
+
+    if getPlayerGang({_t}) is set:
+        send "{@prefix} §cLe joueur §e%{_t}% §cest déjà dans un gang !" to {_p}
+        stop
+
+    send "{@prefix} §7Vous avez invité §e%{_t}% §7à rejoindre votre gang !" to {_p}
+    send "{@prefix} §e%{_p}% §7vous a invité à rejoindre le gang §e%getPlayerGang({_p})% §7!" to {_t}
+
+    set {gang::temp::%{_t}%} to getPlayerGang({_p})
+    wait 60 seconds
+    clear {gang::temp::%{_t}%}
+
+function gangJoin(p: player):
+    if {gang::temp::%{_p}%} isn't set:
+        send "{@prefix} §cVous n'avez pas été invité à rejoindre un gang !" to {_p}
+        stop
+
+    if getPlayerGang({_p}) is set:
+        send "{@prefix} §cVous faites déjà parti d'un gang !" to {_p}
+        stop
+    
+    if isGang({_t}) is false:
+        send "{@prefix} §cGang introuvable !" to {_p}
+        stop
+    
+    set {_g} to {gang::temp::%{_p}%}
+    clear {gang::temp::%{_p}%}
+
+    add {_p} to {gangs::%{_g}%::members::*}
+    set {gangs::%{_g}%::member::%{_p}%} to "member"
+
+    send "{@prefix} §7Bienvenue dans le gang §e%{_g}% §7!" to {_p}
+
+# GUIs
+
+function gangGui(p: player):
+    if getPlayerGang({_p}) isn't set:
+        create a gui with virtual chest inventory named "Gangs" with 3 rows:
+            make gui slot 13 to green glass pane named "§aCréer un gang" with lore "§6Prix: §e${@price}":
+                send "todo sign"
+        open last gui to {_p}
+    else:
+        create a gui with virtual chest inventory named "Menu §e%getPlayerGang({_p})%" with 3 rows:
+            make gui slot 12 to paper named "§6Membres":
+                gangGuiMember({_p})
+            make gui slot 13 to chest named "§6Inventaire":
+                gangGuiInventory({_p})
+            make gui slot 14 to gold ingot named "§6Banque":
+                gangGuiInventory({_p})
+        open last gui to {_p}
+
+function gangGuiMember(p: player, page: number = 1):
+    if getPlayerGang({_p}) isn't set:
+        stop
+
+    create a gui with virtual chest inventory named "Menu §e%getPlayerGang({_p})%" with 6 rows:
+        make gui slot 3 to paper named "§6Membres":
+            gangGuiMember({_p})
+        make gui slot 4 to chest named "§6Inventaire":
+            gangGuiInventory({_p})
+        make gui slot 5 to gold ingot named "§6Banque":
+            gangGuiInventory({_p})
+
+        make gui slot 12 to green glass pane named " "
+        make gui slot 9, 10, 11, 13, 14, 15, 16 and 17 to black glass pane named " "
+
+        set {_page::*} to page {_page} of getGangMembers(getPlayerGang({_p})) with 27 lines
+
+        set {_s} to 18
+        loop {_page::*}:
+            set {_lv} to "%loop-value%"
+            set {_i} to loop-value's skull named "§f%loop-value%"
+            add "§6Rôle: §e%translateRole(getPlayerGangRole(loop-value))%" to {_i}'s lore
+            if loop-value isn't {_p}:
+                if getPlayerGangRole({_p}) is "leader":
+                    add "§8Clique-gauche pour §epromouvoir" to {_i}'s lore
+                    add "§8Clique-droit pour §crétrograder" to {_i}'s lore
+            make gui slot {_s} to {_i}:
+                if {_lv} is "%{_p}%":
+                    stop
+                if gui click type is left mouse button:
+                    setPlayerGangRole({_lv}, "mod")
+                else:
+                    setPlayerGangRole({_lv}, "member")
+                send "{@prefix} §7Vous avez promu §e%{_lv}% §7au rang de §e%translateRole(getPlayerGangRole({_lv}))%" to {_p}
+                gangGuiMember({_p}, {_page})
+            add 1 to {_s}
+
+        make gui slot 46, 47, 48, 50, 51 and 52 to black glass pane named " "
+        set {_i} to yellow glass pane named "§6Page §e%{_page}%"
+        set {_i}'s item amount to {_page}
+        make gui slot 49 to {_i}
+        if {_page} < 2:
+            make gui slot 45 to red glass pane named "§cPrécédent" with lore "§8Cliquez-ici pour revenir à la page précédente"
+        else:
+            make gui slot 45 to green glass pane named "§aPrécédent" with lore "§8Cliquez-ici pour revenir à la page précédente":
+                gangGuiMember({_p}, {_page} - 1)
+        make gui slot 53 to green glass pane named "§aSuivant" with lore "§8Cliquez-ici pour aller à la page suivante":
+            gangGuiMember({_p}, {_page} + 1)
+    open last gui to {_p}
+
+function gangGuiInventory(p: player):
+    set {_n} to getPlayerGang({_p})
+    if isGang({_n}) is false:
+        stop
+    create a gui with virtual chest inventory named "Menu §e%getPlayerGang({_p})%" with 6 rows:
+        make gui slot 3 to paper named "§6Membres":
+            gangGuiMember({_p})
+        make gui slot 4 to chest named "§6Inventaire"
+        make gui slot 5 to gold ingot named "§6Banque":
+            gangGuiInventory({_p})
+
+        make gui slot 13 to green glass pane named " "
+        make gui slot 9, 10, 11, 12, 14, 15, 16 and 17 to black glass pane named " "
+
+        set {_s} to 27
+        loop 27 times:
+            make gui slot {_s} to red glass pane named "§cAccès limité"
+            add 1 to {_s}
+
+        set {_s} to 18
+        loop getGangInventory({_n}):
+            make gui slot {_s} to moveable loop-value
+            add 1 to {_s}
+        # Saving inventory
+        run on gui close:
+            clear {gangs::%{_n}%::inventory::*}
+            set {_s} to 18
+            loop 9 times:
+                set {_i} to slot {_s} of player's current inventory
+                add {_i} to {gangs::%{_n}%::inventory::*}
+                add 1 to {_s}
+    open last gui to {_p}
+
+command /gang [<text>] [<text>]:
+    trigger:
+        if arg-1 isn't set:
+            gangGui(player)
+        else if arg-1 is "create":
+            send createGang(player, arg-2)
+        else if arg-1 is "remove":
+            send removeGang(getPlayerGang(player))
+        else if arg-1 is "info":
+            if getPlayerGang(player) isn't set:
+                send "not in a gang"
+                stop
+            send "gang %getPlayerGang(player)%"
+            send "members %getGangMembers(getPlayerGang(player))%"
+            send "bank %getGangBank(getPlayerGang(player))%"
+            send "inventory %getGangInventory(getPlayerGang(player))%"
+        else if arg-1 is "bank":
+            send "bank before %getGangBank(getPlayerGang(player))%"
+            if first character of arg-2 is "-":
+                set {_a} to arg-2's length - 1 last characters of arg-2
+                removeGangBank(getPlayerGang(player), {_a} parsed as number)
+            else:
+                addGangBank(getPlayerGang(player), arg-2 parsed as number)
+            send "bank after %getGangBank(getPlayerGang(player))%"
+
+on load:
+    clear {gang::temp::*}

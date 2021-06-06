@@ -1,0 +1,48 @@
+lastAccountName: Caspere
+timestamps:
+  login: 1617890213048
+  logout: 1617890203454
+  lastteleport: 1617896756385
+  mute: 0
+  jail: 0
+ipAddress: 88.167.191.73
+logoutlocation:
+  world: beelife
+  x: -1102.5733974139312
+  y: 54.0
+  z: 235.66058370458595
+  yaw: 27.300367
+  pitch: 16.049984
+lastlocation:
+  world: beelife
+  x: -834.6999999880791
+  y: 96.0
+  z: 605.4699556100211
+  yaw: -206.93633
+  pitch: 2.5519729
+homes:
+  home:
+    world: beelife
+    x: -1109.697907777282
+    y: 54.0
+    z: 249.34484433566948
+    yaw: -359.26804
+    pitch: 28.800213
+  e:
+    world: beelife
+    x: 190.27589677855542
+    y: 42.74892517332796
+    z: 320.7255445014466
+    yaw: -47.396545
+    pitch: 13.04999
+  mairie:
+    world: beelife
+    x: -1085.2996524567711
+    y: 56.0
+    z: 215.49878786367557
+    yaw: -181.59825
+    pitch: 44.54971
+muted: false
+jailed: false
+money: '91850.0'
+godmode: false

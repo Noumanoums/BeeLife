@@ -1,0 +1,161 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    defaultBank: 10000
+    defaultWallet: 500
+
+aliases:
+    banknote = gold ingot
+
+#_____________
+# FUNCTIONS
+
+function getWallet(p: player) :: number:
+    if {wallet::%{_p}%} isn't set:
+        set {wallet::%{_p}%} to 0
+    return {wallet::%{_p}%}
+
+function setWallet(p: player, n: number):
+    if {_n} < 0:
+        set {_n} to 0
+    set {wallet::%{_p}%} to {_n}
+    scoreboardUpdate({_p})
+
+function removeWallet(p: player, n: number):
+    send toast to {_p} entitled "§c-$%{_n}% §6Portefeuille" with desc ""
+    setWallet({_p}, getWallet({_p}) - {_n})
+
+function addWallet(p: player, n: number):
+    send toast to {_p} entitled "§a+$%{_n}% §6Portefeuille" with desc ""
+    setWallet({_p}, getWallet({_p}) + {_n})
+
+function getBank(p: player) :: number:
+    if {bank::%{_p}%} isn't set:
+        set {bank::%{_p}%} to 0
+    return {bank::%{_p}%}
+
+function setBank(p: player, n: number):
+    if {_n} < 0:
+        set {_n} to 0
+    set {bank::%{_p}%} to {_n}
+    scoreboardUpdate({_p})
+
+function removeBank(p: player, n: number):
+    send toast to {_p} entitled "§c-$%{_n}% §6Banque" with desc ""
+    setBank({_p}, getBank({_p}) - {_n})
+
+function addBank(p: player, n: number):
+    send toast to {_p} entitled "§a+$%{_n}% §6Banque" with desc ""
+    setBank({_p}, getBank({_p}) + {_n})
+
+# Others
+
+function dropMoney(p: player, a: number):
+    if {_a} is -1:
+        close {_p}'s inventory
+        send beesign "" and "§6§m      §r" and "§eEntrez le montant" and "§eà lâcher" to {_p}
+    else:
+        if getWallet({_p}) < {_a}:
+            send "{@prefix} §cVous n'avez pas assez d'argent !" to {_p}
+        else:
+            removeWallet({_p}, {_a})
+
+            set {_b} to {_p}'s targeted block
+            set {_l} to {_p}'s location
+            if {_b} is set:
+                if distance between {_b} and {_p} < 5:
+                    set {_l} to {_b}'s location
+                    add 1 to {_l}'s y-coordinate
+
+            drop banknote at {_l} without velocity
+            set {_item} to last dropped item
+            set {_item}'s display name to "§e$%{_a}%"
+            add "{PickupDelay:60}" to {_item}'s nbt
+            add "dropmoney:%{_a}%" to {_item}'s scoreboard tags
+
+function giveMoney(p: player, a: number):
+    if {_a} is -1:
+        close {_p}'s inventory
+        send beesign "" and "§6§m      §r" and "§eEntrez le montant" and "§eà donner" to {_p}
+    else:
+        if getWallet({_p}) < {_a}:
+            send "{@prefix} §cVous n'avez pas assez d'argent !" to {_p}
+        else:
+            set {_t} to {_p}'s targeted player
+            if distance between {_t} and {_p} < 3:
+                removeWallet({_p}, {_a})
+                addWallet({_t}, {_a})
+                send "{@prefix} §7Vous venez de donner §e$%{_a}% §7à §e%{_t}%§7." to {_p}
+                send "{@prefix} §e%{_p}% vient de vous de donner §e$%{_a}%." to {_t}
+            else:
+                send "{@prefix} §cJoueur introuvable/trop loin !" to {_p}
+
+#_____________
+# COMMANDS
+
+command /wallet <text> <player> <number>:
+    permission: beelife.wallet.admin
+    permission message: §e§lBee§fLife §8» §cVous n'avez pas la permission !
+    usage: /wallet <see/set/reset/add/remove> <player> <number>
+    trigger:
+        if arg-1 is "set":
+            setWallet(arg-2, arg-3)
+        else if arg-1 is "reset":
+            setWallet(arg-2, {@defaultWallet})
+        else if arg-1 is "give" or "add":
+            addWallet(arg-2, arg-3)
+        else if arg-1 is "take" or "remove":
+            removeWallet(arg-2, arg-3)
+        else if arg-1 is "see":
+            send "%getWallet(arg-2)%"
+        else:
+            send "/wallet <see/set/reset/add/remove> <player>"
+
+command /bank <text> <player> <number>:
+    permission: beelife.bank.admin
+    permission message: §e§lBee§fLife §8» §cVous n'avez pas la permission !
+    usage: /bank <see/set/reset/add/remove> <player> <number>
+    trigger:
+        if arg-1 is "set":
+            setBank(arg-2, arg-3)
+        else if arg-1 is "reset":
+            setBank(arg-2, {@defaultBank})
+        else if arg-1 is "give" or "add":
+            addBank(arg-2, arg-3)
+        else if arg-1 is "take" or "remove":
+            removeBank(arg-2, arg-3)
+        else if arg-1 is "see":
+            send "%getBank(arg-2)%"
+        else:
+            send "/bank <see/set/reset/add/remove> <player> <number>"
+
+command /dropmoney <number>:
+    usage: §8Essayez plutôt: §7/dropmoney §c<somme>
+    trigger:
+        dropMoney(player, arg-1)
+
+command /givemoney <number>:
+    usage: §8Essayez plutôt: §7/givemoney §c<somme>
+    trigger:
+        giveMoney(player, arg-1)
+
+#_____________
+# EVENTS
+
+# Dropmoney
+
+on pickup:
+    if event-item is banknote:
+        loop event-entity's scoreboard tags:
+            if loop-value contains "dropmoney:":
+                cancel event
+                set {_n} to loop-value
+                replace "dropmoney:" in {_n} with ""
+                addWallet(event-player, {_n} parsed as number)
+                clear event-entity
+                stop
+
+on item merge:
+    if event-item is banknote:
+        loop event-entity's scoreboard tags:
+            if loop-value contains "dropmoney:":
+                cancel event

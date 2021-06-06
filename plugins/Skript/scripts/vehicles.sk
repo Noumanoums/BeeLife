@@ -1,0 +1,247 @@
+import:
+    me.legofreak107.vehiclesplus.vehicles.api.VehiclesPlusAPI
+    me.legofreak107.vehiclesplus.vehicles.api.objects.spawn.SpawnMode
+    me.legofreak107.vehiclesplus.vehicles.api.events.VehicleDestroyEvent
+    me.legofreak107.vehiclesplus.vehicles.api.events.ClickVehicleEvent
+    me.legofreak107.vehiclesplus.vehicles.vehicles.objects.addons.Addon
+    org.bukkit.entity.Player
+
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_garage: §e§lBee§fLife §8» §eGarage
+    gui_concess: §e§lBee§fLife §8» §eConcess
+    gui_vehicle: §e§lBee§fLife §8» §eVéhicule
+
+aliases:
+    key = stick
+
+
+function concessLoad():
+    if yaml "beeConcess" is loaded:
+        unload yaml "beeConcess"
+    load yaml "plugins/Skript/scripts/BeeLife/YML/concessionnaire.yml" as "beeConcess"
+    if yaml "beeConcess" is empty:
+        set yaml value "1.name" from "beeConcess" to "TraficPN"
+        set yaml value "1.showname" from "beeConcess" to "&eTraffic Noir"
+        set yaml value "1.price" from "beeConcess" to 10000
+        save yaml "beeConcess"
+
+
+on load:
+    concessLoad()
+
+#_____________
+# FUNCTIONS
+
+# GARAGE
+
+function checkVehicle(p: Player) :: Object:
+    set {_s} to 0
+
+    loop VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).size() times:
+        set {_v} to VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).get({_s})
+
+        if {_v}.getSpawnedVehicle() is set:
+            return {_v}.getSpawnedVehicle()
+            stop
+
+        add 1 to {_s}
+
+
+function garageGUI(p: Player):
+    create a gui with virtual chest inventory with 3 rows named "{@gui_garage}":
+        loop VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).size times:
+
+            if {_s} is not set:
+                set {_s} to 0
+            set {_v} to VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).get({_s})
+            set {_n} to {_v}.getName()
+            set {_i} to {_v}.getPartList().get(0).getSkinColored()
+
+            make gui slot {_s} with {_i} named {_n}:
+                if {_v}.getWorld() is not set:
+                    if checkVehicle({_p}) is not set:
+                        send "{@prefix} §aVotre véhicule est derrière vous, bonne route." to {_p}
+                        {_v}.spawnVehicle(location at -1005.5, 54.5, 225.5 in "beelife", SpawnMode.GARAGE)
+                    else:
+                        send "{@prefix} §cVous avez déjà un véhicule sorti." to {_p}
+                else:
+                    send "{@prefix} §cLe véhicule est déjà sorti." to {_p}
+
+            add 1 to {_s}
+    open last gui to {_p}
+
+
+# GARAGE POLICE
+
+
+function delPoliceVehicle(p: Player):
+    set {_s} to 0
+    loop VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).size times:
+        set {_v} to VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).get({_s})
+        set {_n} to {_v}.getName()
+
+        if {_n} is "TraficPN":
+            VehiclesPlusAPI.getInstance().removeVehicle({_v})
+        if {_n} is "BerlingoPN":
+            VehiclesPlusAPI.getInstance().removeVehicle({_v})
+
+        add 1 to {_s}
+
+function spawnPoliceVehicle(p: Player, n: Object):
+    set {_s} to 0
+    set {_v2} to VehiclesPlusAPI.getInstance().getBaseVehicleFromString({_n})
+    VehiclesPlusAPI.getInstance().createVehicle({_v2}, {_p})
+
+    loop VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).size times:
+        set {_v} to VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).get({_s})
+
+        if {_v}.getName() is {_n}:
+            if {_v}.getWorld() is not set:
+                if checkVehicle({_p}) is not set:
+
+                    send "{@prefix} §aVotre véhicule est derrière vous, bonne route." to {_p}
+                    {_v}.spawnVehicle(location at -1095.5, 54.5, 149.5 in "beelife", SpawnMode.GARAGE)
+                    stop
+
+                else:
+                    send "{@prefix} §cVous avez déjà un véhicule sorti." to {_p}
+            else:
+                send "{@prefix} §cLe véhicule est déjà sorti." to {_p}
+
+        add 1 to {_s}
+
+function garagePoliceGUI(p: Player):
+    create a gui with virtual chest inventory with 1 rows named "{@gui_garage} - §bPolice":
+
+        make gui slot 0 with getCustomItem(leather boots, 2001) named "§bTrafic - PN":
+            spawnPoliceVehicle({_p}, "TraficPN")
+            close {_p}'s inventory
+
+    open last gui to {_p}
+
+
+
+# VEHICLE
+
+function vehicleGUI(p: Player, v: Object):
+    create a gui with virtual chest inventory with 1 rows named "{@gui_vehicle}":
+
+        loop {_v}.getPartList().size() times:
+            if {_s} is not set:
+                set {_s} to 0
+
+            make gui slot 8 with barrier named "§eRanger le véhicule" with lore "§7Cliquez pour ranger le véhicule dans votre garage.":
+                if {_v}.getStorageVehicle().getOwner() is not {_p}'s uuid:
+                    send "{@prefix} §cVous n'êtes pas le propriétaire du véhicule." to {_p}
+                    stop
+                send "{@prefix} §aVotre véhicule est désormais dans votre garage." to {_p}
+                {_v}.despawn(true)
+
+                if {_v}.getName() is "TraficPN":
+                    VehiclesPlusAPI.getInstance().removeVehicle({_v})
+                if {_v}.getName() is "BerlingoPN":
+                    VehiclesPlusAPI.getInstance().removeVehicle({_v})
+                    
+                close {_p}'s inventory
+            if "%{_v}.getPartList().get({_s})%" contains "me.legofreak107.vehiclesplus.vehicles.vehicles.objects.addons.seats.Seat":
+                add 1 to {_x}
+                make gui slot {_x} - 1 with oak stairs named "§ePlace n°%{_x}%" with lore "§7Cliquez pour vous assoir à ce siège.":
+                    {_v}.getPartList().get({_s}).enter({_p})
+                    close {_p}'s inventory
+
+            add 1 to {_s}
+
+    open last gui to {_p}
+
+
+function lockVehicle(p: Player, v: Object):
+    if {_v}.getLocked() is true:
+        send "{@prefix} §aVotre véhicule est désormais §2ouvert§a." to {_p}
+        {_v}.setLocked(false)
+    else:
+        send "{@prefix} §aVotre véhicule est désormais §cfermé§a." to {_p}
+        {_v}.setLocked(true)
+
+
+# CONCESSIONNAIRE
+
+function buyVehicle(p: Player, v: Object, price: Number):
+    if getBank({_p}) < {_price}:
+        send "{@prefix} §cVous n'avez pas assez d'argent en banque !" to {_p}
+        stop
+
+    set {_s} to 0
+    loop VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).size() times:   
+        set {_v2} to VehiclesPlusAPI.getInstance().getPlayerVehicles({_p}).get({_s})
+        if {_v2}.getBaseVehicle() is {_v}.getName():  
+            send "{@prefix} §cVous ne pouvez acheter le même véhicule 2x !" to {_p}
+            stop
+        add 1 to {_s}
+
+    removeBank({_p}, {_price})
+    VehiclesPlusAPI.getInstance().createVehicle({_v}, {_p})
+    send "{@prefix} §aFélicitations, vous avez fait l'acquisition du véhicule, et il est désormais dans votre garage." to {_p}
+
+function concessGUI(p: Player):
+    create a gui with virtual chest inventory with 1 rows named "{@gui_concess}":
+
+        set {_s} to 0
+        loop skript-yaml nodes with keys "" from "beeConcess" without string checks:
+            set {_price} to skript-yaml value "%loop-value%.price" from "beeConcess"
+            set {_v2} to skript-yaml value "%loop-value%.name" from "beeConcess"
+            set {_v} to VehiclesPlusAPI.getInstance().getBaseVehicleFromString({_v2})
+            set {_n} to {_v}.getName()
+            set {_i} to {_v}.getPartList().get(0).getSkinColored()
+
+            make gui slot {_s} with {_i} named {_n} with lore "§e» §6Prix : §e%{_price}%$":
+                if getBank({_p}) < {_price}:
+                    send "{@prefix} §cVous n'avez pas assez d'argent en banque !" to {_p}
+                    stop
+                buyVehicle({_p}, {_v}, {_price})
+                close {_p}'s inventory
+
+            add 1 to {_s}
+
+    open last gui to {_p}
+
+
+#_____________
+# EVENTS
+
+
+
+on ClickVehicleEvent:
+    event.setCancelled(true)
+    set {_v} to event.getVehicle()
+    set {_p} to event.getClicker()
+    if {_p}'s tool is key:
+        if {_v}.getStorageVehicle().getOwner() is not {_p}'s uuid:
+            send "{@prefix} §cVous n'êtes pas le propriétaire du véhicule." to {_p}
+            stop
+        lockVehicle({_p}, {_v})
+        stop
+    vehicleGUI({_p}, {_v})
+
+on npc right click:
+    if citizen is named "§eGarage":
+        if getPlayerJob(player) is 8 or 9:
+            send "{@prefix} §cVous êtes en service l'ouverture de votre garage est donc impossible."
+            stop
+        garageGUI(player)
+    else if citizen is named "§eConcessionnaire":
+        concessGUI(player)
+    else if citizen is named "§eGarage - §bPolice":
+        if getPlayerJob(player) is 8 or 9:
+            garagePoliceGUI(player)
+        else:
+            send "{@prefix} §cVous n'avez pas le bon métier."
+
+on job change:
+    if getPlayerJob(player) is 8 or 9:
+        wait 2 ticks
+        delPoliceVehicle(player)
+
+on join:
+    wait 1 second
+    delPoliceVehicle(player)

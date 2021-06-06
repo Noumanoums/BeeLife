@@ -1,0 +1,146 @@
+options:
+    prefix: §e§lBee§fLife §cStaff §8»
+
+#_____________
+# FUNCTIONS
+
+# Yaml
+
+function loadPlayerWarns(p: players):
+    loop {_p::*}:
+        load yaml "plugins/Skript/scripts/BeeLife/YML/warns/%loop-value%.yml" as "warn-%loop-value%"
+
+function loadOfflinePlayerWarns(t: text) :: boolean:
+    if yaml {_t} isn't loaded:
+        file "plugins/Skript/scripts/BeeLife/YML/warns/%{_t}%.yml" exists:
+            load yaml "plugins/Skript/scripts/BeeLife/YML/warns/%{_t}%.yml" as "warn-%{_t}%"
+            return true
+        return false
+    return true
+
+function saveOfflinePlayerWarns(t: text):
+    save yaml "%{_t}%"
+    unload yaml "%{_t}%"
+
+function getOfflinePlayerWarns(t: text) :: integers:
+    loop yaml nodes with keys "" from "%{_t}%" without string checks:
+        add loop-value parsed as integer to {_r::*}
+    return {_r::*}
+
+function getOfflinePlayerNextWarn(t: text) :: integer:
+    loop yaml nodes with keys "" from "%{_t}%" without string checks:
+        set {_l} to loop-value parsed as integer
+
+        if {_r} isn't set:
+            set {_r} to {_l}
+            continue
+        if {_r} < {_l}:
+            set {_r} to {_l}
+
+    add 1 to {_r}
+    return {_r}
+
+# Warns
+
+function isWarn(t: text, i: integer) :: boolean:
+    if yaml node "%{_i}%" from "%{_t}%" exists:
+        return true
+    return false
+
+function getWarnName(t: text, i: integer) :: text:
+    return yaml value "%{_i}%.name" from "%{_t}%"
+
+function getWarnDate(t: text, i: integer) :: date:
+    return yaml value "%{_i}%.date" from "%{_t}%"
+
+function getWarnAuthor(t: text, i: integer) :: text:
+    return yaml value "%{_i}%.author" from "%{_t}%"
+
+# Warn manipulation
+
+function addWarn(t: text, name: text, author: text) :: text:
+    if loadOfflinePlayerWarns({_t}) is false:
+        send "{@prefix} §cJoueur introuvable ! (Attention à la casse)" to {_p}
+        stop
+
+    set {_s} to size of getOfflinePlayerWarns({_t})
+    if {_s} >= 45:
+        saveOfflinePlayerWarns({_t})
+        return "max"
+
+    set {_id} to getOfflinePlayerNextWarn({_t})
+
+    set yaml value "%{_id}%.name" from "%{_t}%" to {_name}
+    set yaml value "%{_id}%.author" from "%{_t}%" to {_author}
+    set yaml value "%{_id}%.date" from "%{_t}%" to now
+
+    set {_p} to {_t} parsed as player
+    set {_v} to "ème"
+    if {_s} + 1 is 1:
+        set {_v} to "er"
+    send "{@prefix} §e%{_author}% §7vous a avertis pour §e%{_name}%§7.%nl%§cC'est votre §e%{_s} + 1%%{_v}% §cavertissement !" to {_p}
+
+    saveOfflinePlayerWarns({_t})
+
+function delWarn(t: text, i: integer):
+    if loadOfflinePlayerWarns({_t}) is true:
+        if isWarn({_t}, {_i}) is true:
+            clear yaml value "%{_i}%" from "%{_t}%"
+        saveOfflinePlayerWarns({_t})
+
+# GUI
+function openWarnGui(p: player, t: text):
+    if loadOfflinePlayerWarns({_t}) is false:
+        send "{@prefix} §cJoueur introuvable ! (Attention à la casse)" to {_p}
+        stop
+
+    create a gui with virtual chest inventory with 6 rows named "Warn de §e%{_t}%":
+        make gui slot 45, 46, 47, 48, 50, 51, 52 and 53 with black glass pane named " "
+        make gui slot 49 with light green glass pane named "§aAjouter un warn":
+            send "/warn %{_t}% add <raison>" # todo SIGN FOR REASON
+
+        if size of getOfflinePlayerWarns({_t}) is 0:
+            make gui slot 22 with gray glass pane named "§7Aucun warn :/" with lore "§7Pourquoi ne pas lui en rajouter un ? ;)"
+        else:
+            set {_s} to 0
+            loop getOfflinePlayerWarns({_t}):
+
+                set {_i} to red wool named "§eWarn ##%loop-value%"
+                add " §e» §8Raison: §e%getWarnName({_t}, loop-value)%" to {_i}'s lore
+                add " §e» §8Auteur: §e%getWarnAuthor({_t}, loop-value)%" to {_i}'s lore
+                add " §e» §8Date: §e%translateDate(getWarnDate({_t}, loop-value))%" to {_i}'s lore
+                add "%nl%§7Clique-gauche pour §csupprimer" to {_i}'s lore
+
+                set {_id} to loop-value
+                make gui slot {_s} with {_i}:
+                    delWarn({_t}, {_id})
+                    openWarnGui({_p}, {_t})
+
+                add 1 to {_s}
+        run on gui close:
+            wait 5 ticks
+            if {_p} doesn't have a gui:
+                saveOfflinePlayerWarns({_t})
+    open last gui to {_p}
+
+
+#_____________
+# COMMANDS
+
+command /warn <text>:
+    permission: beelife.staff.warn
+    permission message: §e§lBee§fLife §8» §cVous n'avez pas la permission !
+    trigger:
+        openWarnGui(player, arg-1)
+
+
+#_____________
+# EVENTS
+
+on load:
+    loop all players:
+        saveOfflinePlayerWarns(loop-player's name)
+        loadPlayerWarns(loop-player)
+
+on join:
+    loadPlayerWarns(player)

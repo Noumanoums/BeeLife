@@ -1,0 +1,16 @@
+sounds:
+  examplecar-engine-idle:
+    sound: car.idle
+    duration: 6
+  examplecar-engine-start:
+    sound: car.start
+    duration: 2
+  examplecar-engine-accelerate:
+    sound: car.accelerate
+    duration: 2
+  examplecar-engine-driving:
+    sound: car.driving
+    duration: 2
+  examplecar-engine-slowingdown:
+    sound: car.slowingdown
+    duration: 2

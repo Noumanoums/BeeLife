@@ -1,0 +1,30 @@
+lastAccountName: ExAo_
+timestamps:
+  login: 1617807399783
+  lastteleport: 1617808349008
+  logout: 1617809428191
+ipAddress: 196.117.81.83
+lastlocation:
+  world: beelife
+  x: -812.3918978172475
+  y: 96.0
+  z: 593.1142687536554
+  yaw: -163.90567
+  pitch: -0.7729598
+logoutlocation:
+  world: beelife
+  x: -1079.6395371094013
+  y: 56.200000047683716
+  z: 73.40739037666543
+  yaw: -103.76611
+  pitch: 12.527522
+godmode: false
+powertools:
+  wheat_seeds:
+  - thru
+  stone_pickaxe:
+  - thru
+  golden_horse_armor:
+  - /forestgen spruce
+afk: false
+money: '1000000000'

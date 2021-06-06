@@ -1,0 +1,21 @@
+10.03.2021 - 18:10:28 - [TAB v2.8.10] An error occurred when refreshing placeholders
+10.03.2021 - 18:10:28 - java.util.ConcurrentModificationException: null
+10.03.2021 - 18:10:28 -        at java.util.LinkedHashMap$LinkedHashIterator.nextNode(LinkedHashMap.java:719)
+10.03.2021 - 18:10:28 -        at java.util.LinkedHashMap$LinkedValueIterator.next(LinkedHashMap.java:747)
+10.03.2021 - 18:10:28 -        at java.util.AbstractCollection.toArray(AbstractCollection.java:141)
+10.03.2021 - 18:10:28 -        at java.util.ArrayList.<init>(ArrayList.java:178)
+10.03.2021 - 18:10:28 -        at me.neznamy.tab.shared.features.PlaceholderManager.getPlaceholderUsage(PlaceholderManager.java:179)
+10.03.2021 - 18:10:28 -        at me.neznamy.tab.shared.features.PlaceholderManager$1.run(PlaceholderManager.java:110)
+10.03.2021 - 18:10:28 -        at me.neznamy.tab.shared.cpu.CPUManager$4.run(CPUManager.java:119)
+10.03.2021 - 18:10:28 -        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+10.03.2021 - 18:10:28 -        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+10.03.2021 - 18:10:28 -        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+10.03.2021 - 18:10:28 -        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+10.03.2021 - 18:10:28 -        at java.lang.Thread.run(Thread.java:823)
+13.03.2021 - 16:30:14 - [TAB v2.8.10] Group "respstaff" is not defined in sorting list! This will result in players in that group not being sorted correctly. To fix this, add group "respstaff" into group-sorting-priority-list in config.yml.
+13.03.2021 - 18:02:15 - [TAB v2.8.10] Group "respbuilder" is not defined in sorting list! This will result in players in that group not being sorted correctly. To fix this, add group "respbuilder" into group-sorting-priority-list in config.yml.
+13.03.2021 - 23:30:16 - [TAB v2.8.10] Group "friend" is not defined in sorting list! This will result in players in that group not being sorted correctly. To fix this, add group "friend" into group-sorting-priority-list in config.yml.
+13.03.2021 - 23:33:55 - [TAB v2.8.10] Group "friend" is not defined in sorting list! This will result in players in that group not being sorted correctly. To fix this, add group "friend" into group-sorting-priority-list in config.yml.
+26.03.2021 - 19:39:47 - [TAB v2.8.10] Group "mod" is not defined in sorting list! This will result in players in that group not being sorted correctly. To fix this, add group "mod" into group-sorting-priority-list in config.yml.
+26.03.2021 - 21:08:31 - [TAB v2.8.10] Group "modelo" is not defined in sorting list! This will result in players in that group not being sorted correctly. To fix this, add group "modelo" into group-sorting-priority-list in config.yml.
+26.03.2021 - 21:16:19 - [TAB v2.8.10] Group "helper" is not defined in sorting list! This will result in players in that group not being sorted correctly. To fix this, add group "helper" into group-sorting-priority-list in config.yml.

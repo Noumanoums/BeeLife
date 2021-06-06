@@ -1,0 +1,29 @@
+lastAccountName: mineteub
+timestamps:
+  login: 1617438218289
+  logout: 1617438927001
+  lastteleport: 1617405202730
+ipAddress: 90.103.51.246
+lastlocation:
+  world: beelife
+  x: -1025.699999988079
+  y: 54.0
+  z: 244.87572091900424
+  yaw: 66.3562
+  pitch: 28.049982
+logoutlocation:
+  world: beelife
+  x: -1110.6065398184544
+  y: 54.0
+  z: 254.32380962099876
+  yaw: 201.15112
+  pitch: 40.95008
+powertools: {}
+homes:
+  cam:
+    world: beelife
+    x: 9998.636536102564
+    y: 10.0
+    z: 10020.532562482647
+    yaw: 266.2107
+    pitch: 13.1998

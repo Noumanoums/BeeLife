@@ -1,0 +1,30 @@
+command /test:
+  trigger:
+    spawn villager at the player's location
+    add "{NoAI:true}" to last spawned entity's nbt
+    add "{Invulnerable:false}" to last spawned entity's nbt
+
+every 1 seconds:
+  loop all players:
+    set {_wallet} to "%getWallet(loop-player)%"
+    set {_string::*} to {_wallet} split at ""
+    if size of {_string::*} is 2:
+      set action bar of loop-player to "\uEff%{_string::1}%"
+    else if size of {_string::*} is 3:
+      set action bar of loop-player to "\uEff%{_string::1}%\uEff%{_string::2}%"
+    else if size of {_string::*} is 4:
+      set {_t} to "\uEff%{_string::1}%\uEff%{_string::2}%\uEff%{_string::3}%"
+      sk-lib show bossbar to loop-player with text "e"
+      set action bar of loop-player to "\uEff%{_string::1}%\uEff%{_string::2}%\uEff%{_string::3}%"
+    else if size of {_string::*} is 5:
+      set action bar of loop-player to "\uEff%{_string::1}%\uEff%{_string::2}%\uEff%{_string::3}%\uEff%{_string::4}%"
+    else if size of {_string::*} is 6:
+      set action bar of loop-player to "\uEff%{_string::1}%\uEff%{_string::2}%\uEff%{_string::3}%\uEff%{_string::4}%\uEff%{_string::5}%"
+    else if size of {_string::*} is 7:
+      set action bar of loop-player to "\uEff%{_string::1}%\uEff%{_string::2}%\uEff%{_string::3}%\uEff%{_string::4}%\uEff%{_string::5}%\uEff%{_string::6}%"
+    else if size of {_string::*} is 8:
+      set action bar of loop-player to "\uEff%{_string::1}%\uEff%{_string::2}%\uEff%{_string::3}%\uEff%{_string::4}%\uEff%{_string::5}%\uEff%{_string::6}%\uEff%{_string::7}%"
+    else if size of {_string::*} is 9:
+      set action bar of loop-player to "\uEff%{_string::1}%\uEff%{_string::2}%\uEff%{_string::3}%\uEff%{_string::4}%\uEff%{_string::5}%\uEff%{_string::6}%\uEff%{_string::7}%\uEff%{_string::8}%"
+    else if size of {_string::*} is 10:
+      set action bar of loop-player to "\uEff%{_string::1}%\uEff%{_string::2}%\uEff%{_string::3}%\uEff%{_string::4}%\uEff%{_string::5}%\uEff%{_string::6}%\uEff%{_string::7}%\uEff%{_string::8}%\uEff%{_string::9}%"

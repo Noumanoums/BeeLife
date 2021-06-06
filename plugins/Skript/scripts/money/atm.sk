@@ -1,0 +1,48 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» ATM
+
+function atmOpen(p: player):
+  create a gui with virtual chest inventory with 3 rows named "{@gui_title}" and shape "xxxxxxxxx", "xxcxrxsxx", and "xxxxxxxxx":
+
+    make gui slot "c" with getCustomItem(iron horse armor named "§cRetirer", 2017):
+      atmWithdraw(player, -1)
+
+    make gui slot "r" with getCustomItem(iron horse armor named "§6Solde" with lore "§e$%getBank({_p})%", 2019)
+
+    make gui slot "s" with getCustomItem(iron horse armor named "§aDéposer", 2018):
+      atmDeposit(player, -1)
+  open last gui to {_p}
+
+function atmWithdraw(p: player, n: number):
+    if {_n} is -1:
+        close {_p}'s inventory
+        send beesign "" and "§6§m      §r" and "§eEntrez le montant" and "§eà retirer" to {_p}
+    else:
+        if getBank({_p}) < {_n}:
+            send "{@prefix} §cTu n'as pas assez d'argent en banque !" to {_p}
+            stop
+
+        removeBank({_p}, {_n})
+        addWallet({_p}, {_n})
+        send "{@prefix} §7Vous avez retiré §e$%{_n}% §7de votre compte" to {_p}
+
+function atmDeposit(p: player, n: number):
+    if {_n} is -1:
+        close {_p}'s inventory
+        send beesign "" and "§6§m      §r" and "§eEntrez le montant" and "§eà déposer" to {_p}
+    else:
+        if getWallet({_p}) < {_n}:
+            send "{@prefix} §cTu n'as pas assez d'argent sur toi !" to {_p}
+            stop
+
+        addBank({_p}, {_n})
+        removeWallet({_p}, {_n})
+        send "{@prefix} §7Vous avez déposé §e$%{_n}% §7sur votre compte" to {_p}
+
+on rightclick:
+    if "%event-block%" contains "dropper":
+        cancel event
+        if isHandcuffed(player):
+            stop
+        atmOpen(player)

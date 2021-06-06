@@ -1,0 +1,27 @@
+options:
+    prefix: §e§lBee§fLife §8»
+
+import:
+    com.shampaggon.crackshot.events.WeaponPrepareShootEvent
+
+on WeaponPrepareShootEvent:
+    set {_p} to event.getPlayer()
+    if block under {_p}'s location is air:
+        event.setCancelled(true)
+        send "{@prefix} §cVous ne pouvez pas tirer dans le vide !" to {_p}
+
+on rightclick:
+    if event-block isn't item frame or flower pot or repeater or gate or note block or anvil or trapdoor or grindstone:
+        stop
+
+    if "%event-block%" doesn't contain "bed":
+        stop
+        
+    if player doesn't have permission "beelife.protect.bypass":
+        cancel event
+
+on craft:
+    cancel event
+
+on player pickup xp:
+    set player's level to 0

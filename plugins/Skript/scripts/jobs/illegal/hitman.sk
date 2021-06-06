@@ -1,0 +1,101 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» §cTueur à gage
+    price: 1500
+
+on load:
+    clear {hitman::list::*}
+    clear {cooldown.hitman::*}
+
+#_____________
+# FUNCTIONS
+
+
+function addHitman(p: Player, target: Player, reason: Text):
+    if getJobPlayers(13) is 0:
+        send "{@prefix} §cIl n'y a aucun tueur à gage en ligne." to {_p}
+        stop
+    if getWallet({_p}) < {@price}:
+        send "{@prefix} §cVous n'avez pas assez d'argent sur vous !" to {_p}
+        stop
+    if size of {hitman::list::*} > 12:
+        stop
+    set {_d} to difference between now and {cooldown.hitman::%{_p}%}
+    if {_d} < 3 hours:
+        send "{@prefix} §cImpossible, vous devez attendre §e%difference between {_d} and 3 hours%§c." to {_p}
+        stop
+
+    removeWallet({_p}, {@price})
+    set {hitman::list::%{_p}%} to {_target}
+    set {hitman::list::%{_p}%::reason} to {_reason}
+    set {cooldown.hitman::%{_p}%} to now
+    send "{@prefix} §aVous avez soumis un contrat contre §e%{_target}% §apour §e{@price}$§a." to {_p}
+
+
+function openHitman(p: Player):
+    if getJobRawName(getPlayerJob({_p})) is "hitman":
+        create a gui with virtual chest inventory with 2 rows named "{@gui_title}":
+
+            set {_slot} to 0
+            loop {hitman::list::*}:
+                set {_target} to loop-value
+                set {_lore::*} to "", "§e» §7Raison : §e%{hitman::list::%loop-index%::reason}%§r"
+                make gui slot {_slot} with {_target}'s skull named "§e%loop-value%" with lore {_lore::*}
+                add 1 to {_slot}
+
+            set {_i} to iron horse armor named "§cRetour"
+            add "{CustomModelData:2020}" to nbt of {_i}
+            make gui slot 17 with {_i}:
+                close {_p}'s inventory
+
+        open last gui to {_p}
+
+
+function openHitmanOther(p: Player):
+    create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+        set {_lore::*} to "", "§e» §7Prix : §e{@price}$§r"
+        make gui slot 4 with {_p}'s skull named "§eSoumettre un contrat" with lore {_lore::*}:
+            send beesign "" and "§ePseudonyme §6↑" and "" and "§eRaison contrat §6↑" to {_p}
+    open last gui to {_p}
+
+
+#_____________
+# EVENTS
+
+
+on quit:
+    if {hitman::list::%player%} is set:
+        clear {hitman::list::%player%}
+
+ 
+on death:
+    if getJobRawName(getPlayerJob(attacker)) is "hitman":
+        loop {hitman::list::*}:
+            set {_target} to loop-value
+            if {_target} is victim:
+                set {_submitter} to {hitman::list::%{_target}%}
+                send "{@prefix} §aVotre contrat à était effectué." to {_submitter}
+                send "{@prefix} §aVous avez effectué un contrat §e+{@price}$§a." to attacker
+                clear {hitman::list::%{_submitter}%}
+
+                addWallet(attacker, {@price})
+    else if getJobRawName(getPlayerJob(victim)) is "hitman":
+        clear {hitman::list::*}
+
+on rightclick on sticky piston:
+    if getJobRawName(getPlayerJob(player)) is "hitman":
+        openHitman(player)
+    else:
+        openHitmanOther(player)
+
+on fish:
+    if "%fishing state%" isn't "IN_GROUND":
+        stop
+    set {_d} to difference between now and {hook::%player%}
+    if {_d} < 4 seconds:
+        set {_p} to {hook::%player%}
+        send "{@prefix} §cVous devez attendre §e%difference between {_d} and 4 seconds%§c."
+        stop
+    push player forward at speed 1.5
+    set {hook::%player%} to now
+    push player upwards at speed 1

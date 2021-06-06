@@ -1,0 +1,36 @@
+lastAccountName: GioWsa
+timestamps:
+  login: 1616803925854
+  logout: 1616804287507
+  lastteleport: 1616803358121
+ipAddress: 83.114.82.104
+lastlocation:
+  world: beelife
+  x: -1098.5661158609792
+  y: 56.0
+  z: 201.50560752306112
+  yaw: -184.41832
+  pitch: 8.3539
+logoutlocation:
+  world: beelife
+  x: -1127.165664201305
+  y: 66.0
+  z: 251.1509727002054
+  yaw: -159.3038
+  pitch: 21.225084
+homes:
+  arbres:
+    world: arbre
+    x: -297.5826008561601
+    y: 10.5
+    z: -35.52407381046743
+    yaw: 136.24051
+    pitch: 90.0
+  test1:
+    world: beelife
+    x: 804.5279960415237
+    y: 4.0
+    z: -920.5242679944525
+    yaw: 316.59116
+    pitch: 3.036087
+afk: false

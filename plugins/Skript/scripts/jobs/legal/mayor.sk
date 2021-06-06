@@ -1,0 +1,238 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    guiTitle: §e§lBee§fLife §8» Maire
+
+    laws1: -1078.5, 58.5, 223.5
+    laws2: -1078.5, 58.5, 224.5
+    laws3: -1078.5, 58.5, 225.5
+    laws4: -1078.5, 57.5, 223.5
+    laws5: -1078.5, 57.5, 224.5
+    laws6: -1078.5, 57.5, 225.5
+    mayor_pc: -1069.5, 67.5, 204.5
+    cooldown: 5 minutes
+
+on load:
+    clearLaws()
+    loop all players:  
+        remove bossbar "mayor%loop-player%"
+    wait 1 seconds
+    clear {mayor::*}
+    clear {weaponlicence::*}
+
+#_____________
+# FUNCTIONS
+
+#LICENCE ARME
+
+function giveWeaponlicense(p: Player, target: Player):
+    set {weaponlicence::%{_p}%} to true
+    
+    send "{@prefix} §aVous avez donné une licence d'arme à §e%{_target}%§a." to {_p}
+    send "{@prefix} §aVous avez reçu une licence d'arme§a." to {_target}
+
+# LAWS
+
+function clearLaws():
+    set {_location} to location {@laws1} in world "beelife"
+    loop blocks in radius 3 around {_location}:
+        if loop-block is sign:
+            set line 1 of loop-block to ""
+            set line 2 of loop-block to ""
+            set line 3 of loop-block to ""
+            set line 4 of loop-block to ""
+
+function addLaws(p: Player, number: Number, line1: Text, line2: Text, line3: Text):
+    set {mayor::laws::%{_number}%} to message
+
+    if {_number} is 1:
+        set {_location} to location {@laws1} in world "beelife"
+    else if {_number} is 2:
+        set {_location} to location {@laws2} in world "beelife"
+    else if {_number} is 3:
+        set {_location} to location {@laws3} in world "beelife"
+    else if {_number} is 4:
+        set {_location} to location {@laws4} in world "beelife"
+    else if {_number} is 5:
+        set {_location} to location {@laws5} in world "beelife"
+    else if {_number} is 6:
+        set {_location} to location {@laws6} in world "beelife"
+
+    loop blocks in radius 0.8 around {_location}:
+        if loop-block is sign:
+            set line 1 of loop-block to "§aLoi n°%{_number}%"
+            set line 2 of loop-block to "§e%{_line1}%"
+            set line 3 of loop-block to "§e%{_line2}%"
+            set line 4 of loop-block to "§e%{_line3}%"
+            send "{@prefix} §aVous avez ajouté une loi." to {_p}
+
+function startLaws(p: Player, number: Number):
+    set {mayor::%{_p}%::law} to {_number}
+    send beesign "" and "" and "" and "§eLoi n°%{_number}% §6↑" to {_p}
+
+
+function lawsGUI(p: Player):
+    create a gui with virtual chest inventory with 1 rows named "{@guiTitle}":
+        make gui slot 0 with jungle sign named "§eLois n°1" with lore "§8Cliquez-ici ici pour définir la lois n°1":
+            startLaws({_p}, 1)
+        make gui slot 1 with jungle sign named "§eLois n°2" with lore "§8Cliquez-ici ici pour définir la lois n°2":
+            startLaws({_p}, 2)
+        make gui slot 2 with jungle sign named "§eLois n°3" with lore "§8Cliquez-ici ici pour définir la lois n°3":
+            startLaws({_p}, 3)
+        make gui slot 3 with jungle sign named "§eLois n°4" with lore "§8Cliquez-ici ici pour définir la lois n°4":
+            startLaws({_p}, 4)
+        make gui slot 4 with jungle sign named "§eLois n°5" with lore "§8Cliquez-ici ici pour définir la lois n°5":
+            startLaws({_p}, 5)
+        make gui slot 5 with jungle sign named "§eLois n°6" with lore "§8Cliquez-ici ici pour définir la lois n°6":
+            startLaws({_p}, 6)
+    open last gui to {_p}
+
+#DICTATURE
+
+function startDictature(p: Player):
+    if {mayor::dictature} is set:
+        send "{@prefix} §cImpossible, une dictature est déjà en cours !" to {_p}
+        stop
+
+    send "{@prefix} §eVous avez lancé une dictature.. Attention à la suite des évènements.." to {_p}
+    send subtitle "§cLe maire à lancé une dictature !" to all players
+
+    loop all players:
+        create bossbar titled "&cDictature en cours.. | Couvre feu [X]" and id "mayor%loop-player%" for loop-player with progress 100 with colors green
+        
+    set {mayor::dictature} to true
+
+
+function stopDictature(p: Player):
+    if {mayor::dictature} is not set:
+        send "{@prefix} §cImpossible, aucune dictature en cours !" to {_p}
+        stop
+
+    send "{@prefix} §eVous avez arrêté la dictature." to {_p}
+    send subtitle "§cLe maire à arrêté la dictature !" to all players
+    
+    clear {mayor::dictature}
+    loop all players:
+        remove bossbar "mayor%loop-player%"
+
+function clearDictature():
+    clear {mayor::dictature}
+    loop all players:
+        remove bossbar "mayor%loop-player%"
+
+        
+#COUVRE FEU
+
+function startCouvreFeu(p: Player):
+    if {mayor::couvrefeu} is set:
+        send "{@prefix} §cImpossible, un couvre feu est déjà en cours !" to {_p}
+        stop
+
+    send "{@prefix} §eVous avez lancé un couvre feu.. Attention à la suite des évènements.." to {_p}
+    send subtitle "§cLe maire a lancé un couvre feu !" to all players
+
+    loop all players:
+        edit bossbar "mayor%loop-player%" name to "&cDictature en cours.. | Couvre feu [&a✔&c]"
+        
+    set {mayor::couvrefeu} to true
+
+
+function stopCouvreFeu(p: Player):
+    if {mayor::couvrefeu} is not set:
+        send "{@prefix} §cImpossible, aucune couvre feu en cours !" to {_p}
+        stop
+
+    send "{@prefix} §eVous avez arrêté le couvre feu." to {_p}
+    send subtitle "§cLe maire à arrêté le couvre feu !" to all players
+    
+    clear {mayor::couvrefeu}
+    loop all players:
+        edit bossbar "mayor%loop-player%" name to "&cDictature en cours.. | Couvre feu [X]"
+
+function clearCouvreFeu():
+    clear {mayor::couvrefeu}
+    loop all players:
+        edit bossbar "mayor%loop-player%" name to "&cDictature en cours.. | Couvre feu [X]"
+
+
+#_____________
+# EVENTS
+
+on join:
+    if {mayor::dictature} is set:
+        if {mayor::couvrefeu} is set:
+            create bossbar titled "&cDictature en cours.. | Couvre feu [&a✔&c]" and id "mayor%player%" for player with progress 100 with colors green
+            stop
+        create bossbar titled "&cDictature en cours.. | Couvre feu [X]" and id "mayor%player%" for player with progress 100 with colors green
+
+on quit:
+    if {weaponlicence::%player%} is set:
+        clear {weaponlicence::%player%}
+    if {mayor::dictature} is set:
+        remove bossbar "mayor%player%"
+    if getJobRawName(getPlayerJob(player)) is "mayor":
+        clearLaws()
+        wait a tick
+        clear {mayor::*}
+
+on death:
+    if getJobRawName(getPlayerJob(player)) is "mayor":
+        setJob(player, 1)
+        broadcast "{@prefix} §7Le maire est mort ! Les élections sont ouvertes."
+
+        clear {cop::mandat::*}
+        clearLaws()
+        wait a tick
+        clear {mayor::*}
+
+on rightclick:
+    set {_location} to location {@mayor_pc} in world "beelife"
+    if event-block's location isn't {_location}:
+        stop
+    cancel event
+    if getPlayerJob(player) is 4:
+        create a gui with virtual hopper inventory with 1 rows named "{@guiTitle}":
+            make gui slot 1 with tall grass named "§eDictature" with lore "§8Cliquez-ici pour démarrer / stopper la dictature":
+                set {_d} to difference between now and {mayor::cooldown::dictature::%player%}
+                if {_d} < {@cooldown}:
+                    send "{@prefix} §cVous devez attendre §e%translateDate(difference between {_d} and {@cooldown})% §cavant la prochaine dictature." to player
+                    stop
+
+                if {_d} > 0 second:
+                    clear {mayor::cooldown::dictature::%player%}
+
+                if {mayor::dictature} is not set:
+                    startDictature(player)
+                else:
+                    set {mayor::cooldown::dictature::%player%} to now
+                    stopDictature(player)
+            make gui slot 2 with jungle sign named "§eLoi" with lore "§8Cliquez-ici pour gérer les lois de la ville":
+                lawsGUI(player)
+            make gui slot 3 with oak door named "§eCouvre feu" with lore "§8Cliquez-ici pour démarrer / stopper le couvre feu":
+                set {_d} to difference between now and {mayor::cooldown::couvrefeu::%player%}
+                if {_d} < {@cooldown}:
+                    send "{@prefix} §cVous devez attendre §e%translateDate(difference between {_d} and {@cooldown})% §cavant le prochain couvre-feu." to player
+                    stop
+
+                if {_d} > 0 second:
+                    clear {mayor::cooldown::couvrefeu::%player%}
+
+                if {mayor::dictature} is not set:
+                    send "{@prefix} §cImpossible, aucune dictature en cours"
+                    stop
+                if {mayor::couvrefeu} is not set:
+                    startCouvreFeu(player)
+                else:
+                    set {mayor::cooldown::couvrefeu::%player%} to now
+                    stopCouvreFeu(player)
+        open last gui to player
+    else:
+        send "{@prefix} §cImpossible, tu n'es pas maire."
+
+on job change:
+    if getPlayerJob(player) is 4:
+        clearCouvreFeu()
+        clearDictature()
+        clearLaws()
+        wait a tick
+        clear {mayor::*}
+        

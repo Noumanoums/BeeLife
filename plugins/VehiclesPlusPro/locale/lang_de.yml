@@ -1,0 +1,118 @@
+vehiclesplus:
+  actionbar:
+    driving_info: '&bAktuelle Geschwindigkeit &f%curspeed%&7/&f%maxspeed%&bKM/H &7| &bTreibstoff &f%curfuel%&7/&f%maxfuel%&bL &7: &f%fuelperc%%&7) &7| &bBenutzung &f%fuelusage%&bL/100KM &7| &bGesundheit &f%health%'
+    out_of_fuel: '&cTank leer'
+  chat:
+    can_exit_while_moving: '&cKann während der Fahrt aussteigen: &7'
+    drift: '&cDrift: &7'
+    purchase_complete: '&aKauf abgeschlossen!'
+    enter_new_name: '&aBitte tragen Sie den neuen Fahrzeug Namen ein. Tippe "cancel" zum Abbrechen.'
+    error:
+      could_not_spawn_vehicle: '&cFahrzeug konnte nicht gespawnt werden!'
+      not_enough_money: '&aSie haben nicht genug Geld, um dies zu tun!'
+      part_maxed_out: '&cDieses Teil ist bereits voll ausgebaut'
+      no_addons: '&cEs befinden sich keine Addons an diesem Fahrzeug!'
+      no_fuel_found: '&cFehler, kein Treibstoff mit dem angegebenen Namen gefunden'
+      no_garage: '&cSie besitzen kein Fahrzeug!'
+      no_item: '&cFehler, Sie halten kein Item'
+      no_rim_found: '&cFehler, keine Felgen mit dem angegebenen Namen gefunden'
+      no_vehicle_found: '&cFehler, kein Fahrzeug mit dem angegebenen Namen gefunden'
+      no_vehicles_for_sale: '&cEs gibt keine Fahrzeuge zu kaufen!'
+      part_wheel_usage: '&cZum Tauschen bitte auf die Felgen klicken'
+      seat_occupied: '&cDieser Platz ist besetzt'
+      no_ride_permissions: '&cSie haben keine Berechtigung, dieses Fahrzeug zu fahren.'
+    plugin_reloaded: '&aPlugin neu geladen!'
+    vehicle:
+      given: '&aFahrzeug gegeben!'
+      locked: '&cDieses Fahrzeug ist verriegelt'
+      now_locked: '&aFahrzeug verriegelt'
+      now_unlocked: '&aFahrzeug entriegelt'
+      refueled: '&aFahrzeug aufgetankt!'
+      removed: '&aFahrzeug entfernt!'
+      repaired: '&aFahrzeug repariert!'
+  command:
+    desc:
+      addon: VehiclesPlus Addon Befehle
+      buy:
+        fuel: '&aKraftstoff kaufen'
+      forcedespawn: Alle Fahrzeuge despawnen
+      fuel: VehiclesPlus Kraftstoff Befehle
+      garage: Öffnen Sie eine Garage
+      give:
+        addon: Ein Addon spawnen
+        fuel: Geben Sie einen Kanister an einen Spieler
+        vehicle: Geben Sie ein Fahrzeug an einen Spieler
+        wheel: Felge spawnen
+        paint: Geben Sie einem Spieler einen Farbeimer
+      info: Detaillierte Informationen über ein Fahrzeug anzeigen
+      list: Liste der geladenen Fahrzeuge anzeigen
+      main: VehiclesPlus Hauptbefehle
+      reload: Laden Sie das Plugin neu
+      shop:
+        fuel: Tankstellenbefehle
+        vehicle: '&aÖffnen Sie den Fahrzeugladen'
+  locale_error: '&4LOKALER FEHLER'
+  gui:
+    button:
+      lore:
+        acceleration: '&Beschleunigung &7'
+        blue: '&bBlau &7'
+        click_for_more_info: '&8Klicken Sie für mehr Informationen'
+        click_to_despawn: '&aKlicken Sie zum Despawnen'
+        click_to_remove: '&bKlicken Sie zum entfernen'
+        click_to_spawn: '&aKlicken Sie zum Spawnen'
+        confirm_delete: Bestätigen Sie das Löschen
+        cost: '&bPreis &7'
+        current: '&bAktuell &7'
+        fuel_storage: '&bKanisterlagerung &7'
+        fuel_type: '&bKraftstofftyp &7'
+        green: '&bGrün &7'
+        max: '&bMaximum &7'
+        occupied: ' &4: Belegt)'
+        red: '&bRot &7'
+        repair_cost: '&cReparaturkosten &7$'
+        speed: '&bGeschwindigkeit &7'
+        turning_radius: '&bWenderadius &7'
+        step: '&bSchritt &7'
+        tank_capacity: '&bTankinhalt &7'
+        vehicle_is_broken: '&cFahrzeug ist kaputt, zum Reparieren links klicken'
+        vehicle_is_spawned: '&aFahrzeug ist gespawnt'
+        health: '&cGesundheit: &7'
+        name: '&cName: &7'
+        part: '&c Teile: '
+        price: '&cPreis: &7'
+        trunk_size: '&cKofferraumgröße: &7'
+        type: '&cTyp: &7'
+      title:
+        acceleration: '&bBeschleunigung &7'
+        addons: '&aAddons'
+        change_owner: '&aFahrzeughalter wechseln'
+        driver_seat: '&aFahrersitz'
+        engine_upgrades: '&aMotorupgrades'
+        enter_vehicle: '&aFahrzeug betreten'
+        lock_vehicle: '&aFahrzeug verriegeln'
+        remove_vehicle: '&aFahrzeug entfernen'
+        rename: '&aFahrzeug umbenennen'
+        seat: '&aSitz'
+        settings: '&aEinstellungen'
+        speed: '&bGeschwindigkeit &7'
+        steering: '&bWenderadius &7'
+        tank_capacity: '&bTankinhalt &7'
+        trunk: '&aKofferraum'
+        unlock_vehicle: '&aFahrzeug entriegeln'
+    page: ' &7- &bSeite: '
+    title:
+      addons: '&bAddons'
+      color: '&bFahrzeugfarben'
+      engine_upgrades: '&bMotorupgrades'
+      garage: '&bGarage'
+      purchase_confirm: '&bSind Sie sicher, dass Sie das kaufen wollen?'
+      select_player: '&aSpieler auswählen'
+      settings: '&bEinstellungen'
+      shop: '&bFahrzeugladen'
+      trunk: '&bKofferraum'
+      vehicle: '&b%Fahrzeug%'
+  item:
+    addon: '&aAddon'
+    fuel: '&a%fuel%'
+    paint: '&aFarbe'

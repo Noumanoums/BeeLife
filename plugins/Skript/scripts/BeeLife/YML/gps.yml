@@ -1,0 +1,18 @@
+## Set 'X, Y, Z' to destination coordinates.
+
+GPS:
+    '0':
+        X: -1093
+        Y: 56
+        Z: 230
+        name: '&eMairie'
+    '1':
+        X: -1028
+        Y: 55
+        Z: 286
+        name: '&eBanque'
+    '2':
+        X: -1058
+        Y: 54
+        Z: 119
+        name: '&eCasino'

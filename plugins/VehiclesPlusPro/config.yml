@@ -1,0 +1,14 @@
+config-version: 1.0.4
+locale: en
+canDriveOverSlabs: true
+canDriveOverBlocks: true
+repairCostDivision: 100.0
+vehicleDamage: false
+entityCollisionStop: true
+entityCollisionDamageSelf: true
+entityCollisionDamageEntity: true
+renameCost: 1000.0
+ownerChangeCost: 1000.0
+onlySpawnOnSpawnpoints: false
+showActionBar: true
+vehiclesSpawnLocked: true

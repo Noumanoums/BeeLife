@@ -1,0 +1,140 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Four
+
+aliases:
+    four = furnace
+
+# ______________________
+# FUNCTIONS
+
+function cGUI(p: Player):
+  create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+    make gui slot 0 with cooked beef named "§eCuisiner une pizza Napolitaine (§a250$/u§e)" with lore "§8Cliquez-ici pour cuisiner votre pizza":
+      makePizza({_p}, 7, 250, "§ePizza Napolitaine", cooked beef)
+      close {_p}'s inventory
+    make gui slot 1 with cooked beef named "§eCuisiner une pizza 4 Fromages (§a350$/u§e)" with lore "§8Cliquez-ici pour cuisiner votre pizza":
+      makePizza({_p}, 7, 350, "§ePizza 4 Fromages", cooked beef)
+      close {_p}'s inventory
+    make gui slot 2 with cooked beef named "§eCuisiner une pizza Hawaïenne (§a350$/u§e)" with lore "§8Cliquez-ici pour cuisiner votre pizza":
+      makePizza({_p}, 7, 350, "§ePizza Hawaïenne", cooked beef)
+      close {_p}'s inventory
+    make gui slot 3 with cooked beef named "§eCuisiner une pizza Margherita (§a350$/u§e)" with lore "§8Cliquez-ici pour cuisiner votre pizza":
+      makePizza({_p}, 7, 350, "§ePizza Margherita", cooked beef)
+      close {_p}'s inventory
+    make gui slot 4 with cooked chicken named "§eCuisiner un Poulet frit (§a450$/u§e)" with lore "§8Cliquez-ici pour cuisiner votre poulet":
+      makePizza({_p}, 6, 450, "§ePoulet Frit", cooked chicken)
+      close {_p}'s inventory
+    make gui slot 5 with cooked salmon named "§eCuisiner un Poisson (§a450$/u§e)" with lore "§8Cliquez-ici pour cuisiner votre poisson":
+      makePizza({_p}, 4, 450, "§ePoisson", cooked salmon)
+      close {_p}'s inventory
+    make gui slot 7 with barrier named "§cDétruire le four":
+      removeFurnace({_p})
+      close {_p}'s inventory
+    make gui slot 8 with arrow named "§c-> Retour":
+      close {_p}'s inventory
+    make gui slot 6 with black stained glass pane named " "
+  open last gui to {_p}
+
+function makePizza(p: Player, time: Number, price: Number, name: Text, item: Item):
+  if getWallet({_p}) < {_price}:
+    send "{@prefix} §cVous n'avez pas assez d'argent dans votre portefeuille !" to {_p}
+    stop
+  set {cuisinier::%{_p}%::item} to {_item} named "%{_name}%"
+  removeWallet({_p}, {_price})
+  set {_c} to "█████████"
+  wait 1 tick
+  loop 9 times:
+    set {_c} to first (length of {_c} - 1) characters of {_c}
+    set {_c} to "§a█§c%{_c}%"
+    set {_es} to {cuisinier::%{_p}%}
+    loop entities in radius 0.5 of {cuisinier::%{_p}%}:
+      if loop-entity is armor stand named "§c█████████":
+        set name of loop-entity to "%{_c}%"
+        wait "%{_time}% seconds" parsed as timespan
+  send "{@prefix} §aLa cuisson de ta nourriture est terminée." to {_p}
+
+function withdrawPizza(p: Player):
+  loop entities in radius 0.5 of {cuisinier::%{_p}%}:
+    if {cuisinier::%{_p}%} is loop-entity's location:
+      if last 5 characters of name of loop-entity is "§a█§c":
+        set {_e} to loop-entity
+        wait a tick
+        set name of loop-entity to "§c█████████"
+        give {cuisinier::%{_p}%::item} to {_p}
+        send "{@prefix} §aTu as retiré ta nourriture du four, la cuisson est parfaite !" to {_p}
+    else:
+      send "{@prefix} §cImpossible, ce n'est pas ton four." to {_p}
+
+function createFurnace(p: Player, l: Location):
+  if {cuisinier::%{_p}%} is not set:
+    remove 1 furnace from {_p}'s inventory
+    add -0.57 to y-coordinate of {_l}
+    set {cuisinier::%{_p}%} to {_l}
+    spawn 1 armor stand at {_l}
+    set {_yaw} to {_p}'s yaw
+    if {_p}'s facing is south:
+      set {_yaw} to 0
+    if {_p}'s facing is west:
+      set {_yaw} to 90
+    if {_p}'s facing is north:
+      set {_yaw} to 180
+    if {_p}'s facing is east:
+      set {_yaw} to -90
+    set last spawned armor stand's yaw to {_yaw} - 180
+    add "{Pose:{Head:[0f,%{_yaw} - 180%f,0f]},CustomNameVisible:1,NoGravity:1b,Invisible:1}" to nbt of last spawned armor stand
+    set name of last spawned armor stand to "§c█████████"
+    set helmet of last spawned armor stand to furnace
+  else:
+    send "{@prefix} §cTu as atteint la limite de fours." to {_p}
+
+function removeFurnace(p: Player):
+  loop entities in radius 0.5 of {cuisinier::%{_p}%}:
+    kill loop-entity
+    clear {cuisinier::%{_p}%}
+
+# ______________________
+# EVENTS
+
+on load:
+  wait a tick
+  clear {cuisinier::*}
+
+on unload:
+  loop {cuisinier::*}:
+    removeFurnace(loop-index parsed as Player)
+
+on quit:
+  removeFurnace(player)
+
+on place of four:
+  cancel event
+  createFurnace(player, event-block's location)
+
+# Interact with props
+on rightclick on armor stand:
+  cancel event
+  if name of event-entity is "§c█████████":
+    if {cuisinier::%event-player%} is event-entity's location:
+      cGUI(event-player)
+    else:
+      send "{@prefix} §cImpossible, ce n'est pas ton four." to event-player
+  else if last 5 characters of name of event-entity is "§a█§c":
+    if {cuisinier::%event-player%} is event-entity's location:
+      withdrawPizza(event-player)
+    else:
+      send "{@prefix} §cImpossible, ce n'est pas ton four." to event-player
+
+# Removing props when changing job
+on job change:
+  removeFurnace(player)
+
+# No hunger
+on food level change:
+    loop all players:
+        if getJobRawName(getPlayerJob(loop-player)) is "cuisinier":
+            stop
+
+    #if player's food level < 20:
+    #    apply saturation 255 without particles to player for 5 seconds replacing existing effect
+    cancel event

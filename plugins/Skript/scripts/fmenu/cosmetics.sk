@@ -1,0 +1,117 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» §eCosmétiques
+
+
+
+function cMLoad():
+  if yaml "beeCosmetics" is loaded:
+    unload yaml "beeCosmetics"
+  load yaml "plugins/Skript/scripts/BeeLife/YML/cosmetics.yml" as "beeCosmetics"
+  if yaml "beeCosmetics" is empty:
+    set yaml value "0.name" from "beeCosmetics" to "masque"
+    set yaml value "0.showname" from "beeCosmetics" to "&eMasque - Cosmétique"
+    set yaml value "0.item" from "beeCosmetics" to iron shovel
+    save yaml "beeCosmetics"
+
+on load:
+    cMLoad()
+
+
+#_____________
+# FUNCTIONS
+
+function isCosmetic(p: Player) :: Boolean:
+    if {cosmetic::%{_p}%::item} is set:
+        return true
+    else:
+        return false
+
+
+function getPlayerCosmetic(p: Player) :: Item:
+    return {cosmetic::%{_p}%::item}
+
+
+function getPlayerCosmeticsList(p: Player) :: Numbers:
+    return {cosmetic::%{_p}%::list::*}
+
+
+function getCosmeticItem(s: Number) :: Item:
+    set {_item} to skript-yaml value "%{_s}%.item" from "beeCosmetics" named skript-yaml value "%{_s}%.showname" from "beeCosmetics"
+    set {_model} to skript-yaml value "%{_s}%.custommodeldata" from "beeCosmetics"
+    return getCustomItem({_item}, {_model})
+
+function setCosmetic(p: Player, s: Number):
+    set {_i} to getCosmeticItem({_s})
+    set {cosmetic::%{_p}%::item} to {_i}
+    set helmet of {_p} to {_i}
+
+
+function removeCosmetic(p: Player):
+    clear {cosmetic::%{_p}%::item}
+    set helmet of {_p} to air
+
+
+function addCosmetics(p: Player, s: Number):
+    add {_s} to {cosmetic::%{_p}%::list::*}
+
+
+function cMGUI(p: Player):
+    create a gui with virtual chest inventory with 2 rows named "{@gui_title}":
+
+        make gui slot 17 with getCustomItem(iron horse armor named "§cRetour", 2020):
+            fmenuOpen({_p}, "")
+
+        make gui slot 16 with barrier named "§cDésactiver votre cosmétique":
+            if isCosmetic({_p}) is true:
+                removeCosmetic({_p})
+                send "{@prefix} §aVous avez désactivé votre cosmétique." to {_p}
+                close {_p}'s inventory
+            else:
+                send "{@prefix} §cVous n'avez aucun cosmétique activé !" to {_p}
+                close {_p}'s inventory
+
+        loop {cosmetic::%{_p}%::list::*}:
+            set {_t} to getCosmeticItem(loop-value)
+            make gui slot loop-value with {_t}:
+
+                setCosmetic({_p}, clicked slot)
+                send "{@prefix} §aVous avez activé votre cosmétique." to {_p}
+                close {_p}'s inventory
+
+    open last gui to {_p}
+
+#_____________
+# EVENTS
+
+
+on inventory click:
+    if isCosmetic(player) is true:
+        if clicked slot is 39:
+            cancel event
+
+
+on drop:
+    if isCosmetic(player) is true:
+        if event-item is getPlayerCosmetic(player):
+            cancel event
+
+
+on respawn:
+    if isCosmetic(player) is true:
+        set helmet of player to getPlayerCosmetic(player)
+
+
+
+command /cosmetics <text> <number> <player>:
+    permission: beelife.cosmetics
+    trigger:
+        if arg-1 is "add":
+            addCosmetics(arg-3, arg-2)
+            send "{@prefix} §aVous avez reçu un nouveau cosmétique." to arg-3
+        else if arg-1 is "all":
+            loop skript-yaml nodes with keys "" from "beeCosmetics" without string checks:
+                addCosmetics(arg-3, loop-index parsed as Number)
+        else if arg-1 is "clear":
+            clear {cosmetic::%arg-3%::list::*}
+            send "{@prefix} §aVous avez supprimé la totalité des cosmétiques du joueur."

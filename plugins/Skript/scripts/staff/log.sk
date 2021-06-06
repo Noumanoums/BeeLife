@@ -1,0 +1,64 @@
+options:
+    decay: 30 minutes
+
+function getLogPath(p: object) :: path:
+    return file path "plugins/Skript/scripts/BeeLife/logs/%{_p}%.log"
+
+function createLogFile(p: players,):
+    loop {_p::*}:
+        set {_path} to getLogPath(loop-value)
+        if {_path} is missing:
+            create {_path}
+
+function addLog(p: players, c: text, l: text):
+    loop {_p::*}:
+        append "§8[§3%now%§8] [§e%{_c}%§8] §6%{_l}%" to getLogPath(loop-value)
+        wait 1 second
+        logDecay(loop-value)
+
+function logDecay(p: players):
+    loop {_p::*}:
+        set {_l} to 0
+        # Check if it's decayed
+        loop getLogPath(loop-value)'s content:
+            add 1 to {_l}
+            set {_d} to parseDate(substring of loop-value-2 from character 6 to character 19)
+            if difference between {_d} and now < {@decay}:
+                add loop-value-2 to {_k::*}
+
+        # Rewrite file if it's
+        if size of {_k::*} < {_l}:
+            delete getLogPath(loop-value):
+                create getLogPath(loop-value) with content join {_k::*} using nl
+
+function sendPlayerLogs(p: player, t: text, page: number = 1):
+    loop 50 times:
+        send " " to {_p}
+    set {_p::*} to page {_page} of getLogPath({_t})'s content with 15 lines
+    send "   §6§m      §7 Logs de §e%{_t}% §6§m      §r" to {_p}
+    loop {_p::*}:
+        send loop-value to {_p}
+    if {_page} < 2:
+        send formatted " §7[Précédent]  §7Page %{_page}%  <command:/log %{_t}% %{_page} + 1%>§e[Suivant]" to {_p}
+    else:
+        send formatted " <command:/log %{_t}% %{_page} - 1%>§e[Précédent]<reset>  §7Page %{_page}%  <command:/log %{_t}% %{_page} + 1%>§e[Suivant]" to {_p}
+
+command /log <text> <number = 1>:
+    trigger:
+        if getLogPath(arg-1) is available:
+            sendPlayerLogs(player, arg-1, arg-2)
+        else:
+            send "no"
+        if arg-1 is "test":
+            loop 50 times:
+                wait a tick
+                addLog(player, "Cube", "cv les gars on se sent bien là")
+
+        #else:
+        #    addLog(player, arg-1, arg-2)
+
+on join:
+    createLogFile(player)
+
+on load:
+    createLogFile(all players)

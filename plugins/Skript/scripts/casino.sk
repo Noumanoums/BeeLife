@@ -1,0 +1,16 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §eCroupier du casino
+    price: 10000
+
+
+on npc right click:
+  if citizen is named "§eCroupier du casino":
+    create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+      make gui slot 4 with book named "§eAcheter un ticket de casino ({@price}$)":
+        if getWallet(player) < {@price}:
+          send "{@prefix} §cVous n'avez pas assez d'argent sur vous !" to player
+          stop
+        removeWallet(player, 100000)
+        give player purple dye named "&eTicket de casino"
+      open last gui to player

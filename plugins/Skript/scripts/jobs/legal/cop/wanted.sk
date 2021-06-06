@@ -1,0 +1,62 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Police
+
+function avisGUI(p: Player):
+  if getJobRawName(getPlayerJob({_p})) is "agentdepolice" or "commissairepolice":
+    create a gui with virtual chest inventory with 3 rows named "{@gui_title}":
+
+      set {_slot} to 0
+      loop {cop::research::*}:
+        set {_target} to loop-index parsed as Player
+        set {_lore::*} to "", "§7Raison : §e%loop-value%§r" and "§aClique pour effacer l'avis de recherche"
+        make gui slot {_slot} with {_target}'s skull named "§e%loop-index%" with lore {_lore::*}:
+          removeResearch({_p}, {_target})
+          close player's inventory
+        add 1 to {_slot}
+
+      make gui slot 18 with green terracotta named "§aAjout":
+        close {_p}'s inventory
+        wait a tick
+        send beesign "" and "§ePseudonyme §6↑" and "" and "§eRaison §6↑" to {_p}
+
+      set {_i} to iron horse armor named "§cRetour"
+      add "{CustomModelData:2020}" to nbt of {_i}
+      make gui slot 26 with {_i}:
+        fmenuOpen({_p}, "commands")
+
+    open last gui to {_p}
+
+function addResearch(p: Player, target: Player, reason: Text):
+  if size of {cop::research::*} > 16:
+    stop
+  set {_d} to difference between now and {cooldown.research2::%{_p}%}
+  if {_d} < 5 minutes:
+    send "{@prefix} §cImpossible, vous devez attendre §e%difference between {_d} and 5 minutes%§c." to {_p}
+    stop
+  if {cop::research::%{_target}%} is set:
+    send "{@prefix} §cLa personne est déjà recherché." to {_p}
+    stop
+
+  set {cop::research::%{_target}%} to {_reason}
+  set {cooldown.research2::%{_p}%} to now
+  send "{@prefix} §aVous avez ajouté §e%{_target}% §aaux avis de recherches." to {_p}
+  send "{@prefix} §7Vous êtes recherché par la police pour la raison §e%{_reason}%§7." to {_target}
+
+  wait 360 seconds
+  if {cop::research::%{_target}%} is set:
+    clear {cop::research::%{_target}%}
+    send "{@prefix} §7Vous n'êtes plus recherché par la police." to {_target}
+
+function removeResearch(p: Player, target: Player):
+  if {cop::research::%{_target}%} is set:
+    clear {cop::research::%{_target}%}
+    send "{@prefix} §aVous avez supprimé §e%{_target}% §ades avis de recherches." to {_p}
+    send "{@prefix} §7Vous n'êtes plus recherché par la police." to {_target}
+
+on quit:
+  if {cop::research::%player%} is set:
+    clear {cop::research::%player%}
+
+on load:
+  clear {cooldown.research2::*}

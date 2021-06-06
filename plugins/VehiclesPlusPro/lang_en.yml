@@ -1,0 +1,118 @@
+vehiclesplus:
+  actionbar:
+    driving_info: '&e%curspeed%&7/&f%maxspeed%&6KM/H'
+    out_of_fuel: '&cOUT OF FUEL'
+  chat:
+    can_exit_while_moving: '&cCan exit while moving: &7'
+    drift: '&cDrift: &7'
+    purchase_complete: '&aPurchase complete!'
+    enter_new_name: '&aPlease type in the new vehicle name. Type "cancel" to cancel.'
+    error:
+      could_not_spawn_vehicle: '&cCould not spawn vehicle!'
+      not_enough_money: '&aYou do not have enough money to do this!'
+      part_maxed_out: '&cThis part is already maxed out'
+      no_addons: '&cThere are no addons on this vehicle!'
+      no_fuel_found: '&cError, no fuel found with the given name'
+      no_garage: '&cYou do not own any vehicles!'
+      no_item: '&cError, you are not holding an item'
+      no_rim_found: '&cError, no rim found with the given name'
+      no_vehicle_found: '&cError, no vehicle found with the given name'
+      no_vehicles_for_sale: '&cThere are no vehicles for sale!'
+      no_ride_permissions: '&cYou do not have permissions to ride this vehicle.'
+      part_wheel_usage: '&cPlease click on the rims to swap'
+      seat_occupied: '&cThis seat is occupied'
+    plugin_reloaded: '&aPlugin reloaded!'
+    vehicle:
+      given: '&aVehicle given!'
+      locked: '§e§lBee§fLife §8» Ce véhicule est fermé'
+      now_locked: '§e§lBee§fLife §8» Vous avez fermé ce véhicule'
+      now_unlocked: '§e§lBee§fLife §8» Vous avez ouvert ce véhicule'
+      refueled: '&aVehicle refueled!'
+      removed: '&aVehicle removed!'
+      repaired: '&aVehicle repaired!'
+  command:
+    desc:
+      addon: VehiclesPlus addons command
+      buy:
+        fuel: '&aBuy fuel'
+      forcedespawn: Force despawn all vehicles
+      fuel: VehiclesPlus Fuel command
+      garage: Open a garage
+      give:
+        addon: Spawn an addon
+        fuel: Give a jerrycan to a player
+        vehicle: Give a vehicle to a player
+        wheel: Spawn a rim
+        paint: Give a paint can to a player
+      info: Display in depth info about a vehicle
+      list: Show a list of loaded vehicles
+      main: Main vehiclesplus command
+      reload: Reload the plugin
+      shop:
+        fuel: Fuel shop command
+        vehicle: '&aOpen the vehicle shop'
+  locale_error: '&4LOCALE ERROR'
+  gui:
+    button:
+      lore:
+        acceleration: '&bAcceleration &7'
+        blue: '&bBlue &7'
+        click_for_more_info: '&8Click for more info'
+        click_to_despawn: '&aClick to despawn'
+        click_to_remove: '&bClick to remove'
+        click_to_spawn: '&aClick to spawn'
+        confirm_delete: Confirm delete
+        cost: '&bPrice &7'
+        current: '&bCurrent &7'
+        fuel_storage: '&bJerrycan storage &7'
+        fuel_type: '&bFuel type &7'
+        green: '&bGreen &7'
+        max: '&bMax &7'
+        occupied: ' &4: Occupied)'
+        red: '&bRed &7'
+        repair_cost: '&cRepair cost &7$'
+        speed: '&bSpeed &7'
+        turning_radius: '&bTurning radius &7'
+        step: '&bStep &7'
+        tank_capacity: '&bTank capacity &7'
+        vehicle_is_broken: '&cVehicle is broken, left click to repair'
+        vehicle_is_spawned: '&aVehicle is spawned'
+        health: '&cHealth: &7'
+        name: '&cName: &7'
+        part: '&c Parts: '
+        price: '&cPrice: &7'
+        trunk_size: '&cTrunk size: &7'
+        type: '&cType: &7'
+      title:
+        acceleration: '&bAcceleration &7'
+        addons: '&aAddons'
+        change_owner: '&aChange vehicle owner'
+        driver_seat: '&aDriver Seat'
+        engine_upgrades: '&aEngine Upgrades'
+        enter_vehicle: '&aEnter vehicle'
+        lock_vehicle: '&aLock vehicle'
+        remove_vehicle: '&aRemove vehicle'
+        rename: '&aRename vehicle'
+        seat: '&aSeat'
+        settings: '&aSettings'
+        speed: '&bSpeed &7'
+        steering: '&bTurning radius &7'
+        tank_capacity: '&bTank capacity &7'
+        trunk: '&aTrunk'
+        unlock_vehicle: '&aUnlock vehicle'
+    page: ' &7- &bPage: '
+    title:
+      addons: '&bAddons'
+      color: '&bVehicle colors'
+      engine_upgrades: '&bEngine Upgrades'
+      garage: '&bGarage'
+      purchase_confirm: '&bAre you sure you want to buy this?'
+      select_player: '&aSelect player'
+      settings: '&bSettings'
+      shop: '&bVehicle shop'
+      trunk: '&bTrunk'
+      vehicle: '&b%vehicle%'
+  item:
+    addon: '&aAddon'
+    fuel: '&a%fuel%'
+    paint: '&aPaint'

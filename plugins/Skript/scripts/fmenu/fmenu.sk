@@ -1,0 +1,77 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    guiTitle: §e§lBee§fLife §8» FMenu
+
+function fmenuOpen(p: player, m: text = ""):
+    set {_p}'s offhand to clay named "§6FMenu"
+    if {_m} is "":
+        create a gui with virtual chest inventory with 3 rows named "{@guiTitle}" and shape "xxxxxxxxx", "xazeurtyx", and "xxxxxxxxx":
+            set {_jobs} to iron horse armor
+            add "{CustomModelData:2003}" to nbt of {_jobs}
+            make gui slot "a" with {_jobs} named "§eListe des métiers" with lore "§8Cliquez-ici pour ouvrir la liste des métiers":
+                JobsGUI({_p})
+            set {_shop} to iron horse armor
+            add "{CustomModelData:2002}" to nbt of {_shop}
+            make gui slot "z" with {_shop} named "§eMagasin" with lore "§8Cliquez-ici pour ouvrir le magasin":
+                shopGUI({_p})
+            set {_darkweb} to iron horse armor
+            add "{CustomModelData:2004}" to nbt of {_darkweb}
+            make gui slot "e" with {_darkweb} named "§eDarkWeb" with lore "§8Cliquez-ici pour ouvrir §aT§3O§2R":
+                dWGUI({_p})
+            set {_cmd} to iron horse armor
+            add "{CustomModelData:2006}" to nbt of {_cmd}
+            make gui slot "r" with {_cmd} named "§eCommandes rapides" with lore "§8Cliquez-ici pour ouvrir les commandes rapides":
+                fmenuOpen({_p}, "commands")
+            set {_cosmetic} to iron horse armor
+            add "{CustomModelData:2005}" to nbt of {_cosmetic}
+            make gui slot "t" with {_cosmetic} named "§eCosmétiques" with lore "§8Cliquez-ici pour ouvrir la boutique de cosmétiques":
+                if size of getPlayerCosmeticsList({_p}) > 0:
+                    cMGUI({_p})
+                else:
+                    send "{@prefix} §cVous n'avez aucun cosmétique, §7pour en obtenir visitez la boutique §ewww.bee-life.fr/shop" to {_p}
+            set {_elections} to iron horse armor
+            add "{CustomModelData:2001}" to nbt of {_elections}
+            make gui slot "y" with {_elections} named "§eElections" with lore "§8Cliquez-ici pour ouvrir les élections":
+                eMopenGUI({_p})
+        open last gui to {_p}
+    else if {_m} is "commands":
+        create a gui with virtual chest inventory with 3 rows named "{@guiTitle}" and shape "xxxxxxxxx", "xazxibxrx", and "xxxxxxxxx":
+            make gui slot "a" with gold ingot named "§eLâcher de l'argent" with lore "§8Cliquez-ici pour lâcher de l'argent":
+                dropMoney({_p}, -1)
+            make gui slot "z" with oak sign named "§eChangement de carte d'identité" with lore "§8Cliquez-ici pour changer votre nom et prénom":
+                changeName({_p})
+
+            if getJobRawName(getPlayerJob({_p})) is "agentdepolice" or "commissairepolice":
+                set {_item} to iron shovel named "§eListe des personnes recherchés §b(police)" with lore "§8Cliquez-ici pour consulter la"
+                add "§8liste des personnes recherchés" to {_item}'s lore
+                make gui slot "i" with {_item}:
+                    avisGUI({_p})
+                make gui slot "b" with light gray dye named "§eFaire un mandat de perquisition §b(police)" with lore "§8Cliquez-ici pour faire un mandat de perquisition":
+                    close {_p}'s inventory
+                    if "%{_p}'s targeted block%" contains "oak wood door":
+                        if "%block under targeted block%" contains "oak wood door":
+                            wait a tick
+                            send beesign "" and "§eRaison §6↑" and "" and "" to {_p}
+                        else:
+                            send "{@prefix} §cImpossible, vous devez regarder le haut d'une porte afin de faire un mandat de perquisition." to {_p}
+                    else:
+                        send "{@prefix} §cImpossible, vous devez regarder une porte afin de faire un mandat de perquisition." to {_p}
+
+            make gui slot "r" with getCustomItem(iron horse armor named "§cRetour", 2020):
+                fmenuOpen({_p}, "")
+        open last gui to {_p}
+
+on inventory close:
+    if isHandcuffed(player) is true:
+        stop
+    wait 1 tick
+    if player's offhand is set:
+        set player's offhand to air
+
+on join:
+    set player's offhand to air
+
+on inventory click:
+    if clicked item is clay named "§6FMenu":
+        cancel event
+        set clicked item to air

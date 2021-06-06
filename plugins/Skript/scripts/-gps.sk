@@ -1,0 +1,196 @@
+options:
+  FMG: §6←
+  FMD: §6→
+  FHM: §6↑
+  FBM: §6↓
+  FHD: §6↗
+  FHG: §6↖
+  FBD: §6↘
+  FBG: §6↙
+
+  gpsCancel: barrier
+  gpsWaypoints: book
+  prefix: §e§lBee§fLife §8»
+  guiTitle: §e§lBee§fLife §8» GPS
+  guiTitle2: §e§lBee§fLife §8» GPS - WAYPOINTS
+
+
+function getAngle(p: player, tracker: location) :: text:
+  set {_Tx} to z-coord of {_tracker} - z-coord of {_p}
+  set {_Ty} to x-coord of {_tracker} - x-coord of {_p}    
+  set {_Ax} to 1 
+  if {_Ty} > 0:
+    set {_Ax} to -1
+    add 180 to {_angle}
+  set {_Bx} to {_Tx} / (sqrt({_Tx}^2 + {_Ty}^2))
+  set {_By} to {_Ty} / (sqrt({_Tx}^2 + {_Ty}^2))
+  set {_theta} to acos({_Ax}*{_Bx} / sqrt({_Bx}^2 + {_By}^2))
+  add {_theta} - {_p}'s location's yaw to {_angle}
+  if {_angle} < 0:
+    set {_angle} to 360 + {_angle}
+  if {_angle} is between 337 and 360:
+    return "{@FHM}"
+  else if {_angle} < 22:
+    return "{@FHM}"
+  else if {_angle} is between 22 and 67:
+    return "{@FBD}"
+  else if {_angle} is between 67 and 112:
+    return "{@FMD}"
+  else if {_angle} is between 112 and 157:
+    return "{@FHD}"
+  else if {_angle} is between 157 and 202:
+    return "{@FBM}"
+  else if {_angle} is between 202 and 247:
+    return "{@FHG}"
+  else if {_angle} is between 247 and 292:
+    return "{@FMG}"
+  else if {_angle} is between 292 and 337:
+    return "{@FBG}"
+  else:
+    return "Error"
+
+every 2 seconds:
+  loop all players:
+    if {gps::%loop-player%} is set:
+      if distance between loop-player's location and {gps::%loop-player%} < 10:
+        send "{@prefix} §eVous êtes arrivé à destination" to loop-player
+        clear {gps::%loop-player%}
+        stop
+      send title getAngle(loop-player, {gps::%loop-player%}) to loop-player for 3 seconds with fade in 0 second and fade out 0 second
+      set action bar of loop-player to "§fDistance: §e%distance between loop-player's location and {gps::%loop-player%}%"
+
+function gpsPlayerLoad(p: Player):
+  load yaml "plugins/Skript/scripts/BeeLife/YML/WayPointData/%{_p}%.yml" as "waypoint%{_p}%"
+  if yaml "waypoint%{_p}%" is empty:
+    save yaml "waypoint%{_p}%"
+
+function gpsPlayerUnload(p: Player):
+  save yaml "waypoint%{_p}%"
+  unload yaml "waypoint%{_p}%"
+
+function gpsLoad():
+  if yaml "beeGPS" is loaded:
+    unload yaml "beeGPS"
+  load yaml "plugins/Skript/scripts/BeeLife/YML/gps.yml" as "beeGPS"
+  if yaml "beeGPS" is empty:
+    set the comments at the top of "beeGPS" to "Set 'X, Y, Z' to destination coordinates."
+    set yaml value "GPS.1.item" from "beeGPS" to redstone
+    set yaml value "GPS.1.X" from "beeGPS" to 10
+    set yaml value "GPS.1.Y" from "beeGPS" to 104
+    set yaml value "GPS.1.Z" from "beeGPS" to 229
+    set yaml value "GPS.1.name" from "beeGPS" to "&8Mairie"
+    save yaml "beeGPS"
+
+on load:
+  clear {gps::*}
+  gpsLoad()
+  loop all players:
+    if yaml "waypoint%loop-player%" isn't loaded:
+      gpsPlayerLoad(loop-player)
+
+on join:
+  gpsPlayerLoad(player)
+
+on quit:
+  gpsPlayerUnload(player)
+  clear {gps::%player%}
+
+
+function openGPS(p: Player):
+  create a gui with virtual chest inventory with 4 rows named "{@guiTitle}":
+    make gui slot 27, 28, 29, 30, 31, 32, 33 and 34 with black stained glass pane named " "
+    if {gps::%{_p}%} is set:
+      make gui slot 34 with {@gpsCancel} named "§cAnnuler sa destination":
+        if {gps::%{_p}%} isn't set:
+          stop
+        close {_p}'s inventory
+        clear {gps::%{_p}%}
+        send "{@prefix} Tu as annulé la destination."
+    make gui slot 35 with {@gpsWaypoints} named "§aAfficher vos waypoints":
+      close {_p}'s inventory
+      openWaypoints({_p})
+    loop skript-yaml nodes with keys "GPS" from "beeGPS" without string checks:
+      make gui slot loop-value parsed as number with skript-yaml value "GPS.%loop-value%.item" from "beeGPS" named skript-yaml value "GPS.%loop-value%.name" from "beeGPS":
+        set {_X} to skript-yaml value "GPS.%clicked slot%.X" from "beeGPS"
+        set {_Y} to skript-yaml value "GPS.%clicked slot%.Y" from "beeGPS"
+        set {_Z} to skript-yaml value "GPS.%clicked slot%.Z" from "beeGPS"
+        set {gps::%{_p}%} to location at {_X}, {_Y}, {_Z} in {_p}'s world
+        send "{@prefix} Vous avez démarré une destination."
+        close {_p}'s inventory
+  open last gui to {_p}
+  
+function openWaypoints(p: Player):
+  create a gui with virtual chest inventory with 4 rows named "{@guiTitle2}":
+    make gui slot 27, 28, 29, 30, 31, 32, 33 and 34 with black stained glass pane named " "
+    if {gps::%{_p}%} is set:
+      make gui slot 34 with {@gpsCancel} named "§cAnnuler sa destination":
+        close {_p}'s inventory
+        if {gps::%{_p}%} isn't set:
+          stop
+        if {mNMissions::%{_p}%} is set:
+          send "{@prefix} §cErreur, tu as une mission en cours pour pouvoir l'annuler rend-toi dans le FMenu et prend ta fin de service."
+          stop
+        clear {gps::%{_p}%}
+        send "{@prefix} Tu as annulé la destination."
+    make gui slot 35 with {@gpsWaypoints} named "§aAjouter un waypoint":
+      close {_p}'s inventory
+      send beesign "" and "§6§m------" and "§eEntrez le nom" and "§edu waypoint" to {_p}
+    set {_i} to -1
+    loop skript-yaml nodes with keys "WAYPOINT" from "waypoint%{_p}%" without string checks:
+      set {_i} to {_i} + 1
+      set {_name} to skript-yaml value "WAYPOINT.%loop-value%.name" from "waypoint%{_p}%"
+      set {_X} to skript-yaml value "WAYPOINT.%loop-value%.X" from "waypoint%{_p}%"
+      set {_Y} to skript-yaml value "WAYPOINT.%loop-value%.Y" from "waypoint%{_p}%"
+      set {_Z} to skript-yaml value "WAYPOINT.%loop-value%.Z" from "waypoint%{_p}%"
+      set {_ID} to skript-yaml value "WAYPOINT.%loop-value%" from "waypoint%{_p}%"
+      set {_item} to stick named {_name}
+      set line 1 of {_item}'s lore to ""
+      set line 2 of {_item}'s lore to "§aX: §e%{_X}%"
+      set line 3 of {_item}'s lore to "§aY: §e%{_Y}%"
+      set line 4 of {_item}'s lore to "§aZ: §e%{_Z}%"
+      set line 5 of {_item}'s lore to "%loop-value%"
+      set line 6 of {_item}'s lore to ""
+      set line 7 of {_item}'s lore to "§e-> Clique droit pour supprimer"
+      make gui slot {_i} with {_item}:
+        if clicked type is right mouse button:
+          set {_s} to line 5 of clicked item's lore parsed as Number
+          removeWaypoint({_p}, {_s})
+          stop
+        set {_X} to skript-yaml value "WAYPOINT.%line 5 of clicked item's lore%.X" from "waypoint%{_p}%"
+        set {_Y} to skript-yaml value "WAYPOINT.%line 5 of clicked item's lore%.Y" from "waypoint%{_p}%"
+        set {_Z} to skript-yaml value "WAYPOINT.%line 5 of clicked item's lore%.Z" from "waypoint%{_p}%"
+        set {gps::%{_p}%} to location at {_X}, {_Y}, {_Z} in {_p}'s world
+        close {_p}'s inventory
+        send "{@prefix} Tu as démarré une destination."
+  open last gui to {_p}
+
+
+function addWaypoint(p: Player, name: String, x: Number, y: Number, z: Number):
+  if {_name} is empty:
+    send "{@prefix} Vous avez entré un nom vide." to {_p}
+    stop 
+  set {_id} to a random integer between 1000 and 9999
+  set {_i} to 0
+  loop skript-yaml nodes with keys "WAYPOINT" from "waypoint%{_p}%" without string checks:
+    set {_i} to {_i} + 1
+  if {_p} has permission "vip":
+    if {_i} >= 4:
+      send "{@prefix} Vous avez atteind le maximum de waypoint." to {_p}
+      stop
+  else:
+    if {_i} >= 2:
+      send "{@prefix} Vous avez atteind le maximum de waypoint." to {_p}
+      stop
+  send "{@prefix} Vous avez ajouté un waypoint." to {_p}
+  set skript-yaml value "WAYPOINT.%{_id}%.name" from "waypoint%{_p}%" to "§e%{_name}%"
+  set skript-yaml value "WAYPOINT.%{_id}%.X" from "waypoint%{_p}%" to {_x}
+  set skript-yaml value "WAYPOINT.%{_id}%.Y" from "waypoint%{_p}%" to {_y}
+  set skript-yaml value "WAYPOINT.%{_id}%.Z" from "waypoint%{_p}%" to {_z}
+
+function removeWaypoint(p: Player, slot: Number):
+  delete skript-yaml value "WAYPOINT.%{_slot}%" from "waypoint%{_p}%"
+  send "{@prefix} Vous avez supprimé un waypoint." to {_p}
+  openWaypoints({_p})
+
+on rightclick with clay ball:
+  openGPS(player)

@@ -1,0 +1,50 @@
+lastAccountName: TiCreeper
+timestamps:
+  login: 1617830950489
+  logout: 1617831054349
+  lastteleport: 1617819887678
+ipAddress: 90.45.105.41
+lastlocation:
+  world: beelife
+  x: -833.7440699426054
+  y: 99.0
+  z: 521.0651577439346
+  yaw: 301.85928
+  pitch: 8.889622
+logoutlocation:
+  world: beelife
+  x: -1037.7968593345977
+  y: 81.42276957219684
+  z: 197.26504948349637
+  yaw: 283.79962
+  pitch: 1.9499996
+afk: false
+homes:
+  terraformage:
+    world: beelife
+    x: -1012.4525327283231
+    y: 97.15811695478604
+    z: 660.6755610740495
+    yaw: 136.67528
+    pitch: 7.80022
+  hanguar:
+    world: beelife
+    x: -629.1122918137798
+    y: 54.0
+    z: 20.266729574662936
+    yaw: -330.5294
+    pitch: 41.09979
+  2ehanguar:
+    world: beelife
+    x: -606.3614498263464
+    y: 65.0
+    z: 284.252605406794
+    yaw: -83.399414
+    pitch: 35.100662
+  maison:
+    world: beelife
+    x: -827.8508445327003
+    y: 96.0
+    z: 598.3000000119209
+    yaw: 176.88477
+    pitch: 0.48141104

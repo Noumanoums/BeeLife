@@ -1,0 +1,22 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» §eGuide
+
+
+on npc right click:
+  if citizen is named "§eGuide":
+    create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+      make gui slot 0 with book named "§eComment acheter une porte ?":
+        launch cinematic "door" "3s" to player
+      make gui slot 1 with book named "§eComment choisir un métier ?":
+        send "{@prefix} §fIl te suffit d'appuyer sur la touche &eF &fde ton clavier pour ouvrir la tablette et de selectionner le premier onglet qui correspond à la liste des métiers." to player
+      make gui slot 2 with book named "§eOu sécuriser mon argent ?":
+        launch cinematic "atm" "5s" to player
+      make gui slot 3 with book named "§eComment rejoindre votre discord ?":
+        send "{@prefix} §fRends toi sur &ewww.discord.bee-life.fr &fpour rejoindre notre serveur discord." to player
+      make gui slot 4 with book named "§eOu trouver la boutique du serveur ?":
+        send "{@prefix} §fC'est très simple tape dans la barre de recherche de ton navigateur &ewww.bee-life.fr &fpour te rendre sur la boutique du serveur." to player
+      make gui slot 5 with book named "§eComment écrire un message hors roleplay ?":
+        send "{@prefix} §fIl suffit de taper &e/hrp (votre message) &fou encore &e! (votre message) &fpour écrire un message hors roleplay." to player
+        close player's inventory
+      open last gui to player

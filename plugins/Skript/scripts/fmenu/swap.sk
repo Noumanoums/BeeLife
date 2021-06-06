@@ -1,0 +1,23 @@
+options:
+    prefix: §e§lBee§fLife §8»
+
+aliases:
+    key = stick
+
+on swap item:
+    cancel event
+    if isHandcuffed(player) is true:
+        stop
+
+    if player's tool is key:
+        if "%player's targeted block%" contains "oak wood door":
+            if distance between player's targeted block and player < 5:
+                if "%block under targeted block%" contains "oak wood door":
+                    set {_l} to player's targeted block's location
+                    doorOpenMenu(player, {_l})
+                else:
+                    send "{@prefix} §cMerci d'appuyez sur F en regardant le haut de la porte !"
+                    stop
+                stop
+
+    fmenuOpen(player)

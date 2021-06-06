@@ -1,0 +1,121 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    empty: §cVous n'avez pas saisi toutes les informations !
+
+on beesign close:
+  close player's inventory
+  scoreboardUpdate(player)
+  set {_splitMessage::*} to split event-string at "§/n"
+
+  if {_splitMessage::3} contains "Entrez le nom":
+    if {_splitMessage::4} contains "du waypoint":
+      if {_splitMessage::1} is empty:
+        send "{@prefix} §cNom invalide !"
+        stop
+      #addWaypoint(player, {_splitMessage::1}, x-loc of player, y-loc of player, z-loc of player)
+      delete {sign::gps::%player%}
+
+  else if {_splitMessage::3} contains "Entrez le montant":
+    set {_n} to {_splitMessage::1} parsed as number
+    if "%{_n}%" is "<none>":
+      send "{@prefix} §cNombre invalide !"
+      stop
+    if {_splitMessage::4} contains "à retirer":
+      atmWithdraw(player, {_n})
+    else if {_splitMessage::4} contains "à déposer":
+      atmDeposit(player, {_n})
+
+    else if {_splitMessage::4} contains "à lâcher":
+      dropMoney(player, {_n})
+
+    else if {_splitMessage::4} contains "à donner":
+      giveMoney(player, {_n})
+
+  # Character
+  else if {_splitMessage::2} contains "Prénom":
+    if {_splitMessage::4} contains "Nom":
+      if "%{_splitMessage::1}%" isn't "":
+        if "%{_splitMessage::3}%" isn't "":
+          if "%{_splitMessage::1}%" contains " ":
+            send beesign "" and "§ePrénom §6↑" and "" and "§eNom §6↑" to player
+            send "{@prefix} §cLes espaces ne sont pas autorisés dans votre identité !"
+            stop
+  
+          if "%{_splitMessage::3}%" contains " ":
+            send beesign "" and "§ePrénom §6↑" and "" and "§eNom §6↑" to player
+            send "{@prefix} §cLes espaces ne sont pas autorisés dans votre identité !"
+            stop
+
+          if {_splitMessage::3}'s length <= 1:
+            send beesign "" and "§ePrénom §6↑" and "" and "§eNom §6↑" to player
+            send "{@prefix} §cMerci d'avoir au minimum 2 lettres pour votre identité !"
+            stop
+
+          if {_splitMessage::1}'s length <= 1:
+            send beesign "" and "§ePrénom §6↑" and "" and "§eNom §6↑" to player
+            send "{@prefix} §cMerci d'avoir au minimum 2 lettres pour votre identité !"
+            stop
+
+          if isCharacterDefined(player) is false:
+            send resource pack from "http://62.210.168.153/pack/1dkAoxPS/BeeLife0.55.zip" to player
+          setCharacter(player, {_splitMessage::1}, {_splitMessage::3})
+          stop
+
+      send "{@prefix} {@empty}"
+      if isCharacterDefined(player) is false:
+        send beesign "" and "§ePrénom §6↑" and "" and "§eNom §6↑" to player
+
+  else if {_splitMessage::2} contains "Nom":
+    if {_splitMessage::4} contains "Numéro":
+      if "%{_splitMessage::1}%" isn't "":
+        if "%{_splitMessage::3}%" isn't "":
+          set {phone::contacts::%player%::%{_splitMessage::1}%} to {_splitMessage::3}
+          send "contact added"
+          openPhoneContact(player, {phone::temp::%player%::contactPage})
+          stop
+      send "empty"
+      openPhoneContact(player, {phone::temp::%player%::contactPage})
+
+  # Hitman Request
+  else if {_splitMessage::2} contains "Pseudonyme":
+    if {_splitMessage::4} contains "Raison contrat":
+      set {_n} to {_splitMessage::3}
+      set {_n2} to {_splitMessage::1}
+      if "%{_n}%" or "%{_n2}%" is "":
+        send "{@prefix} §cVous devez remplir les informations !"
+        stop
+      set {_reason} to {_n}
+      set {_target} to {_n2} parsed as Player
+      addHitman(player, {_target}, {_reason})
+
+  # Mandate
+  else if {_splitMessage::2} contains "Raison":
+    set {_n} to {_splitMessage::1}
+    if "%{_n}%" is "":
+      send "{@prefix} §cVous devez remplir les informations !"
+      stop
+    policeRequestMandat(player, {_n})
+
+  # Wanted
+  else if {_splitMessage::2} contains "Pseudonyme":
+    if {_splitMessage::4} contains "Raison":
+      set {_n} to {_splitMessage::3}
+      set {_n2} to {_splitMessage::1}
+      if "%{_n}%" or "%{_n2}%" is "":
+        send "{@prefix} §cVous devez remplir les informations !"
+        stop
+      set {_reason} to {_n}
+      set {_target} to {_n2} parsed as Player
+      addResearch(player, {_target}, {_reason})
+
+  # Laws
+  else if {_splitMessage::4} contains "Loi":
+    set {_n} to {_splitMessage::1}
+    set {_n2} to {_splitMessage::2}
+    set {_n3} to {_splitMessage::3}
+
+    addLaws(player, {mayor::%player%::law}, {_n}, {_n2}, {_n3})
+    clear {mayor::%player%::law}
+
+  wait 1 tick
+  set player's offhand to air

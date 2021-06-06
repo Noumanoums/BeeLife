@@ -1,0 +1,20 @@
+lastAccountName: FreeJDair
+timestamps:
+  login: 1615416088944
+  logout: 1615416710374
+ipAddress: 109.208.160.161
+lastlocation:
+  world: beelife
+  x: 559.0544212554928
+  y: 5.166109260938214
+  z: 463.77146208025664
+  yaw: -248.11969
+  pitch: 21.150297
+logoutlocation:
+  world: beelife
+  x: 326.7177886190474
+  y: 4.0
+  z: 118.23599932283801
+  yaw: -284.07758
+  pitch: 17.249983
+godmode: false

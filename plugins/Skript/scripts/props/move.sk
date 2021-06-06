@@ -1,0 +1,72 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    
+#_____________
+# FUNCTIONS
+
+function move(i: Item, p: Player, id: integer = -1) :: boolean:
+    if {_id} isn't -1:
+        if getPlayerJob({_p}) isn't {_id}:
+            send "{@prefix} §cVous n'avez pas le bon métier !" to {_p}
+            return false
+            stop
+
+    set {propsmove::%{_p}%} to {_p}'s tool
+    set {_p}'s tool to {_i}
+    apply slowness of tier 3 without particles to {_p} for 9999 days
+    send title "&cVous portez un objet.." to {_p} for 1 second with fadein 0.5 second
+    wait 2 seconds
+    if isMoving({_p}):
+        create bossbar titled "&cVous portez un objet.." and id "move%{_p}%" for {_p} with progress 100 with colors green
+
+function stopMoving(p: Player):
+    set {_p}'s tool to {propsmove::%{_p}%}
+    clear {propsmove::%{_p}%}
+
+    remove slowness from {_p}
+    remove bossbar "move%{_p}%"
+
+function isMoving(p: Player) :: boolean:
+    if {propsmove::%{_p}%} is set:
+        return true
+    return false
+
+#_____________
+# EVENTS
+
+on load:
+    loop all players:
+        stopMoving(loop-player)
+    clear {propsmove::*}
+
+on quit:
+    stopMoving(player)
+
+on death:
+    stopMoving(victim)
+    remove player's tool from drops
+
+on place:
+    if isMoving(player):
+        wait a tick
+        stopMoving(player)
+
+on job change:
+    if isMoving(player):
+        stopMoving(player)
+
+on damage:
+    if isMoving(attacker):
+        cancel event
+
+on drop:
+    if isMoving(player):
+        cancel event
+
+on jump:
+    if isMoving(player):
+        cancel event
+
+on held item change:
+    if isMoving(player):
+        cancel event

@@ -1,0 +1,58 @@
+'1':
+    name: money1
+    showname: '&e5 000$'
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: GOLD_INGOT
+    pourcentage: 25
+    command: wallet add §player 5000
+'2':
+    name: money2
+    showname: '&e10 000$'
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: GOLD_INGOT
+    pourcentage: 25
+    command: wallet add §player 5000
+
+'3':
+    name: money3
+    showname: '&e20 000$'
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: GOLD_INGOT
+    pourcentage: 20
+    command: wallet add §player 20000
+
+'4':
+    name: m4
+    showname: '&eM4A1'
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: STONE_SHOVEL
+    pourcentage: 10
+    command: crackshot give §player M4A1
+
+'5':
+    name: akm
+    showname: '&eAKM'
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: STONE_SHOVEL
+    pourcentage: 10
+    command: crackshot give §player AKM
+
+'6':
+    name: akm
+    showname: '&eAKM'
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: STONE_SHOVEL
+    pourcentage: 10
+    command: crackshot give §player AKM

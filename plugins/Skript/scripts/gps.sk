@@ -1,0 +1,86 @@
+options:
+  FMG: §6←
+  FMD: §6→
+  FHM: §6↑
+  FBM: §6↓
+  FHD: §6↘
+  FHG: §6↙
+  FBD: §6↘
+  FBG: §6↙
+
+  gpsCancel: barrier
+  gpsWaypoints: book
+  prefix: §e§lBee§fLife §8»
+
+
+function getAngle(p: player, tracker: location) :: text:
+  set {_Tx} to z-coord of {_tracker} - z-coord of {_p}
+  set {_Ty} to x-coord of {_tracker} - x-coord of {_p}    
+  set {_Ax} to 1 
+  if {_Ty} > 0:
+    set {_Ax} to -1
+    add 180 to {_angle}
+  set {_Bx} to {_Tx} / (sqrt({_Tx}^2 + {_Ty}^2))
+  set {_By} to {_Ty} / (sqrt({_Tx}^2 + {_Ty}^2))
+  set {_theta} to acos({_Ax}*{_Bx} / sqrt({_Bx}^2 + {_By}^2))
+  add {_theta} - {_p}'s location's yaw to {_angle}
+  if {_angle} < 0:
+    set {_angle} to 360 + {_angle}
+  if {_angle} is between 337 and 360:
+    return "{@FHM}"
+  else if {_angle} < 22:
+    return "{@FHM}"
+  else if {_angle} is between 22 and 157:
+    return "{@FMD}"
+  else if {_angle} is between 157 and 202:
+    return "{@FBM}"
+  else if {_angle} is between 202 and 337:
+    return "{@FMG}"
+  else:
+    return "Error"
+
+every 0.5 seconds:
+  loop all players:
+    if {gps::%loop-player%} is set:
+      if distance between loop-player's location and {gps::%loop-player%} < 10:
+        send "{@prefix} §eVous êtes arrivé à destination" to loop-player
+        clear {gps::%loop-player%}
+        stop
+      send title getAngle(loop-player, {gps::%loop-player%}) to loop-player for 3 seconds with fade in 0 second and fade out 0 second
+      set action bar of loop-player to "§fDistance : §e%distance between loop-player's location and {gps::%loop-player%}%m"
+
+function gpsLoad():
+  if yaml "beeGPS" is loaded:
+    unload yaml "beeGPS"
+  load yaml "plugins/Skript/scripts/BeeLife/YML/gps.yml" as "beeGPS"
+  if yaml "beeGPS" is empty:
+    set the comments at the top of "beeGPS" to "Set 'X, Y, Z' to destination coordinates."
+    set yaml value "GPS.1.X" from "beeGPS" to 10
+    set yaml value "GPS.1.Y" from "beeGPS" to 104
+    set yaml value "GPS.1.Z" from "beeGPS" to 229
+    set yaml value "GPS.1.name" from "beeGPS" to "&8Mairie"
+    save yaml "beeGPS"
+
+on load:
+  clear {gps::*}
+  gpsLoad()
+
+on quit:
+  clear {gps::%player%}
+
+
+function removeGPS(p: Player):
+    if {gps::%{_p}%} isn't set:
+        stop
+    close {_p}'s inventory
+    clear {gps::%{_p}%}
+    send "{@prefix} §aTu as annulé la destination." to {_p}
+
+
+function setGPS(p: Player, n: Number):
+    set {_X} to skript-yaml value "GPS.%{_n}%.X" from "beeGPS"
+    set {_Y} to skript-yaml value "GPS.%{_n}%.Y" from "beeGPS"
+    set {_Z} to skript-yaml value "GPS.%{_n}%.Z" from "beeGPS"
+    set {_N} to skript-yaml value "GPS.%{_n}%.name" from "beeGPS"
+    set {gps::%{_p}%} to location at {_X}, {_Y}, {_Z} in {_p}'s world
+    send "{@prefix} §aVous avez démarré la destination §e%{_N}%§a." to {_p}

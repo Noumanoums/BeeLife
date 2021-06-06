@@ -1,0 +1,132 @@
+options:
+  prefix: §e§lBee§fLife §8»
+
+  tel: §eTéléphone
+  key: §eClés
+
+on load:
+  if yaml "beeDarkWeb" is loaded:
+    unload yaml "beeDarkWeb"
+  load yaml "plugins/Skript/scripts/BeeLife/YML/darkweb.yml" as "beeDarkWeb"
+
+#_____________
+# FUNCTIONS
+
+function inventoryReset(p: player):
+  set {_es} to stick
+  add "{CustomModelData:2001}" to nbt of {_es}
+
+  set slot 8 of {_p} to brick named "{@tel}"
+  set slot 7 of {_p} to {_es} named "{@key}"
+  loop skript-yaml nodes with keys "" from "beeDarkWeb" without string checks:
+    set {_item} to skript-yaml value "%loop-value%.item" from "beeDarkWeb" named skript-yaml value "%loop-value%.showname" from "beeDarkWeb"
+    loop all items in {_p}'s inventory:
+      if loop-item is {_item}:
+        remove loop-value-2 from {_p}'s inventory
+  loop getJobKit(getPlayerJob({_p})):
+    if loop-value is not air:
+      remove loop-value from {_p}'s inventory
+
+  loop all items in {_p}'s inventory:
+    send loop-item's lore tp {_p}
+    if loop-item's lore contains "Police":
+      send "police" to {_p}
+      remove loop-value from {_p}'s inventory
+
+#_____________
+# EVENTS
+
+on join:
+  if player has permission "beelife.inventory.bypass":
+    if player's gamemode is creative:
+      stop
+  inventoryReset(player)
+
+on quit:
+  if player has permission "beelife.inventory.bypass":
+    if player's gamemode is creative:
+      stop
+  inventoryReset(player)
+
+on respawn:
+  inventoryReset(player)
+
+on drop:
+  if event-item is a brick named "{@tel}":
+    set {_v} to true
+  else if event-item is a stick named "{@key}":
+    set {_v} to true
+
+  loop skript-yaml nodes with keys "" from "beeDarkWeb" without string checks:
+    set {_item} to skript-yaml value "%loop-value%.item" from "beeDarkWeb" named skript-yaml value "%loop-value%.showname" from "beeDarkWeb"
+    if event-item is {_item}:
+      cancel event
+
+  if getJobKit(getPlayerJob(player)) contains event-item:
+    cancel event
+  
+  if {_v} is true:
+    if player has permission "beelife.inventory.bypass":
+      if player's gamemode is creative:
+        kill event-entity
+        stop
+    cancel event
+
+#on pickup:
+#  add iron shovel to {_v::*}
+#  add iron axe to {_v::*}
+#  add wooden shovel to {_v::*}
+#  add wooden pickaxe to {_v::*}
+#  add wooden axe to {_v::*}
+#  add stone shovel to {_v::*}
+#  add stone pickaxe to {_v::*}
+#  add golden pickaxe to {_v::*}
+#  if {_v::*} does not contain event-item:
+#    cancel event
+#    kill event-entity
+
+on inventory click:
+  if player has permission "beelife.inventory.bypass":
+    if player's gamemode is creative:
+      stop
+
+  if event-item is a brick named "{@tel}":
+    set {_v} to true
+  else if event-item is a stick named "{@key}":
+    set {_v} to true
+  
+  if {_v} is true:
+    cancel event
+
+on death:
+  clear drops
+  loop victim's inventory:
+    if loop-value is brick named "{@tel}":
+      continue
+    if loop-value is stick named "{@key}":
+      continue
+    if loop-value's lore contains "§8Police":
+      continue
+    if isCosmetic(victim) is true:
+      if loop-value is getPlayerCosmetic(victim):
+        continue
+    if getJobKit(getPlayerJob(victim)) doesn't contain loop-value:
+      drop loop-value at victim's location without velocity 
+
+#command /nik:
+#  trigger:
+#    add "§8Police" to player's tool's lore
+
+#_____________
+# COMMANDS
+
+command /inventory <text> [<player>]:
+  usage: {@prefix} §7Correct usage: §f/inventory §creset [player]
+  permission: beelife.inventory.reset
+  permission message: {@prefix} §cVous n'avez pas la permission !
+  trigger:
+    if arg-1 is "reset":
+      set {_p} to player
+      if arg-2 is set:
+        set {_p} to arg-2
+      inventoryReset({_p})

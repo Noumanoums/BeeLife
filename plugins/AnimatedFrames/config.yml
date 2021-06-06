@@ -1,0 +1,86 @@
+# Make sure all animations are started at the same time on startup (useful if you usethe same image on multiple frames)
+synchronizedStart: false
+
+# Enable this to not start any frames automatically on server start & if you'd like to start them manually instead
+doNotStartAutomatically: false
+
+# This is a (slightly hacky) fix for images which Java interpretes as the wrong image type
+# You should enable this if you get this error when creating a image: "java.lang.IllegalArgumentException: Unknown image type 0"
+fixImageTypes: false
+
+# Maximum distance for frames to be animated to players
+# Note: Increasing this only has an effect if your server's rendering distance for entities is also increased (i.e. spigot.yml entity-tracking-range)
+maxAnimateDistance: 32
+
+# (ms) Default delay for GIFs with missing delay information (Time for each frame to be displayed)
+defaultDelay: 50
+
+message:
+  command:
+    create:
+      setup:
+        first: "&ePlease right-click the &abottom-left corner &eof the frame"
+        second: "&ePlease right-click the &atop-right corner &eof the frame"
+        set:
+          first: "&aFirst corner set"
+          second: "&aSecond corner set"
+        complete: "&aSetup complete! &eCreating frame '%s' with image '%s'..."
+        loading: "&7Loading image & generating maps..."
+        saving: "&7Saving frame data to file..."
+        starting: "&7Starting playback... (This might take a while - See console for progress)"
+        started: "&aAnimation started!"
+      error:
+        exists: "&cFrame already exists"
+        invalidImage: "&cInvalid image path specified"
+        unknownType: "&cCould not identify the image type. Please make sure you are using the correct link. (Generating anyway, check console for errors)"
+    delete:
+      stopping: "&eStopping animation..."
+      removed: "&aFrame removed."
+      error:
+        notFound: "&cFrame not found"
+    start:
+      starting: "&eStarting animation..."
+      error:
+        notFound: "&cFrame not found"
+        playing: "&cFrame is already playing"
+    stop:
+      stopping: "&Stopping animation..."
+      error:
+        notFound: "&cFrame not found"
+        notPlaying: "&cFrame is not playing"
+    pause:
+      pausing: "&ePausing animation..."
+      error:
+        notFound: "&cFrame not found"
+        notPlaying: "&cFrame is not playing"
+    next:
+      success: "&eSkipped to next frame"
+      error:
+        notFound: "&cFrame not found"
+        notPause: "&cFrame is not paused"
+    previous:
+      success: "&eSkipped to previous frame"
+      error:
+        notFound: "&cFrame not found"
+        notPause: "&cFrame is not paused"
+    click:
+      setup:
+        first: "&ePlease right-click the &abottom-left corner &eof the frame"
+        second: "&ePlease right-click the &atop-right corner &eof the frame"
+        set:
+          first: "&aFirst corner set"
+          second: "&aSecond corner set"
+        complete: "&aAdded click event %s"
+      remove: "&ePlease click inside the action you want to remove"
+      removed: "&eAction removed"
+      error:
+        notFound: "&cFrame not found"
+    place:
+      first: "&ePlease right-click the &abottom-left&e block"
+      second: "&ePlease right-click the &atop-right&e block"
+      set:
+        first: "&aFirst corner set"
+        second: "&aSecond corner set"
+      done: "&aFrames placed!"
+      error:
+        face: "&cFirst clicked side does not match the second side"

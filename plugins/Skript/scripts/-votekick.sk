@@ -1,0 +1,23 @@
+function vkUpdateBossbar():
+    broadcast "dsdqs"
+    #loop all players:
+    #    add loop-player to bossbar "votekick"
+    broadcast "dsdqs"
+    set bossbar "votekick" title to "%{votekick::player}% | %{votekick::vote}% vote(s)"
+    broadcast "dsdqs"
+    broadcast "%({votekick::vote} * 100) / player count%"
+    set bossbar "votekick" progress to ({votekick::vote} * 100) / player count
+    display bossbar "votekick"
+
+command /votekick <player>:
+    trigger:
+        if {votekick::*} is set:
+            send "already ta mère"
+            stop
+        set {votekick::player} to arg-1
+        set {votekick::vote} to 1
+        create bossbar titled "%arg-1% | 1 vote(s)" and id "votekick" for all players with progress 0 with colors red
+        vkUpdateBossbar()
+        wait 10 seconds
+        remove bossbar "votekick"
+        delete {votekick::*}

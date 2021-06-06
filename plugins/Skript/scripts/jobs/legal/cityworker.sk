@@ -1,0 +1,85 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Services
+    price: 500
+	
+function mNGUI(p: Player):
+  create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+    make gui slot 2 with green wool named "§aObtenir une mission" with lore "§8Cliquez-ici pour prendre votre service":
+      if getJobRawName(getPlayerJob(player)) is "employecommunal":
+        mNstartService(player)
+        close player's inventory
+    make gui slot 8 with arrow named "§c-> Retour":
+      close {_p}'s inventory
+    make gui slot 6 with red wool named "§cPrendre sa fin de service" with lore "§8Cliquez-ici pour prendre votre fin de service":
+      if getJobRawName(getPlayerJob(player)) is "employecommunal":
+        mNstopService(player)
+        close player's inventory
+    make gui slot 0, 1, 3, 4, 5 and 7 with black stained glass pane named " "
+  open last gui to {_p}
+
+function mNstartService(p: Player):
+  if {mNMissions::%{_p}%} is not set:
+    set {_id} to random element out of {mNMissions::all::*}
+    set {mNMissions::%{_p}%} to random element out of {mNMissions::%{_id}%::*}
+    send "{@prefix} §7Nouvelle mission de §e%{_id}% §7en §e%{mNMissions::%{_p}%}%." to {_p}
+    set {gps::%{_p}%} to {mNMissions::%{_p}%}
+  else:
+    send "{@prefix} §cTu es déjà en service." to {_p}
+  
+function mNstopService(p: Player):
+  if {mNMissions::%{_p}%} is set:
+    send "{@prefix} §7Tu as terminé ton service." to {_p}
+    clear {gps::%{_p}%}
+    clear {mNMissions::%{_p}%}
+  else:
+    send "{@prefix} §cTu n'es pas en service." to {_p}
+
+on load:
+  clear {mNMissions::*}
+  clear {loadinggui::*}
+  
+  set {mNMissions::all::*} to "nettoyage" and "panne"
+  add location at -969.5, 54.5, 189.5 in "beelife" to {mNMissions::nettoyage::*}
+  add location at -887.5, 67.5, 347.5 in "beelife" to {mNMissions::panne::*}
+
+on quit:
+  clear {gps::%player%}
+  clear {mNMissions::%player%}
+  clear {loadinggui::%player%}
+
+on right click on a birch pressure plate or lectern:
+  if getJobRawName(getPlayerJob(player)) is "employecommunal":
+    if {mNMissions::%player%} is event-block's location:
+      if {loadinggui::%player%} is not set:
+        set {loadinggui::%player%} to true
+        close player's inventory
+        send "{@prefix} §7Chargement démarré, merci de ne pas partir loin."
+        set {_c} to "---------"
+        wait 1 tick
+        loop 9 times:
+          if distance between event-block's location and player is smaller than 5:
+            set {_c} to first (length of {_c} - 1) characters of {_c}
+            set {_c} to "§a##§c%{_c}%"
+            send subtitle "§c[%{_c}%§c]" to player
+            wait 1 second
+          else:
+            send "{@prefix} §7Vous vous êtes trop éloigné, la mission est donc annulé." to player
+            stop
+        send subtitle "" to player
+        clear {mNMissions::%player%} 
+        addWallet(player, {@price})
+        clear {loadinggui::%player%}
+        send "{@prefix} §7Chargement terminé, vous avez réussi votre mission §e+{@price}$§7."
+	
+on npc right click:
+  if citizen is named "§eEmployé Communal":
+    if getJobRawName(getPlayerJob(player)) is "employecommunal":
+      mNGUI(player)
+    else:
+      send "{@prefix} §cVous n'avez pas le bon métier !"
+
+on job change:
+  clear {gps::%player%}
+  clear {mNMissions::%player%}
+  clear {loadinggui::%player%}

@@ -1,0 +1,118 @@
+vehiclesplus:
+  actionbar:
+    driving_info: '&bRapidez &f%curspeed%&7/&f%maxspeed%&bKM/H &7| &bCombustível &f%curfuel%&7/&f%maxfuel%&bL &7: &f%fuelperc%%&7) &7| &bConsumo &f%fuelusage%&bL/100KM &7| &bSaúde &f%health%'
+    out_of_fuel: '&cSEM COMBUSTÍVEL'
+  chat:
+    can_exit_while_moving: '&cVocê pode sair em movimento: &7'
+    drift: '&cEscorregar: &7'
+    purchase_complete: '&aCompra bem sucedida!'
+    enter_new_name: '&aDigite o novo nome do seu veículo. Você pode digitar "cancel" para cancelar.'
+    error:
+      could_not_spawn_vehicle: '&cEste veículo não pôde ser colocado!'
+      not_enough_money: '&aVocê não tem dinheiro suficiente para fazer isso!'
+      part_maxed_out: '&cEsta parte já está no limite'
+      no_addons: '&cNão há acessórios neste veículo!'
+      no_fuel_found: '&cErro, nenhum combustível encontrado com esse nome'
+      no_garage: '&cVocê não tem veículos!'
+      no_item: '&cErro, você não tem nenhum objeto em sua mão'
+      no_rim_found: '&cErro, nenhum pneu com esse nome foi encontrado'
+      no_vehicle_found: '&cErro, nenhum veículo com esse nome foi encontrado'
+      no_vehicles_for_sale: '&cParece que não há veículos à venda!'
+      no_ride_permissions: '&cVocê não tem autorização suficiente para dirigir este veículo.'
+      part_wheel_usage: '&cClique nos pneus para trocá-los'
+      seat_occupied: '&cEsta cadeira está ocupada'
+    plugin_reloaded: '&aPlugin recarregado!'
+    vehicle:
+      given: '&aVeículo entregue com sucesso!'
+      locked: '&cEste veículo está fechado'
+      now_locked: '&aVeículo fechado'
+      now_unlocked: '&aVeículo aberto'
+      refueled: '&aVeículo recarregado!'
+      removed: '&aVeículo retirado!'
+      repaired: '&aVeículo reparado!'
+  command:
+    desc:
+      addon: Comando de \nacessórios de VehiclesPlus
+      buy:
+        fuel: '&aCompre combustível'
+      forcedespawn: Remova todos os veículos
+      fuel: Comando de combustível de VehiclesPlus
+      garage: Abra sua garagem
+      give:
+        addon: Obtenha um acessório
+        fuel: Entregue combustível para um jogador
+        vehicle: Entregue um veículo a um jogador
+        wheel: Pegue um pneu
+        paint: Dê uma pintura a um jogador
+      info: Mostra informações detalhadas do veículo
+      list: Exibe uma lista de veículos carregados
+      main: Comando principal VehiclesPlus
+      reload: Recarregue o plugin
+      shop:
+        fuel: Comando da loja de combustível
+        vehicle: '&aAbra a loja de veículos'
+  locale_error: '&4ERRO DE LOCALE'
+  gui:
+    button:
+      lore:
+        acceleration: '&bAceleração &7'
+        blue: '&bAzul &7'
+        click_for_more_info: '&8Clique para mais informações'
+        click_to_despawn: '&aClique para retirar'
+        click_to_remove: '&bClique para deletar'
+        click_to_spawn: '&aClique para colocar'
+        confirm_delete: Confirme a exclusão
+        cost: '&bPreço &7'
+        current: '&bAtual &7'
+        fuel_storage: '&bArmazenamento de combustível &7'
+        fuel_type: '&bTipo de combustível &7'
+        green: '&bVerde &7'
+        max: '&bMáximo &7'
+        occupied: ' &4: Ocupado)'
+        red: '&bVermelho &7'
+        repair_cost: '&cCusto de reparo &7$'
+        speed: '&bRapidez &7'
+        turning_radius: '&bRaio de giro &7'
+        step: '&bProgresso &7'
+        tank_capacity: '&bCapacidade de combustível &7'
+        vehicle_is_broken: '&cSeu veículo quebrou, clique para consertar'
+        vehicle_is_spawned: '&aEste veículo foi colocado'
+        health: '&cSaúde: &7'
+        name: '&cNome: &7'
+        part: '&c Peças: '
+        price: '&cPreço: &7'
+        trunk_size: '&cTamanho do tronco: &7'
+        type: '&cTipo: &7'
+      title:
+        acceleration: '&bAceleração &7'
+        addons: '&aAcessórios'
+        change_owner: '&aAlterar proprietário do veículo'
+        driver_seat: '&aCadeira do motorista'
+        engine_upgrades: '&aMelhorias de motor'
+        enter_vehicle: '&aEntre no veículo'
+        lock_vehicle: '&aFechar veículo'
+        remove_vehicle: '&aRemover veículo'
+        rename: '&aRenomear veículo'
+        seat: '&aCadeira'
+        settings: '&aConfigurações'
+        speed: '&bRapidez &7'
+        steering: '&bRaio de giro &7'
+        tank_capacity: '&bCapacidade de combustível &7'
+        trunk: '&aTronco'
+        unlock_vehicle: '&aAbra o veículo'
+    page: ' &7- &bPágina: '
+    title:
+      addons: '&bAcessórios'
+      color: '&bCores de veículos'
+      engine_upgrades: '&bMelhorias de motor'
+      garage: '&bGaragem'
+      purchase_confirm: '&bTem certeza que deseja comprar isto?'
+      select_player: '&aSelecione o jogador'
+      settings: '&bConfigurações'
+      shop: '&bLoja de veículos'
+      trunk: '&bTronco'
+      vehicle: '&b%vehicle%'
+  item:
+    addon: '&aAcessório'
+    fuel: '&a%fuel%'
+    paint: '&aPintura'

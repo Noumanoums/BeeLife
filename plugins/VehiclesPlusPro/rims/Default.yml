@@ -1,0 +1,12 @@
+className: me.legofreak107.vehiclesplus.vehicles.rims.RimDesign
+skin:
+  ==: org.bukkit.inventory.ItemStack
+  v: 2230
+  type: LEATHER_CHESTPLATE
+  meta:
+    ==: ItemMeta
+    meta-type: LEATHER_ARMOR
+    Unbreakable: true
+    Damage: 2
+price: 1000.0
+name: default

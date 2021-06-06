@@ -1,0 +1,68 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» §2§kDarkWeb
+
+function dWLoad():
+  if yaml "beeDarkWeb" is loaded:
+    unload yaml "beeDarkWeb"
+  load yaml "plugins/Skript/scripts/BeeLife/YML/darkweb.yml" as "beeDarkWeb"
+  if yaml "beeDarkWeb" is empty:
+    set yaml value "9.name" from "beeDarkWeb" to "ak47"
+    set yaml value "9.showname" from "beeDarkWeb" to "&eAK-47"
+    set yaml value "9.price" from "beeDarkWeb" to 100
+    set yaml value "9.item" from "beeDarkWeb" to iron shovel
+    set yaml value "9.custommodedata" from "beeDarkWeb" to ""
+    set yaml value "9.slot" from "beeDarkWeb" to 9
+    set yaml value "9.isGun" from "beeDarkWeb" to true
+    set yaml value "9.job" from "beeDarkWeb" to "fabriquantweed"
+    save yaml "beeDarkWeb"
+
+function dWGUI(p: Player):
+  create a gui with virtual chest inventory with 4 rows named "{@gui_title}":
+    #make gui slot 0, 1, 2, 3, 4, 5, 6, 7 and 8 with green stained glass pane named "§2§kDarkWeb"
+    #make gui slot 27, 28, 29, 30, 31, 32, 33 and 34 with green stained glass pane named "§2§kDarkWeb"
+    #make gui slot 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 and 26 with red stained glass pane named "§c§kRien à vendre"
+    make gui slot 35 with getCustomItem(iron horse armor named "§cRetour", 2020):
+      fmenuOpen({_p}, "")
+    loop skript-yaml nodes with keys "" from "beeDarkWeb" without string checks:
+      set {_job} to skript-yaml value "%loop-value%.job" from "beeDarkWeb"
+
+      if getJobRawName(getPlayerJob({_p})) is {_job}:
+        set {_value} to loop-value
+        set {_item} to skript-yaml value "%loop-value%.item" from "beeDarkWeb" named skript-yaml value "%loop-value%.showname" from "beeDarkWeb"
+        set {_price} to skript-yaml value "%loop-value%.price" from "beeDarkWeb"
+        set {_slot} to skript-yaml value "%loop-value%.slot" from "beeDarkWeb"
+        set {_model} to skript-yaml value "%loop-value%.custommodeldata" from "beeDarkWeb"
+        set line 1 of {_item}'s lore to ""
+        set line 2 of {_item}'s lore to "§e» §6Prix§7: §e%{_price}%€"
+        if {_model} is not "":
+          add "{CustomModelData:%{_model}%}" to nbt of {_item}
+        make gui slot {_slot} with {_item}:
+          dWBuy({_p}, {_value} parsed as Number)
+  open last gui to {_p}
+
+function dWBuy(p: Player, slot: Number):
+  set {_item} to skript-yaml value "%{_slot}%.item" from "beeDarkWeb"
+  set {_price} to skript-yaml value "%{_slot}%.price" from "beeDarkWeb"
+  set {_gun} to skript-yaml value "%{_slot}%.isGun" from "beeDarkWeb"
+  set {_rawName} to skript-yaml value "%{_slot}%.name" from "beeDarkWeb"
+  set {_name} to skript-yaml value "%{_slot}%.showname" from "beeDarkWeb"
+  set {_model} to skript-yaml value "%{_slot}%.custommodeldata" from "beeDarkWeb"
+
+  
+  if getBank({_p}) < {_price}:
+    send "{@prefix} §cTu n'as pas assez d'argent en banque !" to {_p}
+    stop
+  removeBank({_p}, {_price})
+  send "{@prefix} §aVous avez acheté un(e) %{_name}%" to {_p}
+  if {_model} is not "":
+    add "{CustomModelData:%{_model}%}" to nbt of {_item}
+    give {_p} {_item} named {_name}
+    stop
+  if {_gun} is true:
+    execute console command "qa give %{_rawName}% %{_p}%"
+  else:
+    give {_p} {_item} named {_name}
+
+on load:
+  dWLoad()

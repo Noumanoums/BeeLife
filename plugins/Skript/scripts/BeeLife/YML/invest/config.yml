@@ -1,0 +1,9 @@
+'0':
+    icon:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: RED_NETHER_BRICKS
+    name: Petit invest
+    time: !skripttimespan '10 seconds'
+    price: 20
+    reward: 40

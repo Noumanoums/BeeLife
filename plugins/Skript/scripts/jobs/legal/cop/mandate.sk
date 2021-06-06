@@ -1,0 +1,128 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Police
+
+on load:
+  clear {cop::mandat::*}
+
+# -----------MANDATS
+
+function policeRequestMandat(p: Player, r: Text):
+  if "%{_p}'s targeted block%" contains "oak wood door":
+    if {cop::mandat::%{_p}%} is not set:
+
+      set {_loc} to {_p}'s targeted block
+      set {_o} to getOwner({_loc})
+      if {_o} is not set:
+        send "{@prefix} §cImpossible, la porte n'est pas acheté." to {_p}
+        stop
+      if {_o} is {_p}:
+        send "{@prefix} §cImpossible, vous ne pouvez faire un mandat contre vous même..." to {_p}
+        stop
+
+      send "{@prefix} §7Vous avez fait un mandat de perquisition contre %{_o}%" to {_p}
+
+      if getJobPlayers(4) is 0:
+        if getJobPlayers(9) is 0:
+          set {cop::mandat::%{_p}%} to {_loc}
+          acceptMandat({_loc}, {_p}, {_p})
+          
+          wait 2 minutes
+          if {cop::mandat::%{_p}%} is set:
+            send "{@prefix} §7Le mandat de perquisition à expiré." to {_p}
+            clear {cop::mandat::%{_p}%}
+          stop
+
+
+      loop all players:
+
+        if getPlayerJob(loop-player) is 4 or 9:
+          set {cop::mandat::%{_p}%} to {_loc}
+
+          send "{@prefix} §e%{_p}% §7demande un mandat contre §e%{_o}% §7pour la raison §e%{_r}% §7->" to loop-player
+          message formatted "<tooltip:§eClique pour accepter le mandat><command:/mayormandat ouimetz %{_p}%>§aOui<reset> §e| <tooltip:§eClique pour refuser le mandat><command:/mayormandat nonmetz %{_p}%>§aNon<reset>" to loop-player
+          stop
+
+          wait 2 minutes
+          if {cop::mandat::%{_p}%} is set:
+            send "{@prefix} §7Le mandat de perquisition à expiré." to loop-player
+            clear {cop::mandat::%{_p}%}
+          stop
+    else:
+      send "{@prefix} §cImpossible, tu as déjà un mandat en attente." to {_p}
+
+function acceptMandat(l: Location, p: Player, mayor: Player):
+  if {cop::mandat::%{_p}%} is not set:
+    send "{@prefix} §cImpossible, le mandat est expiré." to {_p}
+    stop
+
+  loop all blocks in radius 0.2 around {_l}:
+    set {_loop} to loop-block
+
+    if "%{_loop}%" contains "oak wood door":
+      set {_o} to getOwner({_loop})
+      if {_o} is not set:
+        send "{@prefix} §cImpossible, la porte n'est pas acheté." to {_p}
+        stop
+
+      send "{@prefix} §7Vous avez accepté le mandat de perquisition." to {_mayor}
+      send "{@prefix} §7La police à fait un mandat de perquisition chez vous." to {_o}
+      send "{@prefix} §aLe mandat de perquisition est accepté." to {_p}
+      setMandat({_loop}, true)
+      clear {cop::mandat::%{_p}%}
+
+      wait 5 minutes
+      if getMandat({_loop}) is true:
+        setMandat({_loop}, false)
+
+function refuseMandat(p: Player, mayor: Player):
+  if {cop::mandat::%{_p}%} is not set:
+    send "{@prefix} §cImpossible, le mandat est expiré." to {_p}
+    stop
+
+  send "{@prefix} §7Vous avez refusé le mandat de perquisition." to {_mayor}
+  send "{@prefix} §cLe mandat de perquisition est refusé." to {_p}
+  clear {cop::mandat::%{_p}%}
+
+on rightclick:
+  if "%clicked block%" contains "oak wood door":
+    if "%block under clicked block%" contains "oak wood door":
+      if player's tool is light gray dye:
+        if getMandat(event-block's location) is true:
+          activate event-block
+          clear {cop::mandat::%player%}
+          setMandat(clicked block's location, false)
+
+
+# -----------MAYOR COMMAND MANDAT
+
+command /mayormandat <text> <player>:
+  trigger:
+    if getPlayerJob(player) is not 4 or 9:
+      stop
+    if {cop::mandat::%arg-2%} is not set:
+      send "{@prefix} §cImpossible, le mandat est expiré."
+      stop
+    if arg-1 is "ouimetz":
+      set {_loc} to {cop::mandat::%arg-2%}
+      acceptMandat({_loc}, arg-2, player)
+    else if arg-1 is "nonmetz":
+      refuseMandat(arg-2, player)
+
+# -------------
+
+on quit:
+  if getJobRawName(getPlayerJob(player)) is "mayor":
+    clear {cop::mandat::*}
+    stop
+  else if getJobRawName(getPlayerJob(player)) is "commissairepolice":
+    clear {cop::mandat::*}
+    stop
+  clear {cop::mandat::%player%}
+
+on job change:
+  clear {cop::mandat::%player%}
+
+command /zebi:
+  trigger:
+    setJob(player, 4)

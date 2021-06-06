@@ -1,0 +1,143 @@
+'0':
+    name: printer
+    showname: '&ePrinter - Cosmétique'
+    custommodeldata: 0
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: END_STONE_BRICK_SLAB
+
+'1':
+    name: plot
+    showname: '&ePlot - Cosmétique'
+    custommodeldata: 0
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: PRISMARINE_WALL
+
+'2':
+    name: bandana
+    showname: '&eBandana - Cosmétique'
+    custommodeldata: 2001
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+
+'3':
+    name: chapeaupaille
+    showname: '&eChapeau de Paille - Cosmétique'
+    custommodeldata: 2002
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+
+'4':
+    name: chicken
+    showname: '&ePoule - Cosmétique'
+    custommodeldata: 2003
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+
+'5':
+    name: deer_male
+    showname: '&eCerf - Cosmétique'
+    custommodeldata: 2004
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'6':
+    name: hallo
+    showname: '&eMasque RGB - Cosmétique'
+    custommodeldata: 2005
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'7':
+    name: jason
+    showname: '&eMasque Jason - Cosmétique'
+    custommodeldata: 2006
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'8':
+    name: jigsaw
+    showname: '&eMasque Jigswaw - Cosmétique'
+    custommodeldata: 2007
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'9':
+    name: libellule
+    showname: '&eMasque Libellule - Cosmétique'
+    custommodeldata: 2008
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'10':
+    name: lion_cub
+    showname: '&eLion - Cosmétique'
+    custommodeldata: 2009
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'11':
+    name: masquemdr
+    showname: '&eMasque mdr - Cosmétique'
+    custommodeldata: 2010
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'12':
+    name: monkey
+    showname: '&eSinge - Cosmétique'
+    custommodeldata: 2011
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'13':
+    name: parrot_golden_1
+    showname: '&ePeroquet bleu - Cosmétique'
+    custommodeldata: 2012
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'14':
+    name: parrot_macaw_1
+    showname: '&ePeroquet rouge - Cosmétique'
+    custommodeldata: 2013
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR
+        
+'15':
+    name: wyvern_red
+    showname: '&eDragon - Cosmétique'
+    custommodeldata: 2014
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LEATHER_HORSE_ARMOR

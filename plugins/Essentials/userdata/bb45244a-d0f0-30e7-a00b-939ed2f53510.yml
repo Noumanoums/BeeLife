@@ -1,0 +1,29 @@
+lastAccountName: Terofar
+timestamps:
+  login: 1617843607004
+  logout: 1617843612698
+  lastteleport: 1617030923393
+ipAddress: 88.167.191.73
+logoutlocation:
+  world: beelife
+  x: -1095.5
+  y: 56.0
+  z: 230.5
+  yaw: 0.0
+  pitch: 0.0
+lastlocation:
+  world: beelife
+  x: -1083.3966999253837
+  y: 54.0
+  z: 292.95277120361754
+  yaw: 38.24301
+  pitch: 33.149864
+homes:
+  sept:
+    world: beelife
+    x: -950.0343784719072
+    y: 95.78260180565542
+    z: -1.0544874189187725
+    yaw: -78.75061
+    pitch: 48.899582
+money: '99999992000.0'

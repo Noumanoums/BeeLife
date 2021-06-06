@@ -1,0 +1,99 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Casino
+
+
+function cratesLoad():
+    if yaml "beeCrates" is loaded:
+        unload yaml "beeCrates"
+    load yaml "plugins/Skript/scripts/BeeLife/YML/crates.yml" as "beeCrates"
+    if yaml "beeCrates" is empty:
+        set yaml value "1.name" from "beeCrates" to "magmablock"
+        set yaml value "1.showname" from "beeCrates" to "&eBlock de Magma"
+        set yaml value "1.item" from "beeCrates" to magma block
+        set yaml value "1.pourcentage" from "beeCrates" to 10
+        set yaml value "1.command" from "beeCrates" to "msg Caspere coucou"
+        save yaml "beeCrates"
+
+
+on load:
+    cratesLoad()
+
+function startCrates(p: Player):
+    add stone to {_crates::*}
+    add bedrock to {_crates::*}
+    add oak log to {_crates::*}
+
+    add white stained glass pane to {_crates.glass::*}
+    add yellow stained glass pane to {_crates.glass::*}
+    add gray stained glass pane to {_crates.glass::*}
+    add red stained glass pane to {_crates.glass::*}
+    add blue stained glass pane to {_crates.glass::*}
+    add cyan stained glass pane to {_crates.glass::*}
+
+    create a gui with virtual hopper inventory with 1 rows named "{@gui_title}":
+    open last gui to {_p}
+
+    edit last created gui:
+        loop 40 times:
+            set {_i} to a random element of {_crates::*}
+            set {_b} to a random element of {_crates.glass::*}
+            make gui slot 2 with {_i} named ""
+
+            make gui slot 0 with {_b} named ""
+            make gui slot 1 with {_b} named ""
+            make gui slot 3 with {_b} named ""
+            make gui slot 4 with {_b} named ""
+            wait 0.2 seconds
+
+        chance of 5%:
+            set {_name} to "&eM4A1"
+            set {_cmd} to "crackshot give §player M4A1"
+            set {_item} to stone shovel
+        chance of 5%:
+            set {_name} to "&eAKM"
+            set {_cmd} to "crackshot give §player AKM"
+            set {_item} to wooden axe
+        chance of 5%:
+            set {_name} to "&eType 95"
+            set {_cmd} to "crackshot give §player Type95"
+            set {_item} to iron shovel
+
+        chance of 10%:
+            set {_name} to "&e8 000$"
+            set {_cmd} to "wallet add §player 8000"
+            set {_item} to gold ingot
+        chance of 10%:
+            set {_name} to "&e20 000$"
+            set {_cmd} to "wallet add §player 20000"
+            set {_item} to gold ingot
+        chance of 15%:
+            set {_name} to "&ePochon de Cannabis"
+            set {_cmd} to "wallet add §player 20000"
+            set {_item} to 10 tall grass named "§aPochon de cannabis"
+            add "{CustomModelData:2001}" to nbt of {_item}
+            set {_i} to true
+        chance of 25%:
+            set {_name} to "&e10 000$"
+            set {_cmd} to "wallet add §player 10000"
+            set {_item} to gold ingot
+        chance of 35%:
+            set {_name} to "&e5 000$"
+            set {_cmd} to "wallet add §player 5000"
+            set {_item} to gold ingot
+
+
+
+        send "{@prefix} §aVous avez gagné un(e) %{_name}%" to {_p}
+        make gui slot 2 with {_item} named {_name}
+        replace all "§player" with "%{_p}%" in {_cmd}
+        if {_i} is true:
+            give {_item} to {_p}'s inventory
+        else:
+            make console execute command "%{_cmd}%"
+
+
+
+command /spas:
+    trigger:
+        startCrates(player)

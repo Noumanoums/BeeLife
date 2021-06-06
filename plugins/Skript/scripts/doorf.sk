@@ -1,0 +1,75 @@
+command /doorf <text>:
+    trigger:
+        if arg-1 is "clear":
+            clear {doorf::*}
+        else if arg-1 is "close":
+            close()
+        else if arg-1 is "open":
+            open()
+        else if arg-1 is "addopen":
+            add player's targeted block to {doorf::open::*}
+        else if arg-1 is "addclose":
+            add player's targeted block to {doorf::close::*}
+
+every second:
+    loop players in radius 6 around {doorf::close::3}'s location:
+        open()
+        stop
+    close()
+
+on load:
+    clear {doorf::isOpen}
+    set {_w} to false
+
+    set {_s} to size of {doorf::open::*}
+    set {_i} to 0
+
+    loop {doorf::close::*}:
+        add 1 to {_i}
+        if {_w} is true:
+            set {_w} to false
+            if block at loop-value is air:
+                set block at loop-value's location to white glass pane
+        else:
+            set {_w} to true
+            if block at loop-value is air:
+                set block at loop-value's location to red glass pane
+        if {_i} = {_s}:
+            clear {doorf::using}
+            stop
+
+function open():
+    if {doorf::isOpen} isn't set:
+        set {doorf::isOpen} to false
+
+        set {_s} to size of {doorf::open::*}
+        set {_i} to 0
+
+        loop {doorf::open::*}:
+            add 1 to {_i}
+            set block at loop-value's location to air
+            if {_i} = {_s}:
+                set {doorf::isOpen} to true
+                stop
+            wait 0.25 second
+
+function close():
+    if {doorf::isOpen} is true:
+        set {doorf::isOpen} to false
+        set {_w} to false
+
+        set {_s} to size of {doorf::open::*}
+        set {_i} to 0
+
+        loop {doorf::close::*}:
+            add 1 to {_i}
+            if {_w} is true:
+                set block at loop-value's location to white glass pane
+                set {_w} to false
+            else:
+                set block at loop-value's location to red glass pane
+                set {_w} to true
+            if {_i} = {_s}:
+                clear {doorf::isOpen}
+                stop
+            wait 0.25 second

@@ -1,0 +1,189 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Braquage
+
+    bank_door: -1057.5, 56.5, 263.5
+    armor_stand: -1053.95, 54.4, 249.5
+    cooldown: 3 hours
+    billets: 10
+
+on load:
+    clear {bankdoorcooldown}
+    clear {bankcooldown::*}
+    loop {bank::door::location::*}:
+        loop blocks in radius 0.5 of loop-value:
+            set loop-block to iron block
+
+    loop {bank::chest::location::*}:
+        loop blocks in radius 0.5 of loop-value:
+            set loop-block to lapis lazuli block
+
+
+#_____________
+# FUNCTIONS
+
+
+function startRobbery(p: Player):
+
+    set {bankdoorcooldown} to now
+
+    send "{@prefix} §aDémarrage du braquage.. 10 secondes avant explosion.." to {_p}
+
+    # PREVENIR LA POLICE
+    loop all players:
+        if getJobRawName(getPlayerJob(loop-player)) is "agentdepolice":
+            send "{@prefix} §cAlerte : Braquage de la banque renfort demandé !" to loop-player
+        else if getJobRawName(getPlayerJob(loop-player)) is "commissairepolice":
+            send "{@prefix} §cAlerte : Braquage de la banque renfort demandé !" to loop-player
+
+    set {_l} to location {@armor_stand} in world "beelife"
+
+    # CREATION DU C4 ET PLACEMENT
+    spawn 1 armor stand at {_l}
+    set {_es} to yellow dye 
+    set {_s} to last spawned armor stand
+    add "{CustomNameVisible:0,NoGravity:1b,Invisible:1}" to nbt of {_s}
+    set name of last spawned armor stand to "C4"
+    set helmet of last spawned armor stand to {_es}
+
+    play sound "c4" with volume 0.9 and pitch 0.9 at {_l}
+    # EXPLOSION
+    wait 10 seconds
+    kill {_s}
+    create a safe explosion with force 2 at {_l}
+    loop {bank::door::location::*}:
+        loop blocks in radius 0.5 of loop-value:
+            set loop-block to air
+    send "{@prefix} §aBraquage en cours.. Vous avez 20 minutes avant que la porte se referme.." to {_p}
+
+    # REPLACE LA PORTE DU COFFRE
+    launchTimer()
+
+
+function startRobberyPickup(p: Player, stage: Number): 
+    # PLAY SOUND & COOLDOWN SPAM
+    if {_stage} is 1:
+        set {_d} to difference between now and {bankcooldown::%{_p}%}
+        if {_d} < 10 seconds:
+            send "{@prefix} §cVous devez attendre §e%translateDate(difference between {_d} and 10 seconds)%§c." to {_p}
+            stop
+        if {_d} > 0 second:
+            clear {bankcooldown::%{_p}%}
+
+        if {chestbankcooldown} is true:
+            stop
+        set {chestbankcooldown} to true
+
+        set {bankcooldown::%{_p}%} to now
+        play sound "perceuse" with volume 0.05 and pitch 1 at location of {_p}'s targeted block
+
+    # OPEN GUI
+    create a gui with virtual chest inventory with 3 rows named "{@gui_title}":
+        run on gui close:
+            clear {chestbankcooldown}
+        make gui slot 0 with red terracotta named ""
+    open last gui to {_p}
+
+    set {_b} to {_p}'s targeted block
+    add 0.3 to {_b}'s z-coordinate
+
+    # ANIMATION
+    edit last created gui:
+        add 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 and 26 to {_s::*}
+        loop 27 times:
+            set {_slot} to random element out of {_s::*}
+            remove {_slot} from {_s::*}
+            make gui slot {_slot} with red terracotta named ""
+            wait 1 ticks
+            spawn 6 crit at {_b}'s location
+
+        set {_n} to a random integer between 0 and 26
+
+        if {_stage} is 1:
+            make gui slot {_n} with green terracotta named "§ePercer §a1/3":
+                startRobberyPickup({_p}, 2)
+        else if {_stage} is 2:
+            make gui slot {_n} with green terracotta named "§ePercer §a2/3":
+                startRobberyPickup({_p}, 3)
+        else if {_stage} is 3:
+            make gui slot {_n} with green terracotta named "§ePercer §a3/3":
+                send "{@prefix} §aVous avez ramassé §e{@billets}§a billets de banque dans le coffre." to {_p}
+
+                give {@billets} gold ingot named "§eBillets" to {_p}
+                close {_p}'s inventory
+                set {_p}'s targeted block to air
+                clear {chestbankcooldown}
+
+
+# TIMER RESET BANQUE
+
+function launchTimer():
+    wait 20 minutes
+    # REPLACE LA PORTE
+    loop {bank::door::location::*}:
+        loop blocks in radius 0.5 of loop-value:
+            set loop-block to iron block
+
+    # REPLACE LES COFFRES
+    loop {bank::chest::location::*}:
+        loop blocks in radius 0.5 of loop-value:
+            set loop-block to lapis lazuli block
+
+    wait 2 hours 30 minutes
+    clear {bankdoorcooldown}
+
+
+#_____________
+# EVENTS
+
+
+on rightclick on iron block:
+    if player's held item is yellow dye:
+        if {bank::door::location::*} contains event-block:
+            if getJobRawName(getPlayerJob(player)) is not "robber":
+                send "{@prefix} §cVous n'avez pas le bon métier !"
+                stop
+            set {_d} to difference between now and {bankdoorcooldown}
+            if {_d} < 3 hours:
+                send "{@prefix} §cVous devez attendre §e%translateDate(difference between {_d} and 3 hours)%§c." to player
+                stop
+            if {_d} > 0 second:
+                clear {bankdoorcooldown}
+            if getJobPlayers(8) < 3:
+                send "{@prefix} §cIl n'y a pas assez de policiers !" to player
+                stop
+            remove 1 of player's tool from player
+            startRobbery(player)
+
+on rightclick on lapis lazuli block:
+    if player's held item is lime dye:
+        if {bank::chest::location::*} contains event-block:
+            if getJobRawName(getPlayerJob(player)) is not "robber":
+                send "{@prefix} §cVous n'avez pas le bon métier !"
+                stop
+            startRobberyPickup(player, 1)
+
+#_____________
+# COMMANDS
+
+
+command /robber [<text>] [<text>] [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is "bank":
+
+            if arg-2 is "door":
+                if arg-3 is "add":
+                    add targeted block to {bank::door::location::*}
+                    send "Porte ajouté, ensuite ?"
+                else if arg-3 is "clear":
+                    clear {bank::door::location::*}
+                    send "Vous avez clear toutes les portes"
+
+            else if arg-2 is "chest":
+                if arg-3 is "add":
+                    add targeted block to {bank::chest::location::*}
+                    send "Coffre fort ajouté, ensuite ?"
+                else if arg-3 is "clear":
+                    clear {bank::chest::location::*}
+                    send "Vous avez clear tous les coffres forts"

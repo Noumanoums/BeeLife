@@ -1,0 +1,96 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» §eElections
+
+
+function eMAddCandidate(p: Player):
+  if getJobPlayers(4) is 1:
+    send "{@prefix} §cUn maire est déjà présent !" to {_p}
+    stop
+  if {candidateVote::%{_p}%} is set:
+    send "{@prefix} §cErreur, tu es déjà inscrit aux élections" to {_p}
+    stop
+  if size of {candidateVote::*} >= 6:
+    send "{@prefix} §cErreur, il n'y a plus de place aux élections" to {_p}
+    stop
+  if size of {candidateVote::*} is 0:
+    broadcast "{@prefix} §eUne personne s'est inscrite aux élections, il manque plus qu'une personne avant le début des élections"
+    send "{@prefix} §aVous vous êtes inscrit aux élections, en attente d'un autre participant.." to {_p}
+    set {candidateVote::%{_p}%} to 0
+    stop
+  send "{@prefix} §aVous vous êtes inscrit aux élections" to {_p} 
+  set {candidateVote::%{_p}%} to 0
+
+function eMVoteCandidate(p: Player, target: Player):
+  if {candidateVote::%{_target}%} is set:
+    if {mayorVoting::%{_p}%} is true:
+      send "{@prefix} §cErreur, tu as déjà voté" to {_p}
+      stop
+    send "{@prefix} §aFélicitations, tu as voté pour §e%{_target}%" to {_p}
+    set {mayorVoting::%{_p}%} to true
+    add 1 to {candidateVote::%{_target}%}
+
+function eMResult():
+  loop {candidateVote::*}:
+    loop {candidateVote::*}:
+      set {_1} to loop-index-1
+      set {_2} to loop-index-2
+      if loop-value-1 is greater than loop-value-2:
+        set {_player} to loop-index-1
+        setJob({_player} parsed as player, 4)
+        broadcast "{@prefix} §aFélicitations au gagnant des élections §e%loop-index-1% §a!"
+        clear {candidateVote::*}
+        clear {mayorVoting::*}
+        
+        # CLEAR TOUS LES MANDATS
+        clear {mandat::*}
+  if {_1} is {_2}:
+    broadcast "{@prefix} §cErreur, les élections ont fait une égalité"
+    clear {candidateVote::*}
+    clear {mayorVoting::*}
+    stop
+
+function eMopenGUI(p: Player):
+  if size of {candidateVote::*} < 1:
+    send "{@prefix} §cErreur, les élections n'ont pas débutées !" to {_p}
+    close {_p}'s inventory
+    stop
+  set {_i} to 0
+  create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+    loop {candidateVote::*}:
+      make gui slot {_i} with green stained clay named "§e%loop-index-1%" with lore "§eVote(s) : %loop-value-1%":
+        if size of {candidateVote::*} < 2:
+          send "{@prefix} §cErreur, il manque 1 candidat avant le début des élections" to {_p}
+          stop
+        set {_target} to clicked item's name
+        replace all "§e" with "" in {_target}
+        eMVoteCandidate({_p}, {_target} parsed as player)
+        eMopenGUI({_p})
+      add 1 to {_i}
+    make gui slot 8 with green stained clay named "§c-> Retour":
+      fmenuOpen(player, "")
+  open last gui to {_p}
+
+on script load:
+  clear {candidateVote::*}
+  clear {mayorVoting::*}
+
+on quit:
+  {mayorVoting::%player%}
+  if {candidateVote::%player%} is set:
+    clear {candidateVote::%player%}
+	
+on npc right click:
+  if citizen is named "§eSecrétaire du Maire":
+    create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+      make gui slot 4 with green stained clay named "§eS'inscrire aux élections":
+        if {candidateVote::%player%} is set:
+          send "{@prefix} §cErreur, tu es déjà inscrit aux élections" to player
+          stop
+        eMAddCandidate(player)
+        close player's inventory
+        if size of {candidateVote::*} = 2:
+          broadcast "{@prefix} §aLes élections commencent, résultat dans 5 minutes si vous souhaitez soumettre un vote allez dans votre §eFMenu"
+          wait 5 minutes
+          eMResult() 
+      open last gui to player

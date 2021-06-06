@@ -1,0 +1,7 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» §eGuide
+
+on right click on clay:
+    create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+    open last gui to player

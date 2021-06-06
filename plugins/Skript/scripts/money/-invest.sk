@@ -1,0 +1,209 @@
+options:
+    prefix: §e§lBee§fLife §8»
+
+
+#_____________
+# FUNCTIONS
+
+# Yaml
+
+function loadInvest():
+    if yaml "invest" is loaded:
+        unload yaml "invest"
+    load yaml "plugins/Skript/scripts/BeeLife/YML/invest/config.yml" as "invest"
+
+function saveInvest():
+    save yaml "invest"
+    unload yaml "invest"
+
+# Invest
+
+function setInvest(id: integer, i: item type, n: text, t: timespan, p: number, r: number):
+    set yaml value "%{_id}%.icon" from "invest" to {_i}
+    set yaml value "%{_id}%.name" from "invest" to {_n}
+    set yaml value "%{_id}%.time" from "invest" to {_t}
+    set yaml value "%{_id}%.price" from "invest" to {_p}
+    set yaml value "%{_id}%.reward" from "invest" to {_r}
+
+function getInvests() :: integers:
+    loop yaml nodes with keys "" from "invest" without string checks:
+        add loop-value parsed as integer to {_r::*}
+    return {_r::*}
+
+function getInvestIcon(i: integer) :: item type:
+    return yaml value "%{_i}%.icon" from "invest"
+
+function getInvestName(i: integer) :: text:
+    return yaml value "%{_i}%.name" from "invest"
+
+function getInvestTime(i: integer) :: timespan:
+    return yaml value "%{_i}%.time" from "invest"
+
+function getInvestPrice(i: integer) :: number:
+    return yaml value "%{_i}%.price" from "invest"
+
+function getInvestReward(i: integer) :: number:
+    return yaml value "%{_i}%.reward" from "invest"
+
+function isInvest(i: integer) :: boolean:
+    if yaml path "%{_i}%" from "invest" exists:
+        return true
+    return false
+
+function delInvest(i: integer):
+    clear yaml value "%{_i}%" from "invest"
+
+# Player
+
+function setPlayerInvest(p: player, i: integer):
+    if isInvest({_i}) is false:
+        send "{@prefix} §cCet investissement n'existe pas ! §eVeuillez communiquer cette erreur aux résponsables." to {_p}
+        stop
+
+    if isPlayerInvest({_p}) is true:
+        send "{@prefix} §cVous avez déjà investit ! §7Terminez d'abord ce que vous avez commencé avant." to {_p}
+        stop
+
+    if getBank({_p}) < getInvestPrice({_i}):
+        send "{@prefix} §cVous n'avez pas assez d'argent sur votre compte !" to {_p}
+        stop
+
+    removeBank({_p}, getInvestPrice({_i}))
+    set {invest::%{_p}%::id} to {_i}
+    set {invest::%{_p}%::time} to 0 second
+    if "%region at {_p}'s location%" contains "invest":
+        setPlayerInvestLastJoined({_p}, now)
+
+    send "{@prefix} §7Vous décidez d'investir §e$%getInvestPrice({_i})%§7. On peut dire que vous n'avez pas froid aux yeux.." to {_p}
+
+function setPlayerInvestLastJoined(p: player, d: date):
+    set {invest::%{_p}%::lastJoined} to {_d}
+
+function addPlayerInvestTime(p: player, t: timespan):
+    add {_t} to {invest::%{_p}%::time}
+
+function getPlayerInvestId(p: player) :: integer:
+    return {invest::%{_p}%::id}
+
+function getPlayerInvestTime(p: player) :: timespan:
+    return {invest::%{_p}%::time}
+
+function getPlayerInvestLastJoined(p: player) :: date:
+    return {invest::%{_p}%::lastJoined}
+
+function isPlayerInvest(p: player) :: boolean:
+    if {invest::%{_p}%::id} is set:
+        return true
+    return false
+
+function clearPlayerInvest(p: player):
+    clear {invest::%{_p}%::id}
+    clear {invest::%{_p}%::time}
+    clear {invest::%{_p}%::lastJoined}
+
+# Update
+function updatePlayerInvest(p: player):
+    if isPlayerInvest({_p}) is false:
+        stop
+
+    set {_id} to getPlayerInvestId({_p})
+    if getPlayerInvestTime({_p}) < getInvestTime({_id}):
+        stop
+    
+    clearPlayerInvest({_p})
+    addBank({_p}, getInvestReward({_id}))
+
+    send "{@prefix} §7Votre investissement a porté ses fruits ! §8(§a+$%getInvestReward({_id})%§8)" to {_p}
+    send title "§8Investissement terminé !" to {_p} for 5 seconds
+
+# GUI
+function openInvestGui(p: player):
+    create a gui with virtual chest inventory with 3 rows named "Investissement":
+        set {_s} to 0
+        loop getInvests():
+
+            set {_i} to getInvestIcon(loop-value) named "§e%getInvestName(loop-value)%"
+            add " §e» §8Prix: §e$%getInvestPrice(loop-value)%" to {_i}'s lore
+            add " §e» §8Gain: §e$%getInvestReward(loop-value)%" to {_i}'s lore
+            add " §e» §8Temps: §e%translateDate(getInvestTime(loop-value))%" to {_i}'s lore
+            add "%nl%§7Clique-gauche pour §einvestir" to {_i}'s lore
+
+            set {_id} to loop-value
+            make gui slot {_s} with {_i}:
+                close {_p}'s inventory
+                setPlayerInvest({_p}, {_id})
+
+            add 1 to {_s}
+    open last gui to {_p}
+
+
+#_____________
+# COMMANDS
+
+command /invest <text> [<integer>] [<text>] [<text>] [<number>] [<number>]:
+    permission: beelife.invest.admin
+    permission message: {@prefix} §cVous n'avez pas la permission !
+    usage: {@prefix} §7Essayez plutôt: §f/invest §c<set/remove/setblock> <id> <nom> <durée> <prix> <gain>
+    trigger:
+        if arg-1 is "set":
+            if arg-6 isn't set:
+                send "{@prefix} §7Essayez plutôt: §f/invest §7set §c<id> <nom> <durée> <prix> <gain>"
+                stop
+
+            if size of getInvests() >= 27:
+                send "{@prefix} §cIl y a trop d'investissement !"
+            else:
+                setInvest(arg-2, player's tool, arg-3, arg-4 parsed as timespan, arg-5, arg-6)
+                send "{@prefix} §7Investissement ajouté !"
+
+        else if arg-1 is "remove":
+            if arg-2 isn't set:
+                send "{@prefix} §7Essayez plutôt: §f/invest §7remove §c<id>"
+                stop
+
+            delInvest(arg-2)
+            send "{@prefix} §7Investissement supprimé !"
+
+        else if arg-1 is "setblock":
+            if targeted block is air:
+                stop
+
+            set {invest::§block} to targeted block
+            send "{@prefix} §7Fait !"
+
+
+#_____________
+# EVENTS
+
+every 30 minutes:
+    loop all players:
+        if "%region at loop-player's location%" doesn't contain "invest":
+            continue
+        updatePlayerInvest(loop-player)
+
+on rightclick:
+    if {invest::§block} is event-block:
+        updatePlayerInvest(player)
+        if isPlayerInvest(player) is false:
+            openInvestGui(player)
+        else:
+            send "{@prefix} §7Il vous reste encore §e%translateDate(getPlayerInvestTime(player))% §7avant de toucher vos gains !"
+
+on load:
+    loadInvest()
+
+on unload:
+    saveInvest()
+
+on region enter:
+    wait a tick
+    if "%region at player's location%" contains "invest":
+        if isPlayerInvest(player) is true:
+            setPlayerInvestLastJoined(player, now)
+
+on region leave:
+    if "%region at player's location%" contains "invest":
+        if isPlayerInvest(player) is true:
+            set {_t} to difference between getPlayerInvestLastJoined(player) and now
+            addPlayerInvestTime(player, {_t})
+            updatePlayerInvest(player)

@@ -1,0 +1,71 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    title: §e§lBee§fLife §8»
+
+#_____________
+# FUNCTIONS
+
+function scoreboardToggle(p: player):
+    if {scoreboard::*} contains {_p}:
+        remove {_p} from {scoreboard::*}
+        scoreboardUpdate({_p})
+    else:
+        add {_p} to {scoreboard::*}
+        wipe {_p}'s sidebar
+
+function scoreboardIsVisible(p: player) :: boolean:
+    if {scoreboard::*} contains {_p}:
+        return false
+    return true
+
+function scoreboardUpdate(p: player):
+    if scoreboardIsVisible({_p}) is false:
+        stop
+
+    if sidebar name for {_p} isn't set:
+        set name of sidebar of {_p} to "{@title}"
+        set score "§6Identité:" in sidebar of {_p} to 15
+        set id score " §e%getCharacterPrenom({_p})% %getCharacterNom({_p})%" in sidebar of {_p} to 14 with id "%{_p}%character"
+        set score "§e" in sidebar of {_p} to 13
+        set score "§6Métier:" in sidebar of {_p} to 12
+        set id score " §e%getJobName(getPlayerJob({_p}))%" in sidebar of {_p} to 11 with id "%{_p}%job"
+        set score "§r" in sidebar of {_p} to 10
+        set score "§6Portefeuille:" in sidebar of {_p} to 9
+        set id score " §e$%getWallet({_p})%" in sidebar of {_p} to 8 with id "%{_p}%wallet"
+        set score "§6" in sidebar of {_p} to 7
+        set score "§6Banque:" in sidebar of {_p} to 6
+        set id score " §e$%getBank({_p})%" in sidebar of {_p} to 5 with id "%{_p}%bank"
+    else:
+        update score id "%{_p}%character" to " §e%getCharacterPrenom({_p})% %getCharacterNom({_p})%" and 14
+        update score id "%{_p}%job" to " §e%getJobName(getPlayerJob({_p}))%" and 11
+        update score id "%{_p}%wallet" to " §e$%getWallet({_p})%" and 8
+        update score id "%{_p}%bank" to " §e$%getBank({_p})%" and 5
+
+#_____________
+# EVENTS
+
+on job change:
+    wait 2 ticks
+    scoreboardUpdate(player)
+
+on join:
+    scoreboardUpdate(player)
+
+on job change:
+    wait a tick
+    scoreboardUpdate(player)
+
+#_____________
+# COMMANDS
+
+command /scoreboard <text> [<player>]:
+    usage: {@prefix} §7Correct usage: §f/scoreboard §cforceupdate [player]
+    permission: beelife.scoreboard.forceupdate
+    permission message: {@prefix} §cVous n'avez pas la permission !
+    trigger:
+        if arg-1 is "forceupdate":
+            set {_p} to player
+            if arg-2 is set:
+                set {_p} to arg-2
+            scoreboardUpdate({_p})
+            send "{@prefix} §7Fait !"

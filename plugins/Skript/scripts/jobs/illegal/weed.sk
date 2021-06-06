@@ -1,0 +1,395 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» §aCannabis
+
+    seedPrice: 1000
+    sellPrice: 2000
+
+    dehydration_points: 20
+    growth_points: 10
+    rotten_points: 10
+
+    content: 2 tall grass named "§aCannabis"
+
+    pots-limit: 3
+    pots-limit-vip: 4
+    sechoir-limit: 1
+
+aliases:
+    traitment = diorite wall
+    stand_pot = armor stand
+    empty_pot = dead horn coral fan
+
+#_____________
+# FUNCTIONS
+
+function getWeedLimit(p: Player) :: Locations:
+    loop {weed::pots::*}:
+        if {weed::pots::%loop-value%::owner} is {_p}:
+            add loop-value to {_r::*}
+    return {_r::*}
+# Pots
+
+function create(l: location, p: player):
+    set {_l2} to {_l}
+    add -1.55 to y-coordinate of {_l2}
+
+    if {weed::pots::*} contains {_l2}:
+        stop
+
+    if {_p} have permission "beelife.weed.pots.premium":
+        if size of getWeedLimit({_p}) is {@pots-limit-vip}:
+            send "{@prefix} §cVous avez atteint la limite de pot." to {_p}
+            stop
+
+    else if size of getWeedLimit({_p}) is {@pots-limit}:
+        send "{@prefix} §cVous avez atteint la limite de pot. §eAchètez le grade §6Premium §epour faire pousser plus." to {_p}
+        stop
+
+    add {_l2} to {weed::pots::*}
+
+    set {weed::pots::%{_l2}%::owner} to {_p}
+
+    # Spawning pot
+    spawn 1 armor stand at {_l2}
+    set {_es} to white tulip 
+    set {_s} to last spawned armor stand
+    add "{CustomNameVisible:0,NoGravity:1b,Invisible:1}" to nbt of last spawned armor stand
+    set name of last spawned armor stand to "Weed - Empty"
+    add "{CustomModelData:2001}" to nbt of {_es}
+    set helmet of last spawned armor stand to {_es}
+
+function break(l: location):
+    if {weed::pots::*} doesn't contain {_l}:
+        stop
+        
+    remove {_l} from {weed::pots::*}
+
+    clear {weed::pot::%{_l}%::*}
+
+    loop entities in radius 0.5 of {_l}:
+        if loop-entity is armor stand:
+            kill loop-entity
+
+function weedGui(p: Player):
+    set {_l} to {weed::gui::%{_p}%}
+    create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+        # Plant
+        make gui slot 2 with birch sapling named "§aPlanter une graine §a(§e${@seedPrice}§a)":
+            if getJobRawName(getPlayerJob({_p})) isn't "fabriquantweed":
+                send "{@prefix} §cVous n'avez pas le bon métier !"
+                stop
+
+            if getWallet({_p}) < {@seedPrice}:
+                send "{@prefix} §cTu n'as pas assez d'argent sur toi !" to {_p}
+                stop
+
+            removeWallet({_p}, {@seedPrice})
+
+            set {weed::pot::%{_l}%::state} to "empty"
+            set {weed::pot::%{_l}%::water} to 100
+            set {weed::pot::%{_l}%::growth} to 0
+            set {weed::pot::%{_l}%::rotten} to 0
+
+            send "{@prefix} §7Vous avez planté une graine de cannabis §7(§e-${@seedPrice}§7)"
+            updateGui({_p})
+        make gui slot 6 with barrier named "§cDéplacer le pot":
+            close {_p}'s inventory
+            move(empty_pot, {_p}, 10)
+            break({_l})
+    open last gui to {_p}
+
+function updateGui(p: player):
+    if {weed::pots::*} doesn't contain {weed::gui::%{_p}%}:
+        stop
+
+    create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+
+        set {_l} to {weed::gui::%{_p}%}
+        set {_s} to {weed::pot::%{_l}%::state}
+
+        if {_s} = "rotten":
+            make gui slot 4 with 1 barrier named "§cVider le pot":
+                break({_l})
+                wait a tick
+                create({_l}, {_p})
+                close {_p}'s inventory
+                updateGui({_p})
+        else if {_s} = "growth":
+            make gui slot 4 with green terracotta named "§aRécupérer le contenu":
+                set {_o} to {weed::pots::%{_l}%::owner}
+                break({_l})
+                wait a tick
+                create({_l}, {_o})
+                updateGui({_p})
+                give {@content} to player
+                close player's inventory
+        else:
+            set {_w} to {weed::pot::%{_l}%::water}
+            set {_g} to {weed::pot::%{_l}%::growth}
+            set {_r} to {weed::pot::%{_l}%::rotten}
+            make gui slot 1 with blue terracotta named "§eNiveau d'hydratation§6:" with lore "§b%{_w}%§8/§7100L §7| §eClique pour ajouter l'eau (§a1500$§e)":
+                if getWallet({_p}) < 1500:
+                    send "{@prefix} §cTu n'as pas assez d'argent sur toi !" to {_p}
+                    stop
+                removeWallet({_p}, 1500)
+                set {weed::pot::%{_l}%::water} to 100
+                send "{@prefix} §7Ton eau est désormais à 100L, §e-1500$§7." to {_p}
+                updateGui({_p})
+            make gui slot 3 with green terracotta named "§eFloraison§6:" with lore "§a%{_g}%§8/§7100"
+            make gui slot 5 with red terracotta named "§eDécomposition§6:" with lore "§c%{_r}%§8/§7100"
+            make gui slot 7 with barrier named "§cDéplacer le pot":
+                close player's inventory
+                move(empty_pot, {_p}, 10)
+                break({_l})
+        open last gui to {_p}
+
+# Sechoirs
+
+function createSechoir(l: location, p: player):
+    if {weed::sechoir::*} contains {_l}:
+        stop
+
+    if {weed::limit::sechoir::%{_p}%} is {@sechoir-limit}:
+        send "{@prefix} §cVous avez atteint la limite de séchoir." to {_p}
+        stop
+
+    set {_l2} to {_l}
+    add -0.55 to y-coordinate of {_l2}
+    
+    add {_l2} to {weed::sechoir::*}
+
+    set {weed::sechoir::%{_l2}%::owner} to {_p}
+    add 1 to {weed::limit::sechoir::%{_p}%}
+
+    # Spawning séchoir
+    spawn 1 armor stand at {_l2}
+    set {_es} to poppy 
+    set {_s} to last spawned armor stand
+    add "{CustomNameVisible:0,NoGravity:1b,Invisible:1}" to nbt of last spawned armor stand
+    set name of last spawned armor stand to "Weed - Sechoir"
+    add "{CustomModelData:2001}" to nbt of {_es}
+    set helmet of last spawned armor stand to {_es}
+
+function breakSechoir(l: location):
+    if {weed::sechoir::*} doesn't contain {_l}:
+        stop
+
+    remove {_l} from {weed::sechoir::*}
+
+    set {_p} to {weed::sechoir::%{_l}%::owner}
+    remove 1 from {weed::limit::sechoir::%{_p}%}
+
+    clear {weed::sechoir::%{_l}%::*}
+    loop entities in radius 0.7 of {_l}:
+        if loop-entity is armor stand:
+            kill loop-entity
+
+function sechoirGUI(p: Player, l: Location):
+    create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+        make gui slot 3 with green terracotta named "§eTraiter son cannabis":
+            if display name of {_p}'s held item isn't "§aCannabis":
+                send "{@prefix} §cVous n'avez aucun §aCannabis §cen main." to {_p}
+                close {_p}'s inventory
+                stop
+            set {_d} to difference between now and {weedcooldown::%{_p}%}
+            if {_d} < 15 seconds:
+                send "{@prefix} §cVous devez attendre §e%translateDate(difference between {_d} and 11 seconds)%§c." to {_p}
+                stop
+            if {_d} > 0 second:
+                clear {weedcooldown::%{_p}%}
+
+            set {weedcooldown::%{_p}%} to now
+
+            remove 1 tall grass named "§aCannabis" from {_p}'s inventory
+            close {_p}'s inventory
+            send "{@prefix} §7Chargement démarré, merci de ne pas partir loin." to {_p}
+
+            set {_c} to "█████████"
+            wait 1 tick
+            loop 9 times:
+                if distance between {_l} and {_p} is greater than 3:
+                    send "{@prefix} §cVous vous êtes trop éloigné, le traitement est donc annulé." to {_p}
+                    stop
+
+                set {_c} to first (length of {_c} - 1) characters of {_c}
+                set {_c} to "§a█§8%{_c}%"
+                send subtitle "%{_c}%" to {_p} for 2 seconds with fade in 0 second and fade out 0 second
+                wait 1 second
+            send subtitle "" to {_p}
+
+            # Giving proccessed weed
+            set {_r} to 1 tall grass named "§aPochon de cannabis"
+            add "{CustomModelData:2001}" to nbt of {_r}
+            give {_r} to {_p}'s inventory
+            clear {weedcooldown::%{_p}%}
+
+            send "{@prefix} §7Chargement terminé, traitement réussi, +1 §epochon de cannabis§7." to {_p}
+        make gui slot 5 with barrier named "§cDéplacer le séchoir":
+            close {_p}'s inventory
+            move(traitment, {_p}, 10)
+            breakSechoir({_l})
+    open last gui to {_p}
+
+# Sell GUI
+
+function sellGui(p: Player):
+    create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+        make gui slot 4 with green terracotta named "§eVendre son cannabis (§a${@sellPrice}/u§e)":
+            loop all items in {_p}'s inventory:
+                if loop-item is tall grass named "§aPochon de cannabis":
+                    addWallet({_p}, item amount of loop-item * {@sellPrice})
+                    remove loop-item from {_p}'s inventory
+    open last gui to {_p}
+
+#_____________
+# EVENTS
+
+on job change:
+    loop {weed::pots::*}:
+        if {weed::pots::%loop-value%::owner} is player:
+            break(loop-value)
+    loop {weed::sechoir::*}:
+        if {weed::sechoir::%loop-value%::owner} is player:
+            breakSechoir(loop-value)
+
+on quit:
+    clear {weedcooldown::%player%}
+    loop {weed::pots::*}:
+        if {weed::pots::%loop-value%::owner} is player:
+            break(loop-value)
+    loop {weed::sechoir::*}:
+        if {weed::sechoir::%loop-value%::owner} is player:
+            breakSechoir(loop-value)
+
+on load:
+    clear {weed::*}
+
+on unload:
+    loop {weed::pots::*}:
+        break(loop-value)
+    loop {weed::sechoir::*}:
+        breakSechoir(loop-value)
+
+on rightclick on stand_pot:
+    cancel event
+    if name of event-entity is "Weed - Empty" or "Weed - Semi-Growth" or "Weed - Full" or "Weed - Rotten":
+        if {weed::pots::*} doesn't contain event-entity's location:
+            stop
+
+        set {weed::gui::%player%} to event-entity's location
+        cancel event
+
+        set {_l} to {weed::gui::%player%}
+
+        if getPlayerJob(player) is 8 or 9:
+            create a gui with virtual chest inventory with 1 rows named "§e§lBee§fLife §8» §cDestruction":
+                make gui slot 4 with barrier named "§cDétruire l'objet":
+                    break({_l})
+                    close player's inventory
+            open last gui to player
+            stop
+
+        if {weed::pot::%{_l}%::state} is not set:
+            weedGui(event-player)
+        else:
+            updateGui(event-player)
+
+    else if name of event-entity is "Weed - Sechoir":
+        if {weed::sechoir::*} doesn't contain event-entity's location:
+            stop
+
+        cancel event
+
+        set {_s} to event-entity's location
+        if getPlayerJob(player) is 8 or 9:
+            create a gui with virtual chest inventory with 1 rows named "§e§lBee§fLife §8» §cDestruction":
+                make gui slot 4 with barrier named "§cDétruire l'objet":
+                    breakSechoir({_s})
+                    close player's inventory
+            open last gui to player
+            stop
+
+        if getJobRawName(getPlayerJob(player)) is "fabriquantweed":
+            sechoirGUI(player, event-entity's location)
+        else:
+            send "{@prefix} §cVous n'avez pas le bon métier !"
+
+on place of empty_pot:
+    cancel event
+    if getJobRawName(getPlayerJob(player)) is "fabriquantweed":
+        if player have permission "beelife.weed.pots.premium":
+            if size of getWeedLimit(player) is {@pots-limit-vip}:
+                send "{@prefix} §cVous avez atteint la limite de pot." to player
+                stop
+
+        else if size of getWeedLimit(player) is {@pots-limit}:
+            send "{@prefix} §cVous avez atteint la limite de pot. §eAchètez le grade §6Premium §epour faire pousser plus." to player
+            stop
+            
+        create(event-block's location, player)
+        remove 1 empty_pot from player's inventory
+    else:
+        send "{@prefix} §cVous n'avez pas le bon métier !"
+
+on place of traitment:
+    cancel event
+    if getJobRawName(getPlayerJob(player)) is "fabriquantweed":
+        createSechoir(event-block's location, player)
+        remove 1 traitment from player's inventory
+    else:
+        send "{@prefix} §cVous n'avez pas le bon métier !"
+
+on npc right click:
+  if citizen is named "§aAcheteur de Weed":
+    if getJobRawName(getPlayerJob(player)) is "fabriquantweed":
+      sellGui(player)
+    else:
+      send "{@prefix} §cTu n'as pas le bon métier !"
+
+# Growing
+every 20 seconds:
+    loop {weed::pots::*}:
+        if {weed::pot::%loop-value%::state} is set:
+            remove {@dehydration_points} from {weed::pot::%loop-value%::water}
+            if {weed::pot::%loop-value%::water} <= 0:
+                set {weed::pot::%loop-value%::water} to 0
+                add {@rotten_points} to {weed::pot::%loop-value%::rotten}
+                if {weed::pot::%loop-value%::rotten} >= 100:
+                    set {weed::pot::%loop-value%::rotten} to 100
+                    set {weed::pot::%loop-value%::state} to "rotten"
+                    loop entities in radius 0.7 of loop-value:
+                        set {_es} to white tulip 
+                        set name of loop-entity to "Weed - Rotten"
+                        add "{CustomNameVisible:0,NoGravity:1b,Invisible:1}" to nbt of loop-entity
+                        add "{CustomModelData:2004}" to nbt of {_es}
+                        set helmet of loop-entity to {_es}
+            else:
+                add {@growth_points} to {weed::pot::%loop-value%::growth}
+                if {weed::pot::%loop-value%::growth} >= 30:
+                    set {weed::pot::%loop-value%::state} to "semi-growth"
+                    loop entities in radius 0.5 of loop-value:
+                        if loop-entity is armor stand:
+                            set {_es} to white tulip 
+                            set name of loop-entity to "Weed - Semi-Growth"
+                            add "{CustomNameVisible:0,NoGravity:1b,Invisible:1}" to nbt of loop-entity
+                            add "{CustomModelData:2002}" to nbt of {_es}
+                            set helmet of loop-entity to {_es}
+                if {weed::pot::%loop-value%::growth} >= 70:
+                    set {weed::pot::%loop-value%::growth} to 100
+                    set {weed::pot::%loop-value%::state} to "growth"
+                    loop entities in radius 0.5 of loop-value:
+                        if loop-entity is armor stand:
+                            set {_es} to white tulip
+                            set name of loop-entity to "Weed - Full"
+                            add "{CustomNameVisible:0,NoGravity:1b,Invisible:1}" to nbt of loop-entity
+                            add "{CustomModelData:2003}" to nbt of {_es}
+                            set helmet of loop-entity to {_es}
+
+    # GUI update
+    loop all players:
+        if loop-player's current inventory's name is "{@gui_title}":
+            set {_l} to {weed::gui::%loop-player%}
+            if {weed::pot::%{_l}%::state} is set:
+                updateGui(loop-player)
+            

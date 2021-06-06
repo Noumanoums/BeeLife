@@ -1,0 +1,74 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    guiTitle: §e§lBee§fLife §8» Interaction
+    distance: 2
+
+function interactGetTarget(p: player) :: player:
+	return {interact::temp::%{_p}%}
+
+on right click on player:
+	if targeted entity's name contains "§":
+		stop
+	if distance between player and targeted entity > {@distance}:
+		stop
+
+	if player isn't sneaking:
+		stop
+	
+	if isHandcuffed(player) is true:
+		stop
+
+	cancel event
+	set {interact::temp::%player%} to clicked player
+
+
+	create a gui with virtual chest inventory with 1 rows named "{@guiTitle}":
+		make gui slot 0 with green stained clay named "§ePrésenter ses papiers":
+			if {weaponlicence::%targeted player%} is true:
+				send "{@prefix} &e%getCharacterPrenom(player)% &e%getCharacterNom(player)% | §elicence d'arme §c✔ §evous a présenter ses papiers." to targeted entity
+			else:
+				send "{@prefix} &e%getCharacterPrenom(player)% &e%getCharacterNom(player)% | §elicence d'arme §cX §evous a présenter ses papiers." to targeted entity
+			close player's inventory
+
+		make gui slot 1 with green stained clay named "§eDonner de l'argent à cette personne":
+			giveMoney(player, -1)
+
+		if getJobRawName(getPlayerJob(player)) is "mayor":
+			make gui slot 3 with green stained clay named "§eDonner une license d'arme":
+				giveWeaponlicense(player, target of player)
+				close player's inventory
+
+		if getJobRawName(getPlayerJob(player)) is "agentdepolice" or "commissairepolice":
+			make gui slot 6 with chest named "§eFouiller §b(police)" with lore "§8Cliquez-ici pour fouiller la personne":
+				close player's inventory
+				open the targeted player's inventory for the player
+
+			make gui slot 7 with iron bars named "§eMettre en prison §b(police)" with lore "§8Cliquez-ici pour mettre en prison la personne":
+				jailGUI(player, target of player)
+
+		make gui slot 8 with getCustomItem(iron horse armor named "§cRetour", 2020):
+			close player's inventory
+	open last gui to player
+
+on inventory click:
+	if inventory name is "Player":
+		cancel event
+
+
+every 2 seconds:
+	loop all players:
+		if {interact::temp::%loop-player%} is set:
+			if distance between loop-player and {interact::temp::%loop-player%} > {@distance}:
+				clear {interact::temp::%loop-player%}
+				close loop-player's inventory
+
+on inventory close:
+	if event-inventory's name is "{@guiTitle}":
+		clear {interact::temp::%player%}
+
+
+on load:
+	clear {interact::temp::*}
+
+on quit:
+	clear {interact::temp::%player%}

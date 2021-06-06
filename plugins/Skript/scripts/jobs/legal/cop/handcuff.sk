@@ -1,0 +1,105 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Police
+
+aliases:
+    menotte = blaze rod
+
+#_____________
+# FUNCTIONS
+
+function isHandcuffed(p: player) :: boolean:
+    if {cops::handcuff::%{_p}%} is set:
+        return true
+    return false
+
+function handcuff(p: player):
+    if isHandcuffed({_p}) is false:
+        set {cops::handcuff::%{_p}%} to {_p}'s tool
+        set {_h} to getCustomItem(golden horse armor named "§eMenottes", 2006)
+        set {_p}'s tool to {_h}
+        set {_p}'s offhand to {_h}
+
+        apply slowness of tier 4 without particles to {_p} for 666 days
+        close {_p}'s inventory
+
+        send "{@prefix} §7Tu es désormais menotté !" to {_p}
+    else:
+        set {_p}'s tool to {cops::handcuff::%{_p}%}
+        set {_p}'s offhand to air
+        clear {cops::handcuff::%{_p}%}
+
+        remove slowness from {_p}
+
+        send "{@prefix} §7Tu n'es plus menotté !" to {_p}
+
+#_____________
+# EVENTS
+
+on load:
+    clear {cop::*}
+
+on unload:
+    loop all players:
+        if isHandcuffed(loop-player):
+            handcuff(loop-player)
+    
+on quit:
+    if isHandcuffed(player):
+        handcuff(player)
+
+on death:
+    if isHandcuffed(victim):
+        handcuff(victim)
+
+on rightclick:
+    if isHandcuffed(player):
+        close player's inventory
+        cancel event
+
+on leftclick:
+    if isHandcuffed(player):
+        close player's inventory
+        cancel event
+
+# Handcuffing someone
+on rightclick on player with menotte:
+    if first 4 characters of clicked player's name is "CIT-":
+        stop
+
+    if player's tool's name isn't "§eMenottes":
+        stop
+
+    if player is sneaking:
+        stop
+
+    if getJobRawName(getPlayerJob(player)) isn't "agentdepolice" or "commissairepolice":
+        stop
+
+    if getJobRawName(getPlayerJob(clicked player)) is "agentdepolice" or "commissairepolice":
+        send "{@prefix} §cVous ne pouvez pas menotter un de vos collègues !" to player
+        stop
+
+    handcuff(clicked player)
+
+# Prevents player to do anything when handcuffed
+
+on held item change:
+    if isHandcuffed(player):
+        cancel event
+
+on jump:
+    if isHandcuffed(player):
+        cancel event
+
+on damage:
+    if isHandcuffed(attacker):
+        cancel event
+
+on drop:
+    if isHandcuffed(player):
+        cancel event
+
+on inventory click:
+    if isHandcuffed(player):
+        cancel event

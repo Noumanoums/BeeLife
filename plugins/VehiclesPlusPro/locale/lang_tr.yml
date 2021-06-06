@@ -1,0 +1,118 @@
+vehiclesplus:
+  actionbar:
+    driving_info: '&bMevcut hız &f%curspeed%&7/&f%maxspeed%&bKM/H &7| &bYakıt &f%curfuel%&7/&f%maxfuel%&bL &7: &f%fuelperc%%&7) &7| &bKullanım &f%fuelusage%&bL/100KM &7| &bSağlık &f%health%'
+    out_of_fuel: '&cYakıt bitti.'
+  chat:
+    can_exit_while_moving: '&cHareket ederken çıkabilir: &7'
+    drift: '&cDrift: &7'
+    purchase_complete: '&aSatın alma tamamlandı.'
+    enter_new_name: '&aLütfen yeni araç adını sohbete yazın. İptal etmek için "cancel" yazın.'
+    error:
+      could_not_spawn_vehicle: '&cAraç oluşturulamadı.'
+      not_enough_money: '&aBunu yapabilmek için yeterli bakiyen yok.'
+      part_maxed_out: '&cBu kısım zaten maksimize edildi.'
+      no_addons: '&cBu araçta eklenti yok!'
+      no_fuel_found: '&cHata, verilen adda yakıt bulunamadı.'
+      no_garage: '&cHerhangi bir aracınız yok!'
+      no_item: '&cHata, elinizde eşya tutmuyorsunuz.'
+      no_rim_found: '&cHata, verilen isimde jant bulunamadı.'
+      no_vehicle_found: '&cHata, verilen isme sahip araç bulunamadı'
+      no_vehicles_for_sale: '&cSatılık araç yok!'
+      part_wheel_usage: '&cDeğiştirmek için lütfen jantlara tıklayın.'
+      seat_occupied: '&cBu koltuk dolu.'
+      no_ride_permissions: '&cBu aracı sürmek için yetkin yok.'
+    plugin_reloaded: '&aEklenti yenilendi.'
+    vehicle:
+      given: '&aAraç verildi!'
+      locked: '&cBu araç kilitli.'
+      now_locked: '&aAraç kilitlendi.'
+      now_unlocked: '&aAraç kilidi açıldı.'
+      refueled: '&aAracın yakıtı dolduruldu!'
+      removed: '&aAraç kaldırıldı!'
+      repaired: '&aAraç tamir edildi!'
+  command:
+    desc:
+      addon: VehiclesPlus eklenti komutu
+      buy:
+        fuel: '&aYakıt satın alın.'
+      forcedespawn: Tüm araçları yok etmeye zorla
+      fuel: VehiclesPlus Yakıt komutu
+      garage: Bir garaj açın
+      give:
+        addon: Bir eklenti oluştur
+        fuel: Oyuncuya bidon verir.
+        vehicle: Bir oyuncuya araç verin
+        wheel: Bir jant oluştur
+        paint: Oyuncuya boya kutusu verir.
+      info: Araç hakkında derinlemesine bilgi gösterir.
+      list: Yüklü araçların listesini gösterir.
+      main: Ana VehiclePlus komutu
+      reload: Eklentiyi günceller.
+      shop:
+        fuel: Yakıt dükkan komutu
+        vehicle: '&aAraç mağazasını açın'
+  locale_error: '&4Dil hatası.'
+  gui:
+    button:
+      lore:
+        acceleration: '&bHızlanma &7'
+        blue: '&bMavi &7'
+        click_for_more_info: '&8Daha fazla bilgi için tıkla.'
+        click_to_despawn: '&aKaldırmak için tıkla.'
+        click_to_remove: '&bKaldırmak için tıkla.'
+        click_to_spawn: '&aOluşturmak için tıkla.'
+        confirm_delete: Silmeyi onaylayın
+        cost: '&bFiyat &7'
+        current: '&bMevcut &7'
+        fuel_storage: '&bBidon deposu &7'
+        fuel_type: '&bYakıt tipi &7'
+        green: '&bYeşil &7'
+        max: '&bMaksimum &7'
+        occupied: ' &4: Dolu)'
+        red: '&bKırmızı &7'
+        repair_cost: '&cTamir ücreti &7₺'
+        speed: '&bHız &7'
+        turning_radius: '&bDönüş yarıçapı &7'
+        step: '&bAdım &7'
+        tank_capacity: '&bYakıt kapasitesi &7'
+        vehicle_is_broken: '&cAraç bozuldu, tamir etmek için sol tıkla.'
+        vehicle_is_spawned: '&aAraç ortaya çıkarıldı.'
+        health: '&cSağlık: &7'
+        name: '&cİsim: &7'
+        part: '&c Parçalar: '
+        price: '&cFiyat: &7'
+        trunk_size: '&cGövde boyutu: &7'
+        type: '&cTip: &7'
+      title:
+        acceleration: '&bHızlanma &7'
+        addons: '&aEklentiler'
+        change_owner: '&aAraç sahibini değiştir'
+        driver_seat: '&aSürücü koltuğu'
+        engine_upgrades: '&aMotor Yükseltmeleri'
+        enter_vehicle: '&aAraca girin.'
+        lock_vehicle: '&aAracı kilitle.'
+        remove_vehicle: '&aAracı kaldır.'
+        rename: '&aAracı yeniden adlandır.'
+        seat: '&aOturma yeri'
+        settings: '&aAyarlar'
+        speed: '&bHız &7'
+        steering: '&bDönüş yarıçapı &7'
+        tank_capacity: '&bYakıt kapasitesi &7'
+        trunk: '&aGövde'
+        unlock_vehicle: '&aAracın kilidini aç.'
+    page: ' &7- &bSayfa: '
+    title:
+      addons: '&bEklentiler'
+      color: '&bAraç renkleri'
+      engine_upgrades: '&bMotor Yükseltmeleri'
+      garage: '&bGaraj'
+      purchase_confirm: '&bBunu almak istediğine emin misin?'
+      select_player: '&aOyuncu seç'
+      settings: '&bAyarlar'
+      shop: '&bAraba dükkanı'
+      trunk: '&bGövde'
+      vehicle: '&b%vehicle%'
+  item:
+    addon: '&aEklenti'
+    fuel: '&a%fuel%'
+    paint: '&aBoya'

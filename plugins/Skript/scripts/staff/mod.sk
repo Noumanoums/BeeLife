@@ -1,0 +1,50 @@
+event "player list select":
+    pattern: player list select
+    event-values: player, text, number
+    check:
+        continue
+
+function playerList(p: player, title: text, page: number = 1):
+
+    set {_page::*} to page {_page} of all players with 45 lines
+
+    create a gui with virtual chest inventory named "%{_title}% §d%{_page}%" with 6 rows:
+        set {_s} to 0
+        loop {_page::*}:
+            set {_lv} to "%loop-value%"
+            make gui slot {_s} to loop-value's skull named "%loop-value%":
+                close {_p}'s inventory
+
+                set {_values::player} to {_p}
+                set {_values::text} to {_lv}
+                set {_data::id} to {_title}
+                call a custom event "player list select" using {_values::*} and with data {_data::*}
+
+            add 1 to {_s}
+
+        make gui slot 46, 47, 48, 49, 50, 51 and 52 to black glass pane named " "
+        if {_page} < 2:
+            make gui slot 45 to red glass pane named "§cPrécédent" with lore "§8Cliquez-ici pour revenir à la page précédente"
+        else:
+            make gui slot 45 to green glass pane named "§aPrécédent" with lore "§8Cliquez-ici pour revenir à la page précédente":
+                playerList({_p}, {_title}, {_page} - 1)
+        make gui slot 53 to green glass pane named "§aSuivant" with lore "§8Cliquez-ici pour aller à la page suivante":
+            playerList({_p}, {_title}, {_page} + 1)
+        # todo ADD SIGN TO CHOOSE OFFLINE PLAYER
+    open last gui to {_p}
+
+command /mod:
+    permission: beelife.staff.mod
+    trigger:
+        create a gui with virtual chest inventory named "Modération" with 3 rows:
+            make gui slot 10 to 1 barrier named "§cAvertissements" with lore "§8Editer les avertissements d'un joueur.":
+                playerList(player, "§cAvertissements")
+            make gui slot 11 to 1 book named "§cLogs" with lore "§8Afficher les logs d'un joueur.":
+                playerList(player, "§cLogs")
+        open last gui to player
+
+on player list select:
+    if extra data "id" contains "Avertissements":
+        openWarnGui(player, event-text)
+    else if extra data "id" contains "Logs":
+        sendPlayerLogs(player, event-text)

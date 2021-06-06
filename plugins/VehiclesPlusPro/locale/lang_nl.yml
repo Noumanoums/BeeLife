@@ -1,0 +1,118 @@
+vehiclesplus:
+  actionbar:
+    driving_info: '&bHuidige Snelheid &f%curspeed%&7/&f%maxspeed%&bKM/H &7| &bBrandstof&f%curfuel%&7/&f%maxfuel%&bL &7: &f%fuelperc%%&7) &7| &bGebruik &f%fuelusage%&bL/100KM &7| &bLevenspunten &f%health%'
+    out_of_fuel: '&cGEEN BENZINE MEER'
+  chat:
+    can_exit_while_moving: '&cKan uitstappen tijdens het rijden: &7'
+    drift: '&cDrift: &7'
+    purchase_complete: '&aAankoop compleet!'
+    enter_new_name: '&aTyp de nieuwe naam van het voertuig. Typ "cancel" om te annuleren.'
+    error:
+      could_not_spawn_vehicle: '&cKon voertuig niet plaatsen!'
+      not_enough_money: '&aJe hebt hier niet genoeg geld voor!'
+      part_maxed_out: '&cDit onderdeel is al het hoogste niveau'
+      no_addons: '&cEr zijn geen toevoegingen voor dit voertuig!'
+      no_fuel_found: '&cError, geen brandstof gevonden met de opgegeven naam'
+      no_garage: '&cJe bezit geen enkel voertuig!'
+      no_item: '&cError, je hebt geen item vast'
+      no_rim_found: '&cError, geen velg gevonden met de gegeven naam'
+      no_vehicle_found: '&cError, geen voertuig gevonden met de gegeven naam'
+      no_vehicles_for_sale: '&cEr zijn geen voertuigen te koop!'
+      part_wheel_usage: '&cKlik op de velg om te wisselen'
+      seat_occupied: '&cHier zit al iemand'
+      no_ride_permissions: '&cJe hebt geen toestemming om in dit voertuig te rijden.'
+    plugin_reloaded: '&aPlugin is herladen!'
+    vehicle:
+      given: '&aVoertuig gegeven!'
+      locked: '&cDit voertuig is op slot'
+      now_locked: '&aVoertuig op slot\n'
+      now_unlocked: '&aVoertuig open gemaakt'
+      refueled: '&aGetanked!'
+      removed: '&aVoertuig verwijderd!'
+      repaired: '&aVoertuig gerepareerd!'
+  command:
+    desc:
+      addon: VehiclesPlus toevoegingen commando
+      buy:
+        fuel: '&aKoop brandstof'
+      forcedespawn: Geforceerd alle voertuigen verwijderen
+      fuel: VehiclesPlus Brandstof commando
+      garage: Open een garage
+      give:
+        addon: Plaats een toevoeging
+        fuel: Geef een jerrycan aan een speler
+        vehicle: Geef een voertuig aan een speler
+        wheel: Plaats een velg
+        paint: Geef een verfkan aan een speler
+      info: Geef diepgaande voertuig informatie
+      list: Laat een lijst met geladen voertuigen zien
+      main: VehiclesPlus hoofd-commando
+      reload: Herlaad de plugin
+      shop:
+        fuel: Brandstofwinkel commando
+        vehicle: '&aOpen de voertuigwinkel'
+  locale_error: '&4LOCALE ERROR'
+  gui:
+    button:
+      lore:
+        acceleration: '&bVersnelling &7'
+        blue: '&bBlauw &7'
+        click_for_more_info: '&8Klik voor meer info'
+        click_to_despawn: '&aKlik om te verwijderen'
+        click_to_remove: '&bKlik om te verwijderen'
+        click_to_spawn: '&aKlik om te plaatsen'
+        confirm_delete: Bevestig verwijderen
+        cost: '&bPrijs &7'
+        current: '&bHuidge &7'
+        fuel_storage: '&bJerrycan opslag &7'
+        fuel_type: '&bBrandstof type &7'
+        green: '&bGroen &7'
+        max: '&bMax &7'
+        occupied: ' &4: Bezet)'
+        red: '&bRood &7'
+        repair_cost: '&cRepareer kosten &7$'
+        speed: '&bSnelheid &7'
+        turning_radius: '&bDraaicirkel &7'
+        step: '&bVolgende &7'
+        tank_capacity: '&bBrandstoftank capaciteit &7'
+        vehicle_is_broken: '&cVoertuig is gebroken, linkermuisknop om te repareren'
+        vehicle_is_spawned: '&aVoertuig is geplaatst'
+        health: '&cLevenspunten: &7'
+        name: '&cNaam: &7'
+        part: '&c Onderdelen: '
+        price: '&cPrijs: &7'
+        trunk_size: '&cKofferbakruimte: &7'
+        type: '&cType: &7'
+      title:
+        acceleration: '&bVersnelling &7'
+        addons: '&aToevoegingen'
+        change_owner: '&aWissel voertuigeigenaar'
+        driver_seat: '&aBestuurdersstoel'
+        engine_upgrades: '&aMotorupgrades'
+        enter_vehicle: '&aInstappen'
+        lock_vehicle: '&aOp slot doen'
+        remove_vehicle: '&aVoertuig verwijderen'
+        rename: '&aVoertuig nieuwe naam geven'
+        seat: '&aStoel'
+        settings: '&aInstellingen'
+        speed: '&bSnelheid &7'
+        steering: '&bDraaicirkel &7'
+        tank_capacity: '&bBrandstoftank capaciteit &7'
+        trunk: '&aKofferbak'
+        unlock_vehicle: '&aVoertuig van het slot halen'
+    page: ' &7- &bPagina: '
+    title:
+      addons: '&bToevoegingen'
+      color: '&bVoertuigkleuren'
+      engine_upgrades: '&bMotorupgrades'
+      garage: '&bGarage'
+      purchase_confirm: '&bWeet je zeker dat je dit wil kopen?'
+      select_player: '&aSelecteer speler'
+      settings: '&bInstellingen'
+      shop: '&bVoertuigwinkel'
+      trunk: '&bKofferbak'
+      vehicle: '&b%vehicle%'
+  item:
+    addon: '&aToevoegingen'
+    fuel: '&a%fuel%'
+    paint: '&aVerf'

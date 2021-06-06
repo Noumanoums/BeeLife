@@ -1,0 +1,7 @@
+className: me.legofreak107.vehiclesplus.vehicles.fuel.FuelType
+name: Gasoline
+pricePerLiter: 1.5
+fuelItem:
+  ==: org.bukkit.inventory.ItemStack
+  v: 2230
+  type: LAVA_BUCKET

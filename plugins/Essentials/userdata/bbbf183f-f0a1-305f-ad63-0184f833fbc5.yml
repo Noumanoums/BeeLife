@@ -1,0 +1,66 @@
+lastAccountName: spas13
+timestamps:
+  login: 1617889099894
+  logout: 1617894980650
+  lastteleport: 1617892376670
+ipAddress: 176.128.152.17
+lastlocation:
+  world: beelife
+  x: -1029.0872349768752
+  y: 54.0
+  z: 290.2429057988056
+  yaw: 53.408535
+  pitch: 16.200022
+logoutlocation:
+  world: beelife
+  x: -1109.5063310689304
+  y: 55.5
+  z: 207.06629232974663
+  yaw: 178.64758
+  pitch: 40.200172
+homes:
+  home:
+    world: beelife
+    x: 284.60900141196146
+    y: 12.0
+    z: 181.16207609106883
+    yaw: 326.09894
+    pitch: 9.899979
+  arbre1:
+    world: arbre
+    x: -285.77541241942436
+    y: 17.0
+    z: 84.11531116045094
+    yaw: 59.550175
+    pitch: 17.10002
+  arbre2:
+    world: arbre
+    x: -287.30000001192093
+    y: 29.039931195144767
+    z: 42.30000001192093
+    yaw: 244.35008
+    pitch: 26.700039
+  arbre3:
+    world: arbre
+    x: -20.315060031946242
+    y: 29.039931195144767
+    z: -76.98217687254834
+    yaw: 222.00002
+    pitch: 10.800043
+  omok:
+    world: beelife
+    x: -1050.1344144873665
+    y: 77.89350168149139
+    z: 130.23722703617085
+    yaw: 180.74829
+    pitch: 54.30002
+  zeb:
+    world: beelife
+    x: -1050.0756520002542
+    y: 80.24216678307887
+    z: 128.73945227984632
+    yaw: 96.00061
+    pitch: 29.100018
+powertools: {}
+godmode: false
+money: '9999999000.0'

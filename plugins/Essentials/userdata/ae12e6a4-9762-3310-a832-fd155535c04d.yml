@@ -1,0 +1,20 @@
+lastAccountName: Fentanyl
+timestamps:
+  login: 1617742258976
+  lastteleport: 1617743799943
+  logout: 1617743902236
+ipAddress: 176.167.9.235
+lastlocation:
+  world: beelife
+  x: -590.1215146029567
+  y: 77.16918437497948
+  z: 330.31248986179907
+  yaw: 333.01678
+  pitch: 29.399532
+logoutlocation:
+  world: beelife
+  x: -176.80982971191406
+  y: 4.975000023841858
+  z: 519.0203857421875
+  yaw: -197.10063
+  pitch: 22.50007

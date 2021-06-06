@@ -1,0 +1,21 @@
+lastAccountName: antite303
+timestamps:
+  login: 1615129985621
+  logout: 1615133396082
+  lastteleport: 1615133388447
+ipAddress: 86.213.75.83
+logoutlocation:
+  world: beelife
+  x: 29.674635698908574
+  y: 24.25604658803795
+  z: 286.4068853753776
+  yaw: -153.53476
+  pitch: 13.199845
+lastlocation:
+  world: beelife
+  x: 312.28473126199736
+  y: 4.136918756314398
+  z: 121.0719929759261
+  yaw: -66.91
+  pitch: 21.900122
+afk: false

@@ -1,0 +1,37 @@
+className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.StorageVehicle
+name: ExampleBike
+uuid: 73c08079-cc90-4ab4-9f90-75daf381ff83
+baseVehicle: ExampleBike
+owner: 10e6e8d6-0be2-3678-8519-01a9fcb5e3c9
+partList:
+  list0:
+    className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.addons.skins.BikeSkin
+    skin:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2230
+      type: LEATHER_BOOTS
+      meta:
+        ==: ItemMeta
+        meta-type: LEATHER_ARMOR
+        Unbreakable: true
+        Damage: 2
+    color:
+      ==: Color
+      RED: 255
+      BLUE: 255
+      GREEN: 255
+    xOffset: 0.0
+    yOffset: 0.0
+    UID: 2f5a2f53-23ae-41e7-8bdb-28ec03a699b0
+    zOffset: 0.0
+    isCustomPlaced: false
+vehicleStats:
+  className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.VehicleStats
+  speed: 100
+  steering: 5
+  fuelTank: 50
+  currentFuel: 50.0
+  acceleration: 50
+  health: 100
+  broken: false
+vehicleTrunk: ''

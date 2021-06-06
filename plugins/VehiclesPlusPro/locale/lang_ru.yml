@@ -1,0 +1,118 @@
+vehiclesplus:
+  actionbar:
+    driving_info: '&bnТекущая скорость\n&f%curspeed%&7/&f%maxspeed%&bКМ/Ч &7| &bТопливо &f%curfuel%&7/&f%maxfuel%&bЛитров &7: &f%fuelperc%%&7) &7| &bРасход &f%fuelusage%&bЛ/100КМ &7| &bПрочность &f%health%'
+    out_of_fuel: '&cПУСТОЙ БАК'
+  chat:
+    can_exit_while_moving: '&cМожно выйти в движении: &7'
+    drift: '&cДрифт: &7'
+    purchase_complete: '&aУспешная покупка!'
+    enter_new_name: '&aПожалуйста, укажите название транспорта.Введите "cancel", чтобы отменить.'
+    error:
+      could_not_spawn_vehicle: '&cНевозможно создать транспорт!'
+      not_enough_money: '&aУ вас недостаточно средств для покупки!'
+      part_maxed_out: '&cЭта часть уже улучшена до максимума'
+      no_addons: '&cНа эту машину улучшений нет!'
+      no_fuel_found: '&cОшибка, топливо с указанным названием не найдено'
+      no_garage: '&cУ вас нет никакого транспорта!'
+      no_item: '&cОшибка, вы не держите предмет в руке'
+      no_rim_found: '&cОшибка, колесные диски с указанным названием не найдены'
+      no_vehicle_found: '&cОшибка, транспорт с указанным названием не найден'
+      no_vehicles_for_sale: '&cНет транспорта в продаже!'
+      no_ride_permissions: '&cУ вас нет прав для управления этим транспортом.'
+      part_wheel_usage: '&cПожалуйста, нажмите на диски, чтобы поменять их'
+      seat_occupied: '&cЭто сиденье занято'
+    plugin_reloaded: '&aПлагин перезапущен!'
+    vehicle:
+      given: '&aТранспорт выдан!'
+      locked: '&cЭтот транспорт заблокирован'
+      now_locked: '&aТранспорт заблокирован'
+      now_unlocked: '&aТранспорт разблокирован'
+      refueled: '&aТранспорт заправлен!'
+      removed: '&aТранспорт убран!'
+      repaired: '&aТранспорт отремонтирован!'
+  command:
+    desc:
+      addon: Команды Улучшений VehiclesPlus
+      buy:
+        fuel: '&aКупить топливо'
+      forcedespawn: Принудительно убрать весь транспорт
+      fuel: Команды Топлива VehiclesPlus
+      garage: Открыть гараж
+      give:
+        addon: Создать улучшение
+        fuel: Выдать канистру игроку
+        vehicle: Выдать транспорт игроку
+        wheel: Создать диск
+        paint: Выдать банку краски игроку
+      info: Отображение подробной информации о транспорте
+      list: Список загруженного транспорта
+      main: Основные команды Vehiclesplus
+      reload: Перезагрузить плагин
+      shop:
+        fuel: Команды магазина топлива
+        vehicle: '&aОткрыть магазин транспорта'
+  locale_error: '&4ОШИБКА ПЕРЕВОДА'
+  gui:
+    button:
+      lore:
+        acceleration: '&bРазгон &7'
+        blue: '&bСиний &7'
+        click_for_more_info: '&8Нажмите, чтобы узнать больше'
+        click_to_despawn: '&aНажмите, чтобы убрать в гараж'
+        click_to_remove: '&bНажмите, чтобы удалить'
+        click_to_spawn: '&aНажмите, чтобы создать'
+        confirm_delete: Подтвердить удаление
+        cost: '&bЦена &7'
+        current: '&bТекущий &7'
+        fuel_storage: '&bХранилище канистр &7'
+        fuel_type: '&bТип топлива &7'
+        green: '&bЗеленый &7'
+        max: '&bМаксимум &7'
+        occupied: ' &4: Занято)'
+        red: '&bКрасный &7'
+        repair_cost: '&cСтоимость починки &7$'
+        speed: '&bСкорость &7'
+        turning_radius: '&bРадиус поворота &7'
+        step: '&bШаг &7'
+        tank_capacity: '&bЕмкость бака &7'
+        vehicle_is_broken: '&cТранспорт сломан. Нажмите, чтобы починить'
+        vehicle_is_spawned: '&aТранспорт создан'
+        health: '&cПрочность: &7'
+        name: '&cНазвание: &7'
+        part: '&c Части: '
+        price: '&cЦена: &7'
+        trunk_size: '&cРазмер багажника: &7'
+        type: '&cТип: &7'
+      title:
+        acceleration: '&bРазгон &7'
+        addons: '&aУлучшения'
+        change_owner: '&aСменить владельца транспорта'
+        driver_seat: '&aВодительское сиденье'
+        engine_upgrades: '&aУлучшения двигателя'
+        enter_vehicle: '&aВойти в транспорт'
+        lock_vehicle: '&aЗаблокировать транспорт'
+        remove_vehicle: '&aУбрать транспорт'
+        rename: '&aПереименовать транспорт'
+        seat: '&aСиденье'
+        settings: '&aНастройки'
+        speed: '&bСкорость &7'
+        steering: '&bРадиус поворота&7'
+        tank_capacity: '&bЕмкость бака &7'
+        trunk: '&aБагажник'
+        unlock_vehicle: '&aРазблокировать транспорт'
+    page: ' &7- &bСтраница: '
+    title:
+      addons: '&bУлучшения'
+      color: '&bЦвета транспорта'
+      engine_upgrades: '&bУлучшения двигателя'
+      garage: '&bГараж'
+      purchase_confirm: '&bВы уверены, что хотите это приобрести ?'
+      select_player: '&aВыберите игрока'
+      settings: '&bНастройки'
+      shop: '&bМагазин транспорта'
+      trunk: '&bБагажник'
+      vehicle: '&b%vehicle%'
+  item:
+    addon: '&aУлучшение'
+    fuel: '&a%fuel%'
+    paint: '&aКраска'

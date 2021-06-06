@@ -1,0 +1,65 @@
+vendeurarme:
+    '9':
+        name: akm
+        showname: '&eAKM'
+        price: 20000
+        item:
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: WOODEN_AXE
+        isGun: true
+    '10':
+        name: p90
+        showname: '&eP90'
+        price: 15000
+        item:
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: WOODEN_PICKAXE
+        isGun: true
+    '11':
+        name: m4a1
+        showname: '&eM4A1'
+        price: 25000
+        item:
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: STONE_SHOVEL
+        isGun: true
+    '12':
+        name: l115
+        showname: '&eL115A3'
+        price: 45000
+        item:
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: GOLDEN_SHOVEL
+        isGun: true
+    '13':
+        name: diggle
+        showname: '&eDesert Eagle'
+        price: 8000
+        item:
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: GOLDEN_PICKAXE
+        isGun: true
+    '14':
+        name: m16
+        showname: '&eM16'
+        price: 20000
+        item:
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: IRON_AXE
+        isGun: true
+cuisinier:
+    '9':
+        name: four
+        showname: '&eFour'
+        price: 1000
+        item:
+            ==: org.bukkit.inventory.ItemStack
+            v: 2230
+            type: FURNACE
+        isGun: false

@@ -1,0 +1,270 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» §ePrinter
+
+    paper_points: 15
+    ink_points: 10
+    money_points: 800
+    money_vip_points: 1600
+
+    printer-limit: 2
+    printer-limit-vip: 6
+
+aliases:
+    printer = polished andesite slab
+    printer_vip = end stone brick slab
+
+#_____________
+# FUNCTIONS
+
+# Printer
+
+function createPrinter(l: location, p: player, vip: boolean):
+
+    if {printer::*} contains {_l}:
+        stop
+
+    add {_l} to {printer::*}
+
+    set {printer::%{_l}%::state} to "none"
+    set {printer::%{_l}%::owner} to {_p}
+    if {_vip} is true:
+        set {printer::%{_l}%::vip} to true
+        add 1 to {printer::limit::vip::%{_p}%}
+
+        set block at location at {_l} to printer_vip
+    else:
+        set {printer::%{_l}%::vip} to false
+        add 1 to {printer::limit::basic::%{_p}%}
+
+        set block at location at {_l} to printer
+
+function printerBreak(l: location):
+    if {printer::*} doesn't contain {_l}:
+        stop
+
+    if {printer::%{_l}%::vip} is true:
+        remove 1 from {printer::limit::vip::%{printer::%{_l}%::owner}%}
+    else:
+        remove 1 from {printer::limit::basic::%{printer::%{_l}%::owner}%}
+
+    remove {_l} from {printer::*}
+
+    clear {printer::%{_l}%::*}
+    
+
+    loop blocks in radius 0.5 of {_l}:
+        if loop-block is printer:
+            set loop-block to air
+        if loop-block is printer_vip:
+            set loop-block to air
+
+function printerErrorGui(p: Player):
+    set {_l} to {printer::gui::%{_p}%}
+    if {printer::%{_l}%::vip} is true:
+        set {_n} to "{@gui_title} VIP"
+    else:
+        set {_n} to "{@gui_title}"
+    create a gui with virtual chest inventory with 1 rows named "%{_n}%":
+        # Plant
+        set {_item} to red wool named "§cErreur 404"
+        set line 1 of {_item}'s lore to ""
+        set line 3 of {_item}'s lore to " §c» §cClique pour corriger l'erreur"
+        loop 9 times:
+            if {_s} is not set:
+                set {_s} to 0
+            make gui slot {_s} with {_item}:
+                send "{@prefix} §7Vous avez corrigé l'erreur, le printer est maintenant allumé."
+                set {printer::%{_l}%::state} to "on"
+                printerUpdateGui({_p})
+            add 1 to {_s}
+
+    open last gui to {_p}
+
+function printerGui(p: Player):
+    set {_l} to {printer::gui::%{_p}%}
+    if {printer::%{_l}%::vip} is true:
+        set {_n} to "{@gui_title} VIP"
+    else:
+        set {_n} to "{@gui_title}"
+    create a gui with virtual chest inventory with 1 rows named "%{_n}%":
+        # Plant
+        set {_item} to redstone torch named "§eStatus"
+        set line 1 of {_item}'s lore to ""
+        set line 3 of {_item}'s lore to " §e» §6Clique pour allumer le printer"
+        make gui slot 2 with {_item}:
+            if {printer::%{_l}%::state} is "none":
+                set {printer::%{_l}%::state} to "off"
+                set {printer::%{_l}%::paper} to 0
+                set {printer::%{_l}%::money} to 0
+                set {printer::%{_l}%::ink} to 0
+
+            set {printer::%{_l}%::state} to "on"
+            send "{@prefix} §7Vous avez démarré votre printer."
+            printerUpdateGui({_p})
+        set {_item} to barrier named "§cDéplacer le printer"
+        set line 1 of {_item}'s lore to ""
+        set line 3 of {_item}'s lore to " §e» §6Clique pour déplacer le printer où vous voulez"
+        make gui slot 6 with {_item}:
+            close {_p}'s inventory
+            if {printer::%{_l}%::vip} is true:
+                move(printer_vip, {_p})
+            else:
+                move(printer, {_p})
+            printerBreak({_l})
+    open last gui to {_p}
+
+function printerUpdateGui(p: player):
+    if {printer::*} doesn't contain {printer::gui::%{_p}%}:
+        stop
+
+    if {printer::%{printer::gui::%{_p}%}%::vip} is true:
+        set {_n} to "{@gui_title} VIP"
+    else:
+        set {_n} to "{@gui_title}"
+    create a gui with virtual chest inventory with 1 rows named "%{_n}%":
+
+        set {_l} to {printer::gui::%{_p}%}
+        set {_s} to {printer::%{_l}%::state}
+
+        set {_w} to {printer::%{_l}%::paper}
+        set {_g} to {printer::%{_l}%::ink}
+        set {_m} to {printer::%{_l}%::money}
+
+        set {_item} to white wool named "§ePapier"
+        set line 1 of {_item}'s lore to ""
+        set line 2 of {_item}'s lore to " §e» §6Pourcentage: §e%{_w}%%%"
+        set line 3 of {_item}'s lore to " §e» §6Clique pour ajouter du papier (§a1500$§e)"
+        make gui slot 1 with {_item}:
+            if getWallet({_p}) < 1500:
+                send "{@prefix} §cTu n'as pas assez d'argent sur toi !" to {_p}
+                stop
+            removeWallet({_p}, 1500)
+            set {printer::%{_l}%::paper} to 100
+            send "{@prefix} §7Ton papier est désormais à 100%%, §e-1500$§7." to {_p}
+            printerUpdateGui({_p})
+        set {_item} to black wool named "§eEncre"
+        set line 1 of {_item}'s lore to ""
+        set line 2 of {_item}'s lore to " §e» §6Pourcentage: §e%{_g}%%%"
+        set line 3 of {_item}'s lore to " §e» §6Clique pour ajouter de l'encre (§a1500$§e)"
+        make gui slot 3 with {_item}:
+            if getWallet({_p}) < 1500:
+                send "{@prefix} §cTu n'as pas assez d'argent sur toi !" to {_p}
+                stop
+            removeWallet({_p}, 1500)
+            set {printer::%{_l}%::ink} to 100
+            send "{@prefix} §7Ton encre est désormais à 100%%, §e-1500$§7." to {_p}
+            printerUpdateGui({_p})
+        set {_item} to gold ingot named "§eArgent"
+        set line 1 of {_item}'s lore to ""
+        set line 2 of {_item}'s lore to "§e» §6Stockage: §e%{_m}%$"
+        set line 3 of {_item}'s lore to "§e» §6Clique pour retirer l'argent"
+        make gui slot 5 with {_item}:
+            send "{@prefix} §7Vous avez retiré %{printer::%{_l}%::money}%$ §7de votre printer§7." to {_p}
+
+            addWallet({_p}, {printer::%{_l}%::money})
+            set {printer::%{_l}%::money} to 0
+            printerUpdateGui({_p})
+        set {_item} to redstone torch named "§eStatus"
+        set line 1 of {_item}'s lore to ""
+        set line 2 of {_item}'s lore to "§e» §6Clique pour éteindre le printer"
+        make gui slot 7 with {_item}:
+            close {_p}'s inventory
+            set {printer::%{_l}%::state} to "off"
+    open last gui to {_p}
+
+#_____________
+# EVENTS
+
+on job change:
+    loop {printer::*}:
+        if {printer::%loop-value%::owner} is player:
+            printerBreak(loop-value)
+
+on quit:
+    loop {printer::*}:
+        if {printer::%loop-value%::owner} is player:
+            printerBreak(loop-value)
+
+on load:
+    clear {printer::*}
+
+on unload:
+    loop {printer::*}:
+        printerBreak(loop-value)
+
+on rightclick on printer or printer_vip:
+    cancel event
+    if {printer::*} doesn't contain event-block's location:
+        stop
+
+    set {printer::gui::%player%} to event-block's location
+    cancel event
+
+    set {_l} to {printer::gui::%player%}
+
+    if getPlayerJob(player) is 8 or 9:
+        create a gui with virtual chest inventory with 1 rows named "§e§lBee§fLife §8» §cDestruction":
+            make gui slot 4 with barrier named "§cDétruire l'objet":
+                printerBreak({_l})
+                close player's inventory
+        open last gui to player
+        stop
+
+    if {printer::%{_l}%::state} is "on":
+        printerUpdateGui(event-player)
+    else if {printer::%{_l}%::state} is "off":
+        printerGui(event-player)
+    else if {printer::%{_l}%::state} is "none":
+        printerGui(event-player)
+    else if {printer::%{_l}%::state} is "planting":
+        printerErrorGui(event-player)
+
+on place of printer:
+    if {printer::limit::basic::%player%} is {@printer-limit}:
+        send "{@prefix} §cVous avez atteint la limite de printer. §eAchètez le grade §6Premium §epour en avoir plus." to player
+        cancel event
+        stop
+    createPrinter(event-block's location, player, false)
+    remove 1 printer from player's inventory
+
+on place of printer_vip:
+    if player have permission "beelife.printer.premium":
+        if {printer::limit::vip::%player%} is {@printer-limit-vip}:
+            send "{@prefix} §cVous avez atteint la limite de printer." to player
+            cancel event
+            stop
+
+    createPrinter(event-block's location, player, true)
+    remove 1 printer_vip from player's inventory
+
+# Growing
+every 20 seconds:
+    loop {printer::*}:
+        if {printer::%loop-value%::state} is "on":
+            if {printer::%loop-value%::paper} <= 0:
+                set {printer::%loop-value%::paper} to 0
+            if {printer::%loop-value%::ink} <= 0:
+                set {printer::%loop-value%::ink} to 0
+
+            if {printer::%loop-value%::ink} > 0:
+                if {printer::%loop-value%::paper} > 0:
+                    remove {@paper_points} from {printer::%loop-value%::paper}
+                    remove {@ink_points} from {printer::%loop-value%::ink}
+                    if {printer::%loop-value%::vip} is true:
+                        add {@money_vip_points} to {printer::%loop-value%::money}
+                    else:
+                        add {@money_points} to {printer::%loop-value%::money}
+                    play sound "printer" with volume 0.05 and pitch 1 at loop-value
+                    if chance of 10%:
+                        set {printer::%loop-value%::state} to "planting"
+                        stop
+
+    # GUI update
+    loop all players:
+        if loop-player's current inventory's name is "{@gui_title}":
+            set {_l} to {printer::gui::%loop-player%}
+            if {printer::%{_l}%::state} is "on":
+                printerUpdateGui(loop-player)
+            else if {printer::%{_l}%::state} is "planting":
+                printerErrorGui(loop-player)

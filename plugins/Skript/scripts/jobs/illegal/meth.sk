@@ -1,0 +1,469 @@
+options:
+    prefix: §e§lBee§fLife §8»
+
+    tankGuiTitle: §e§lBee§fLife §8» Cuve
+    fridgeGuiTitle: §e§lBee§fLife §8» Réfrigerateur
+    buyerGuiTitle: §e§lBee§fLife §8» Junkie
+
+    tankTimer: 1 minutes
+    fridgeTimer: 2 minutes
+
+    aluminium: 2003
+    methylamine: 2001
+    filter: 2002
+    tray: 2004
+    meth: 2005
+
+    tankLimit: 2
+    fridgeLimit: 1
+
+aliases:
+    tank = stripped oak wood
+    dirty tank = stripped dark oak wood
+    filter = stripped acacia wood
+
+    fridge = stripped spruce wood
+
+    item = golden horse armor
+
+    meth = blue orchid
+
+#_____________
+# FUNCTIONS
+
+# Tank
+
+function getPlayersTank(p: player) :: locations:
+    loop {meth::*}:
+        if {meth::%loop-value%::owner} is {_p}:
+            add loop-value to {_r::*}
+    return {_r::*}
+
+function createTank(p: player, l: location):
+    wait 3 ticks
+    size of getPlayersTank({_p}) >= {@tankLimit}:
+        send "{@prefix} §cVous avez atteint la limite !" to {_p}
+        stop
+
+    set {_i} to {_p}'s tool
+    remove 1 of {_i} from {_p}
+
+    set {_loc} to {_l}
+    add 1 to {_loc}'s y-coordinates
+
+    set block at {_loc} to stripped oak wood
+    add {_loc} to {meth::*}
+
+    set {meth::%{_loc}%::owner} to {_p}
+    set {meth::%{_loc}%::state} to "rest"
+    set {meth::%{_loc}%::aluminium} to false
+    set {meth::%{_loc}%::methylamine} to false
+
+function destroyTank(l: location):
+    set block at {_l} to air
+
+    remove {_l} from {meth::*}
+
+    clear {meth::%{_l}%::owner}
+    clear {meth::%{_l}%::state}
+    clear {meth::%{_l}%::aluminium}
+    clear {meth::%{_l}%::methylamine}
+
+    clear {meth::%{_l}%::*}
+
+function startTank(p: player, l: location):
+    if {meth::*} doesn't contain {_l}:
+        stop
+    
+    if {meth::%{_l}%::aluminium} isn't true:
+        send "{@prefix} §cVeuillez remplir la cuve !" to {_p}
+        stop
+    
+    else if {meth::%{_l}%::methylamine} isn't true:
+        send "{@prefix} §cVeuillez remplir la cuve !" to {_p}
+        stop
+    
+    else if block at {_l} isn't filter:
+        send "{@prefix} §cVeuillez installer un filtre !" to {_p}
+        stop
+    
+    play sound "meth" with volume 0.6 and pitch 0.9 at {_l}
+    set {meth::%{_l}%::state} to "started"
+    set {meth::%{_l}%::started} to now
+    send "{@prefix} §aLe processus est en cours.." to {_p}
+
+function tankClean(p: player, l: location):
+    if {meth::*} doesn't contain {_l}:
+        stop
+
+    if {meth::cleaning::%{_p}%} is true:
+        stop
+
+    set {meth::cleaning::%{_p}%} to true
+    set {_c} to "█████████"
+    loop 9 times:
+        if distance between {_l} and {_p} > 3.5:
+            send "{@prefix} §cVous vous êtes trop éloigné." to {_p}
+            send subtitle "" to {_p}
+            clear {meth::cleaning::%{_p}%}
+            stop
+
+        set {_c} to first (length of {_c} - 1) characters of {_c}
+        set {_c} to "§a█§8%{_c}%"
+        send subtitle "%{_c}%" to {_p} for 2 seconds with fade in 0 second and fade out 0 second
+        wait 0.2 second
+    send subtitle "" to {_p}
+
+    set {_loc} to {_l}
+    remove 1 from {_loc}'s y-coordinates
+
+    destroyTank({_loc})
+    wait a tick
+    createTank({_p}, {_loc})
+    clear {meth::cleaning::%{_p}%}
+
+    give getCustomItem(item named "§eFiltre", {@filter}) to {_p}
+
+    send "{@prefix} §7Nettoyage terminé, elle est comme neuve !" to {_p}
+
+function updateTank(p: player, l: location):
+    if {meth::%{_l}%::state} isn't "started":
+        stop
+
+    if difference between {meth::%{_l}%::started} and now < {@tankTimer}:
+        send "{@prefix} §cLa machine est toujours en marche.." to {_p}
+        stop
+
+    set {meth::%{_l}%::state} to "rest"
+    set block at {_l} to dirty tank
+
+    give getCustomItem(item named "§ePlateau de méthamphétamine", {@tray}) to {_p}
+    send "{@prefix} §7Processus achevé ! Il ne vous reste plus qu'à nettoyer la cuve.." to {_p}
+
+function openTankGui(p: player, l: location):
+    create a gui with virtual chest inventory with 1 row named "{@tankGuiTitle}":
+        make gui slot 1 with green wool named "§eLancer le processus":
+            startTank({_p}, {_l})
+            close {_p}'s inventory
+
+        set {_a} to 0
+        set {_m} to 0
+        if {meth::%{_l}%::aluminium} is true:
+            set {_a} to 1
+        if {meth::%{_l}%::methylamine} is true:
+            set {_m} to 1
+
+        make gui slot 3 with getCustomItem(item named "§eAluminium §6(§e%{_a}%§6/1)", {@aluminium})
+        
+        make gui slot 4 with getCustomItem(item named "§eMethylamine §6(§e%{_m}%§6/1)", {@methylamine})
+
+        if block at {_l} is filter:
+            make gui slot 6 with getCustomItem(item named "§aFiltre placé", {@filter})
+        else:
+            make gui slot 6 with getCustomItem(item named "§cFiltre manquant", {@filter})
+
+        make gui slot 8 with barrier named "§cDéplacer la cuve":
+            close {_p}'s inventory
+            destroyTank({_l})
+            move(tank, {_p})
+    open last gui to {_p}
+
+# Fridge
+
+function getPlayersFridge(p: player) :: locations:
+    loop {fridge::*}:
+        if {fridge::%loop-value%::owner} is {_p}:
+            add loop-value to {_r::*}
+    return {_r::*}
+
+function createFridge(p: player, l: location):
+    wait a tick
+    size of getPlayersFridge({_p}) >= {@fridgeLimit}:
+        send "{@prefix} §cVous avez atteint la limite !" to {_p}
+        stop
+
+    set {_i} to {_p}'s tool
+    remove 1 of {_i} from {_p}
+
+    set {_loc} to {_l}
+    add 1 to {_loc}'s y-coordinates
+
+    set block at {_loc} to fridge
+    add {_loc} to {fridge::*}
+
+    set {fridge::%{_loc}%::owner} to {_p}
+    set {fridge::%{_loc}%::isFull} to false
+
+function destroyFridge(l: location):
+    wait a tick
+    set block at {_l} to air
+    remove {_l} from {fridge::*}
+    clear {fridge::%{_l}%::*}
+
+function startFridge(p: player, l: location):
+    if {fridge::*} doesn't contain {_l}:
+        stop
+
+    if {fridge::%{_l}%::isFull} is true:
+        send "{@prefix} §cLe frigo est plein !" to {_p}
+        stop
+
+    if {_p}'s tool's name isn't "§ePlateau de méthamphétamine":
+        send "{@prefix} §cVous devez avoir un plateau en main !" to {_p}
+        stop
+
+    set {_p}'s tool to air
+
+    send "{@prefix} §aLe processus est en cours.." to {_p}
+    set {fridge::%{_l}%::isFull} to true
+    set {fridge::%{_l}%::started} to now
+
+function updateFridge(p: player, l: location):
+    if {fridge::*} doesn't contain {_l}:
+        stop
+
+    if {fridge::%{_l}%::isFull} isn't true:
+        stop
+
+    if difference between {fridge::%{_l}%::started} and now < {@fridgeTimer}:
+        send "{@prefix} §cLe plateau est toujours chaud.." to {_p}
+        stop
+
+    set {fridge::%{_l}%::isFull} to false
+    
+    give getCustomItem(item named "§eMéthamphétamine" with lore "§6%random integer between 50 and 100%g", {@meth}) to {_p}
+    send "{@prefix} §7Processus achevé !" to {_p}
+
+function openFridgeGui(p: player, l: location):
+    create a gui with virtual hopper inventory with 1 row named "{@fridgeGuiTitle}":
+        make gui slot 2 with barrier named "§cDéplacer le réfrigerateur":
+            close {_p}'s inventory
+            destroyFridge({_l})
+            move(fridge, {_p})
+    open last gui to {_p}
+
+# Selling
+function methSell(p: player):
+    create a gui with virtual hopper inventory with 1 rows named "{@buyerGuiTitle}":
+        make gui slot 2 with green terracotta named "§eVendre sa méthamphétamine (§a$8/g§e)":
+            loop all items in {_p}'s inventory:
+                if loop-item is item:
+                    if loop-item's name isn't "§eMéthamphétamine":
+                        continue
+
+                    set {_n::*} to loop-item's lore
+                    replace "§6" in {_n::1} with ""
+                    replace "g" in {_n::1} with ""
+
+                    addWallet({_p}, item amount of loop-item * ({_n::1} parsed as integer) * 8)
+                    remove loop-item from {_p}'s inventory
+                    set {_v} to true
+                    exit loop
+            if {_v} isn't true:
+                send "{@prefix} §cVous n'avez rien sur vous !"
+                close {_p}'s inventory
+            clear {_v}
+    open last gui to {_p}
+
+#_____________
+# EVENTS
+
+on load:
+    clear {meth::cleaning::*}
+    loop {meth::*}:
+        destroyTank(loop-value)
+    loop {fridge::*}:
+        destroyFridge(loop-value)
+
+on join:
+    clear {meth::cleaning::%player%}
+
+on quit:
+    loop {meth::*}:
+        if {meth::%loop-value%::owner} is player:
+            destroyTank(loop-value)
+    loop {fridge::*}:
+        if {fridge::%loop-value%::owner} is player:
+            destroyFridge(loop-value)
+
+on job change:
+    clear {meth::cleaning::%player%}
+    loop {meth::*}:
+        if {meth::%loop-value%::owner} is player:
+            destroyTank(loop-value)
+    loop {fridge::*}:
+        if {fridge::%loop-value%::owner} is player:
+            destroyFridge(loop-value)
+
+on place:
+    if event-block is tank:
+        cancel event
+        if getPlayerJob(player) isn't 11:
+            send "{@prefix} §cVous n'avez pas le métier requis !"
+            stop
+
+        createTank(player, event-location)
+    else if event-block is fridge:
+        cancel event
+        if getPlayerJob(player) isn't 11:
+            send "{@prefix} §cVous n'avez pas le métier requis !"
+            stop
+
+        createFridge(player, event-location)
+
+on break:
+    if event-block is tank:
+        if player's gamemode isn't creative:
+            cancel event
+            stop
+        destroyTank(event-location)
+    else if event-block is dirty tank:
+        if player's gamemode isn't creative:
+            cancel event
+            stop
+        destroyTank(event-location)
+    else if event-block is filter:
+        if player's gamemode isn't creative:
+            cancel event
+            stop
+        destroyTank(event-location)
+    else if event-block is fridge:
+        if player's gamemode isn't creative:
+            cancel event
+            stop
+        destroyFridge(event-location)
+
+on rightclick on tank:
+    if {meth::*} doesn't contain event-location:
+        stop
+
+    if getPlayerJob(player) is 8 or 9:
+        set {_f} to event-location
+        create a gui with virtual chest inventory with 1 rows named "§e§lBee§fLife §8» §cDestruction":
+            make gui slot 4 with barrier named "§cDétruire l'objet":
+                destroyTank({_f})
+                close player's inventory
+        open last gui to player
+        stop
+
+    if getPlayerJob(player) isn't 11:
+        send "{@prefix} §cVous n'avez pas le métier requis !"
+        stop
+    
+    # Prepa
+    if {meth::%event-location%::state} is "rest":
+        if player's tool is item:
+            # Aluminium
+            if player's tool's name is "§eAluminium":
+                if {meth::%event-location%::aluminium} is true:
+                    send "{@prefix} §cLa cuve est pleine !"
+                    stop
+
+                remove 1 of player's tool from player
+
+                set {meth::%event-location%::aluminium} to true
+                send "{@prefix} §7Aluminium ajouté avec succès !"
+
+            # Methylamine
+            else if player's tool's name is "§eMethylamine":
+                if {meth::%event-location%::methylamine} is true:
+                    send "{@prefix} §cLa cuve est pleine !"
+                    stop
+
+                remove 1 of player's tool from player
+
+                set {meth::%event-location%::methylamine} to true
+                send "{@prefix} §7Methylamine ajouté avec succès !"
+
+            # Filter
+            else if player's tool's name is "§eFiltre":
+                cancel event
+                if {meth::%event-location%::aluminium} isn't true:
+                    send "{@prefix} §cVeuillez remplir la cuve !"
+                    stop
+
+                if {meth::%event-location%::methylamine} isn't true:
+                    send "{@prefix} §cVeuillez remplir la cuve !"
+                    stop
+
+                remove 1 of player's tool from player
+
+                send "{@prefix} §7Le filtre est en place !"
+                wait a tick
+                set block at event-location to filter
+
+        else:
+            cancel event
+            openTankGui(player, event-location)
+
+on rightclick on filter:
+    if {meth::*} doesn't contain event-location:
+        stop
+
+    if getPlayerJob(player) is 8 or 9:
+        set {_f} to event-location
+        if difference between {meth::%{_f}%::started} and now < {@tankTimer}:
+            send "{@prefix} §cLa machine est toujours en marche.." to player
+            stop
+        create a gui with virtual chest inventory with 1 rows named "§e§lBee§fLife §8» §cDestruction":
+            make gui slot 4 with barrier named "§cDétruire l'objet":
+                destroyTank({_f})
+                close player's inventory
+        open last gui to player
+        stop
+
+    if getPlayerJob(player) isn't 11:
+        send "{@prefix} §cVous n'avez pas le métier requis !"
+        stop
+    
+    cancel event
+    if {meth::%event-location%::state} is "rest":
+        openTankGui(player, event-location)
+    else:
+        wait 2 ticks
+        updateTank(player, event-location)
+
+on rightclick on dirty tank:
+    if {meth::*} doesn't contain event-location:
+        stop
+
+    if getPlayerJob(player) isn't 11:
+        send "{@prefix} §cVous n'avez pas le métier requis !"
+        stop
+
+    tankClean(player, event-location)
+
+on rightclick on fridge:
+    if {fridge::*} doesn't contain event-location:
+        stop
+
+    if getPlayerJob(player) is 8 or 9:
+        set {_f} to event-location
+        create a gui with virtual chest inventory with 1 rows named "§e§lBee§fLife §8» §cDestruction":
+            make gui slot 4 with barrier named "§cDétruire l'objet":
+                destroyFridge({_f})
+                close player's inventory
+        open last gui to player
+        stop
+
+    if getPlayerJob(player) isn't 11:
+        send "{@prefix} §cVous n'avez pas le métier requis !"
+        stop
+    
+    cancel event
+    if player's tool's name is "§ePlateau de méthamphétamine":
+        startFridge(player, event-location)    
+    else if {fridge::%event-location%::isFull} is true:
+        updateFridge(player, event-location)
+    else:
+        openFridgeGui(player, event-location)
+
+on npc right click:
+    if citizen is named "§aAcheteur de Meth":
+        if getPlayerJob(player) isn't 11:
+            send "{@prefix} §cVous n'avez pas le métier requis !"
+            stop
+
+        methSell(player)
+
+# 🐝 BeeLife • discord.gg/FYGCwbj9GX

@@ -1,0 +1,34 @@
+lastAccountName: Noumaa
+timestamps:
+  login: 1617833454217
+  lastteleport: 1617832890423
+  logout: 1617836623998
+  jail: 0
+ipAddress: 176.167.49.175
+lastlocation:
+  world: beelife
+  x: -1101.002570354036
+  y: 63.99107416567845
+  z: 230.55978764376727
+  yaw: -358.3412
+  pitch: 13.881325
+money: '9999999590000.0'
+logoutlocation:
+  world: beelife
+  x: -993.7831752031622
+  y: 54.0
+  z: 173.51313238074815
+  yaw: -307.27637
+  pitch: 16.386581
+godmode: false
+afk: false
+homes:
+  home:
+    world: beelife
+    x: -965.1108521361645
+    y: 54.0
+    z: 183.52175784065335
+    yaw: 102.89639
+    pitch: 25.872732
+confirm-clear: true
+jailed: false

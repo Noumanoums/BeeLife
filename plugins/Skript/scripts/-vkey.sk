@@ -1,0 +1,27 @@
+import:
+    org.bukkit.entity.Player
+    me.legofreak107.vehiclesplus.vehicles.api.events.ClickVehicleEvent
+    me.legofreak107.vehiclesplus.vehicles.api.events.VehicleEnterEvent
+    me.legofreak107.vehiclesplus.vehicles.api.events.VehicleLeaveEvent
+    me.legofreak107.vehiclesplus.vehicles.vehicles.objects.SpawnedVehicle
+    me.legofreak107.vehiclesplus.vehicles.vehicles.objects.StorageVehicle
+
+on ClickVehicleEvent:
+    if event.getClicker()'s tool is stick named "§eClés":
+        set {_v} to event.getVehicle()
+        if "%{_v}.getStorageVehicle().getOwner() parsed as player%" is event.getClicker():
+            {_v}.setLocked(!{_v}.getLocked())
+            send "done" to event.getClicker()
+
+on VehicleEnterEvent:
+    set {drive::%event.getDriver().getName()%} to event.getVehicle()
+
+on VehicleLeaveEvent:
+    clear {drive::%event.getDriver().getName()%}
+
+on load:
+    clear {drive::*}
+
+every 10 ticks:
+    loop {drive::*}:
+        send subtitle "%loop-value.getCurrentSpeedInKm()%" to loop-index parsed as player for 0.6 second with fadein 0 second and fadeout 0 second

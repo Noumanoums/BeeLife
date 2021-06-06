@@ -1,0 +1,94 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Police
+
+aliases:
+    notepad = paper
+
+function fineOpenGui(p: player, t: player):
+    create a gui with virtual chest inventory with 3 rows named "{@gui_title}":
+        set {_es} to getCustomItem(paper, 2001)
+
+        make gui slot 0 with {_es} named "§eAmende - 1450$" with lore " §e» §6Raison: §eOutrage à agent":
+            close {_p}'s inventory
+            wait a tick
+            if target of {_p} is {_t}:
+                amendeGivePV({_p}, target of {_p}, "Outrage à agent", 1450)
+
+        make gui slot 1 with {_es} named "§eAmende - 5000$" with lore " §e» §6Raison: §ePossession d'arme illégal":
+            close {_p}'s inventory
+            wait a tick
+            if target of {_p} is {_t}:
+                amendeGivePV({_p}, target of {_p}, "Possession d'arme illégal", 5000)
+
+        make gui slot 2 with {_es} named "§eAmende - 10000$" with lore " §e» §6Raison: §eTirs sur civil":
+            close {_p}'s inventory
+            wait a tick
+            if target of {_p} is {_t}:
+                amendeGivePV({_p}, target of {_p}, "Tirs sur civil", 10000)
+
+        make gui slot 3 with {_es} named "§eAmende - 20000$" with lore " §e» §6Raison: §eTirs sur agent de police":
+            close {_p}'s inventory
+            wait a tick
+            if target of {_p} is {_t}:
+                amendeGivePV({_p}, target of {_p}, "Tirs sur agent de police", 20000)
+
+        make gui slot 4 with {_es} named "§eAmende - 25000$" with lore " §e» §6Raison: §ePrise d'otage":
+            close {_p}'s inventory
+            wait a tick
+            if target of {_p} is {_t}:
+                amendeGivePV({_p}, target of {_p}, "Prise d'otage", 25000)
+
+        make gui slot 5 with {_es} named "§eAmende - 30000$" with lore " §e» §6Raison: §eBraquage":
+            close {_p}'s inventory
+            wait a tick
+            if target of {_p} is {_t}:
+                amendeGivePV({_p}, target of {_p}, "Braquage", 30000)
+
+        make gui slot 6 with {_es} named "§eAmende - 50000$" with lore " §e» §6Raison: §eBraquage de Banque":
+            close {_p}'s inventory
+            wait a tick
+            if target of {_p} is {_t}:
+                amendeGivePV({_p}, target of {_p}, "Braquage de Banque", 50000)
+
+        make gui slot 26 with getCustomItem(iron horse armor named "§cRetour", 2020):
+            close {_p}'s inventory
+
+
+    open last gui to {_p}
+
+function amendeGivePV(a: player, t: player, r: text, p: number):
+    if target of {_a} is {_t}:
+        set {_item} to getCustomItem(paper named "§eAmende", 2001)
+        set line 1 of {_item}'s lore to " §e» §6Raison: §e%{_r}%"
+        set line 2 of {_item}'s lore to " §e» §6Prix: §e$%{_p}%"
+        set line 3 of {_item}'s lore to " §e» §6Agent: §e%{_a}%"
+        give {_item} to {_t}
+
+on rightclick on player with notepad:
+    if first 4 characters of clicked player's name is "CIT-":
+        stop
+    if player's tool's name is "§eCarnet d'amendes":
+        if getJobRawName(getPlayerJob(player)) is "agentdepolice" or "commissairepolice":
+            fineOpenGui(player, clicked player)
+
+on rightclick with paper:
+    if player's tool's name is "§eAmende":
+        set {_p} to line 2 of player's tool's lore
+        replace all " §e» §6Prix: §e$" with "" in {_p}
+        set {_p} to {_p} parsed as number
+
+        set {_a} to line 3 of player's tool's lore
+        replace all " §e» §6Agent: §e" with "" in {_a}
+        set {_a} to {_a} parsed as player
+
+        if getWallet(player) < {_p}:
+            send "{@prefix} §cTu n'as pas assez d'argent dans ton portefeuille !" to player
+            stop
+        removeWallet(player, {_p})
+        remove 1 of tool from tool
+        send "{@prefix} §7Vous avez payé votre amende !" to player
+        if {_a} is online:
+            wait 1 second
+            addWallet({_a}, {_p} / 2)
+            send "{@prefix} §e%player% §7vient de payer son amende de §e$%{_p}% §7!" to {_a}

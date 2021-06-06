@@ -1,0 +1,198 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    guiTitle: §e§lBee§fLife §8» Porte
+    price: 250
+
+aliases:
+    key = stick
+
+#_____________
+# FUNCTIONS
+
+# LockPick
+
+function startLockpicking(p: Player, l: location, stage: Number):
+    # PLAY SOUND & COOLDOWN SPAM
+    if {_stage} is 1:
+        #SOUND
+
+    # OPEN GUI
+    create a gui with virtual chest inventory with 3 rows named "{@guiTitle}":
+        make gui slot 0 with red terracotta named ""
+    open last gui to {_p}
+
+    set {_b} to {_p}'s targeted block
+    add 0.3 to {_b}'s z-coordinate
+
+    # ANIMATION
+    edit last created gui:
+        add 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 and 26 to {_s::*}
+        loop 27 times:
+            set {_slot} to random element out of {_s::*}
+            remove {_slot} from {_s::*}
+            make gui slot {_slot} with red terracotta named ""
+            wait 1 ticks
+            spawn 6 crit at {_b}'s location
+
+        set {_n} to a random integer between 0 and 26
+
+        if {_stage} is 1:
+            make gui slot {_n} with green terracotta named "§eLockPick.. §a1/3":
+                startLockpicking({_p}, {_l}, 2)
+        else if {_stage} is 2:
+            make gui slot {_n} with green terracotta named "§eLockPick.. §a2/3":
+                startLockpicking({_p}, {_l}, 3)
+        else if {_stage} is 3:
+            make gui slot {_n} with green terracotta named "§eLockPick.. §a3/3":
+                if chance of 50%:
+                    send "{@prefix} §cEchec, l'outil de crotechage s'est cassé !" to {_p}
+                    remove 1 magenta dye from {_p}'s inventory
+                    close {_p}'s inventory
+                    stop
+                send "{@prefix} §aCrochetage réussi, porte ouverte." to {_p}
+
+                close {_p}'s inventory
+                activate targeted block of {_p}
+
+# Mandats
+
+function setMandat(l: location, b: boolean):
+    if getOwner({_l}) is set:
+        set {doors::%{_l}%::mandat} to {_b}
+
+function getMandat(l: location) :: boolean:
+    if {doors::%{_l}%::mandat} is set:
+        return {doors::%{_l}%::mandat} 
+
+# Others
+
+function getOwner(l: location) :: player:
+    if {doors::%{_l}%::owner} is set:
+        return {doors::%{_l}%::owner}
+
+function buyDoor(p: player, l: location):
+    if {doors::%{_l}%::owner} isn't set:
+        if getWallet({_p}) < {@price}:
+            send "{@prefix} §cVous n'avez pas assez d'argent dans votre portefeuille !" to {_p}
+            stop
+        removeWallet({_p}, {@price})
+        clear {doors::%{_l}%::*}
+        set {doors::%{_l}%::owner} to {_p}
+        add {_l} to {doorsloc::%{_p}%::*}
+        send "{@prefix} §7Vous venez d'acheter cette porte §e${@price} §7!" to {_p}
+        doorOpenMenu({_p}, {_l})
+
+function sellDoor(p: player, l: location):
+    if {doors::%{_l}%::owner} is {_p}:
+        addWallet({_p}, {@price} / 2)
+        
+        clear {doors::%{_l}%::*}
+        clear {doors.lastDoor::%{_p}%}
+        remove {_l} from {doorsloc::%{_p}%::*}
+        send "{@prefix} §7Vous venez de vendre cette porte pour §e$%{@price} / 2% §7!" to {_p}
+
+function doorOpenMenu(p: player, l: location):
+    set {doors.lastDoor::%{_p}%} to {_l}
+    if {doors::%{_l}%::owner} is set:
+        if {doors::%{_l}%::owner} is {_p}:
+            create a gui with virtual chest inventory with 1 rows named "{@guiTitle}" and shape "xxexsxaxx":
+                make gui slot "e" with green stained clay named "§aAjouter un co-propriétaire":
+                    send "{@prefix} §7Merci d'écrire le pseudonyme du co-propriétaire à ajouter dans le tchat"
+                    close player's inventory
+                    set {doors.chat::%player%} to true
+                if {doors::%{_l}%::coowner::*} is set:
+                    make gui slot "s" with green stained clay named "§6Liste des co-propriétaires: " with lore "§e%{doors::%{_l}%::coowner::*}%"
+                else:
+                    make gui slot "s" with green stained clay named "§6Liste des co-propriétaires: " with lore "§eAucun"
+                make gui slot "a" with green stained clay named "§cVendre la porte ($%{@price} / 2%)":
+                    sellDoor(player, {doors.lastDoor::%player%})
+                    close {_p}'s inventory
+            open last gui to {_p}
+        else:
+            set {_owner} to {doors::%{_l}%::owner}
+            send "{@prefix} §cCette porte appartient déjà à §e%{_owner}% §c!" to {_p}
+            stop
+    else:
+        create a gui with virtual chest inventory with 1 rows named "{@guiTitle}" and shape "xxxxexxxx":
+            make gui slot "e" with green stained clay named "§aAcheter la porte (${@price})":
+                buyDoor(player, {doors.lastDoor::%player%})
+        open last gui to {_p}
+
+#_____________
+# EVENTS
+
+on quit:
+  loop {doorsloc::%player%::*}:
+    sellDoor(player, loop-value)
+		
+on load:
+  wait a tick
+  clear {doors::*}
+  clear {doors.chat::*}
+  clear {doorsloc::*}
+  clear {doors.lastDoor::*}
+
+on rightclick:
+    if "%clicked block%" doesn't contain "oak wood door":
+        stop
+
+    if "%block under clicked block%" doesn't contain "oak wood door":
+        send "{@prefix} §cVeuillez ouvrir la porte par le haut !"
+        cancel event
+        stop
+
+    set {_l} to clicked block's location
+    set {doors.lastDoor::%player%} to {_l}
+    if {doors::%{_l}%::owner} is set:
+        if {doors::%{_l}%::owner} or {doors::%{_l}%::coowner::*} is not player:
+            cancel event
+            send "{@prefix} §cCette porte appartient à §e%{doors::%{_l}%::owner}%§c !"
+
+on rightclick with magenta dye:
+    if "%clicked block%" doesn't contain "oak wood door":
+        stop
+
+    if "%block under clicked block%" doesn't contain "oak wood door":
+        send "{@prefix} §cVeuillez ouvrir la porte par le haut !"
+        cancel event
+        stop
+
+    set {_l} to clicked block's location
+    startLockpicking(player, {_l}, 1)
+
+# Addind co-owner
+on talk:
+    if {doors.chat::%player%} isn't true:
+        stop
+
+    cancel event
+    clear {doors.chat::%player%}
+
+    set {_l} to {doors.lastDoor::%player%} # idk
+
+    if {doors::%{_l}%::owner} isn't set:
+        send "{@prefix} §cLa porte n'appartient plus à personne !"
+        stop
+
+    if {doors::%{_l}%::owner} isn't player:
+        send "{@prefix} §cLa porte ne vous appartient plus !"
+        stop
+
+    set {_p} to event-text parsed as player
+    if {_p} isn't online:
+        send "{@prefix} §cJoueur introuvable !"
+        stop
+
+    send "{@prefix} §7Co-propriétaire ajouté avec succès !"
+    add {_p} to {doors::%{_l}%::coowner::*}
+
+# Title
+every seconds:
+    loop all players:
+        if loop-player's tool is key:
+            if "%loop-player's targeted block%" contains "oak wood door":
+                set {_l} to loop-player's targeted block's location
+                if {doors::%{_l}%::owner} is set:
+                    send subtitle "§8[§eF§8] §6La porte appartient à %{doors::%{_l}%::owner}%" to loop-player for 1.1 seconds with fade in 0 seconds and fade out 0 seconds
+                else:
+                    send subtitle "§8[§eF§8] §6Pour intéragir avec la porte" to loop-player for 1.1 seconds with fade in 0 seconds and fade out 0 seconds

@@ -1,0 +1,50 @@
+event "job change":
+    pattern: job change
+    event-values: player, integer
+    check:
+        continue
+
+event "talk":
+    pattern: talk
+    event-values: player, text, boolean
+    check:
+        continue
+
+function translateDate(d: object) :: text:
+    set {_r} to "%{_d}%"
+    replace "." with "," in {_r}
+    replace "day" with "jour" in {_r}
+    replace "hour" with "heure" in {_r}
+    replace "second" with "seconde" in {_r}
+    replace "and" with "et" in {_r}
+    return {_r}
+
+function getCustomItem(i: item, o: object) :: item type:
+    set {_r} to {_i}
+    add "{CustomModelData:%{_o}%}" to {_r}'s nbt
+    return {_r}
+
+
+function parseDate(t: text) :: date:
+    set {_s::*} to split {_t} at " "
+    set {_l::*} to {_s::1} split at "/"
+    set {_r::*} to {_s::2} split at ":"
+    return date({_l::3} parsed as number + 2000, {_l::2} parsed as number, {_l::1} parsed as number, {_r::1} parsed as number, {_r::2} parsed as number)
+
+on npc right click:
+  if citizen is named "Fentanyl":
+    send "§eHihihihihi.." to player
+    play sound "fentanyl" with volume 0.2 and pitch 1 at location of targeted entity
+
+command /crates <text> <player>:
+    trigger:
+        if arg-1 is "give":
+            give 1 purple dye named "§eTicket de Casino" to arg-2
+
+command /whois:
+    trigger:
+        send "non"
+
+command /seen:
+    trigger:
+        send "non"

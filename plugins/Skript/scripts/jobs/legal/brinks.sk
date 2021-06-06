@@ -1,0 +1,167 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Services
+    gui_title2: §e§lBee§fLife §8» Blanchisseur
+    price: 250
+
+function bGUI(p: Player):
+  create a gui with virtual chest inventory with 1 rows named "{@gui_title}":
+    make gui slot 2 with green wool named "§aObtenir une mission" with lore "§8Cliquez-ici pour prendre votre service":
+      if getJobRawName(getPlayerJob(player)) is "brinks":
+        bstartService(player)
+        close player's inventory
+    make gui slot 4 with gold ingot named "§eRendre ses billets" with lore "§8Cliquez-ici pour prendre rendre vos billets":
+      if getJobRawName(getPlayerJob(player)) is "brinks":
+        bSell(player)
+        close player's inventory
+    make gui slot 8 with arrow named "§c-> Retour":
+      close {_p}'s inventory
+    make gui slot 6 with red wool named "§cPrendre sa fin de service" with lore "§8Cliquez-ici pour prendre votre fin de service":
+      if getJobRawName(getPlayerJob(player)) is "brinks":
+        bstopService(player)
+        close player's inventory
+    make gui slot 0, 1, 3, 5 and 7 with black stained glass pane named " "
+  open last gui to {_p}
+
+function bstartService(p: Player):
+  if {bbMissions::%{_p}%::loc} is not set:
+    set {_id} to random element out of {bMissions::all::*}
+
+    set {bAllMissions::%{_p}%::loc::*} to {bMissions::%{_id}%::*}
+    set {bbMissions::%{_p}%::loc} to random element out of {bAllMissions::%{_p}%::loc::*}
+    set {bbMissions::%{_p}%::id} to {_id}
+
+    send "{@prefix} §7Nouvelle mission en §e%{bbMissions::%{_p}%::loc}%." to {_p}
+    set {gps::%{_p}%} to {bbMissions::%{_p}%::loc}
+  else:
+    send "{@prefix} §cTu es déjà en service." to {_p}
+  
+function bstopService(p: Player):
+  if {bbMissions::%{_p}%::loc} is set:
+    send "{@prefix} §7Tu as terminé ton service." to {_p}
+    clear {gps::%{_p}%}
+    clear {bbMissions::%{_p}%::*}
+    clear {bAllMissions::%{_p}%::*}
+  else:
+    send "{@prefix} §cTu n'es pas en service." to {_p}
+
+function getIdFromLoc(p: Player, i: text) :: text:
+    loop {bAllMissions::%{_p}%::loc::*}:
+        if "%loop-value%" is "%{_i}%":
+            return loop-index
+            stop
+
+function bSell(p: Player):
+  set {_loc} to location at 311, 15, 298 in {_p}'s world
+  if {bbMissions::%{_p}%::loc} is {_loc}:
+    if {_p}'s inventory contains gold ingot named "§eBillets":
+      loop all items in {_p}'s inventory:
+        if loop-item is gold ingot named "§eBillets":
+          set {_total} to item amount of loop-item * {@price}
+          send "{@prefix} §7Tu as rendu §e%item amount of loop-item% §7billets à ton patron, ce qui te fait un total de §e%{_total}%§7$" to {_p}
+          addWallet({_p}, {_total})
+          remove loop-item from {_p}'s inventory
+          clear {gps::%{_p}%}
+          clear {bbMissions::%{_p}%::*}
+          clear {bAllMissions::%{_p}%::*}
+    else:
+      send "{@prefix} §cTu n'as aucun billets pour la sur toi." to {_p}
+  else:
+    send "{@prefix} §cVeuillez finir vos missions avant de vouloir rendre vos billets." to {_p}
+
+function bBSell(p: Player):
+  if {_p}'s inventory contains gold ingot named "§eBillets":
+    loop all items in {_p}'s inventory:
+      if loop-item is gold ingot named "§eBillets":
+        set {_total} to item amount of loop-item * {@price} / 1.5
+        send "{@prefix} §7Tu as blanchis §e%item amount of loop-item% §7billets, ce qui te fait un total de §e%{_total}%§7$" to {_p}
+        addWallet({_p}, {_total})
+        remove loop-item from {_p}'s inventory
+        clear {bbMissions::%{_p}%::*}
+        clear {bAllMissions::%{_p}%::*}
+        clear {gps::%{_p}%}
+  else:
+    send "{@prefix} §cTu n'as aucun billets sur toi !" to {_p}
+
+function bBGUI(p: Player):
+  create a gui with virtual chest inventory with 1 rows named "{@gui_title2}":
+    make gui slot 4 with gold ingot named "§eBlanchir ses billets" with lore "§8Cliquez-ici pour blanchir vos billets (25%% de commission)":
+      bBSell(player)
+      close player's inventory
+    make gui slot 8 with arrow named "§c-> Retour":
+      close {_p}'s inventory
+    make gui slot 0, 1, 2, 3, 5, 6 and 7 with black stained glass pane named " "
+  open last gui to {_p}
+
+on load:
+  wait a tick
+  clear {bMissions::*}
+  clear {bbMissions::*}
+  clear {bAllMissions::*}
+  clear {gps::*}
+  
+  set {bMissions::all::*} to "1" and "2"
+  add location at -1090.5, 55.5, 279.5 in "beelife" to {bMissions::1::*}
+  add location at -841.5, 97.5, 502.5 in "beelife" to {bMissions::1::*}
+  add location at -884.5, 66.5, 344.5 in "beelife" to {bMissions::1::*}
+  add location at -1062.5, 55.5, 303.5 in "beelife" to {bMissions::2::*}
+  add location at -750.5, 66.5, 353.5 in "beelife" to {bMissions::2::*}
+  add location at -855.5, 55.5, 131.5 in "beelife" to {bMissions::2::*}
+
+
+on quit:
+  clear {gps::%player%}
+  clear {bbMissions::%player%}
+  clear {bAllMissions::%player%}
+  
+on right click on a dropper:
+  if {bbMissions::%player%::loc} is event-block's location:
+    cancel event
+    close player's inventory
+    if {loadinggui::%player%} is not set:
+      set {loadinggui::%player%} to true
+      close player's inventory
+      send "{@prefix} §7Chargement démarré, merci de ne pas partir loin."
+      set {_c} to "---------"
+      wait 1 tick
+      loop 9 times:
+        if distance between event-block's location and player is smaller than 5:
+          set {_c} to first (length of {_c} - 1) characters of {_c}
+          set {_c} to "§a##§c%{_c}%"
+          send subtitle "§c[%{_c}%§c]" to player
+          wait 1 second
+        else:
+          clear {bbMissions::%player%::*}
+          clear {bAllMissions::%player%::*}
+          send "{@prefix} §7Vous vous êtes trop éloigné, la mission est donc annulé." to player
+          stop
+      clear {loadinggui::%player%}
+      send subtitle "" to player
+      give 5 gold ingot named "§eBillets" to player
+      if size of {bAllMissions::%player%::loc::*} is 1:
+        set {_loc} to location at 311, 15, 298 in player's world
+        set {bbMissions::%player%::loc} to {_loc}
+        set {gps::%player%} to {_loc}
+        send "{@prefix} §7Vous avez terminé vos missions, va rendre les billets à ton patron pour obtenir ton salaire."
+        stop
+
+      set {_b} to getIdFromLoc(player, "%{bbMissions::%player%::loc}%")
+      remove {bAllMissions::%player%::loc::%{_b}%} from {bAllMissions::%player%::loc::*}
+      set {bbMissions::%player%::loc} to random element out of {bAllMissions::%player%::loc::*}
+      set {gps::%player%} to {bbMissions::%player%::loc}
+      send "{@prefix} §7Vous avez réussi votre mission, il vous reste §e%size of {bAllMissions::%player%::loc::*}% §emissions§7."
+      send "{@prefix} §7Votre prochaine mission est en %{bbMissions::%player%::loc}%"
+	
+on npc right click:
+  if citizen is named "§eConvoyeur de Brinks":
+    if getJobRawName(getPlayerJob(player)) is "brinks":
+      bGUI(player)
+    else:
+      send "{@prefix} §cTu n'as pas le bon métier !"
+  else if citizen is named "§eBlanchisseur":
+    bBGUI(player)
+
+on job change:
+  clear {gps::%player%}
+  clear {bbMissions::%player%}
+  clear {bAllMissions::%player%}

@@ -1,0 +1,135 @@
+className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.StorageVehicle
+name: TraficPN
+uuid: c1196aea-87cf-4e5f-b658-298c1cc87b18
+baseVehicle: TraficPN
+owner: 4083e788-df11-317d-8369-8a2b204eb549
+partList:
+  list0:
+    className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.addons.skins.Skin
+    skin:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2230
+      type: LEATHER_BOOTS
+      meta:
+        ==: ItemMeta
+        meta-type: LEATHER_ARMOR
+        custom-model-data: 2001
+        Unbreakable: true
+    color:
+      ==: Color
+      RED: 255
+      BLUE: 255
+      GREEN: 255
+    xOffset: 0.0
+    yOffset: 0.0
+    UID: 9ef8057b-092f-40c8-a141-a2d8ce272e1d
+    zOffset: 0.0
+    isCustomPlaced: false
+  list1:
+    className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.addons.Wheel
+    steering: true
+    rotationOffset: 180
+    skin:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2230
+      type: LEATHER_CHESTPLATE
+      meta:
+        ==: ItemMeta
+        meta-type: LEATHER_ARMOR
+        Unbreakable: true
+        Damage: 2
+    color:
+      ==: Color
+      RED: 20
+      BLUE: 20
+      GREEN: 20
+    xOffset: 1.8
+    yOffset: 0.0
+    UID: dee20098-748d-4149-98cb-850e47c27f78
+    zOffset: -1.1
+    isCustomPlaced: false
+  list2:
+    className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.addons.Wheel
+    steering: true
+    rotationOffset: 0
+    skin:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2230
+      type: LEATHER_CHESTPLATE
+      meta:
+        ==: ItemMeta
+        meta-type: LEATHER_ARMOR
+        Unbreakable: true
+        Damage: 2
+    color:
+      ==: Color
+      RED: 20
+      BLUE: 20
+      GREEN: 20
+    xOffset: 1.8
+    yOffset: 0.0
+    UID: d25148d3-36af-4f8d-800a-065bbf15fe74
+    zOffset: 1.1
+    isCustomPlaced: false
+  list3:
+    className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.addons.Wheel
+    steering: false
+    rotationOffset: 180
+    skin:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2230
+      type: LEATHER_CHESTPLATE
+      meta:
+        ==: ItemMeta
+        meta-type: LEATHER_ARMOR
+        Unbreakable: true
+        Damage: 2
+    color:
+      ==: Color
+      RED: 20
+      BLUE: 20
+      GREEN: 20
+    xOffset: -1.67
+    yOffset: 0.0
+    UID: 69b93174-435f-41ca-947b-7dc8b446dcdf
+    zOffset: -1.1
+    isCustomPlaced: false
+  list4:
+    className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.addons.Wheel
+    steering: false
+    rotationOffset: 0
+    skin:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2230
+      type: LEATHER_CHESTPLATE
+      meta:
+        ==: ItemMeta
+        meta-type: LEATHER_ARMOR
+        Unbreakable: true
+        Damage: 2
+    color:
+      ==: Color
+      RED: 20
+      BLUE: 20
+      GREEN: 20
+    xOffset: -1.67
+    yOffset: 0.0
+    UID: d87ce353-f1dc-4065-a9e3-d6633b648e63
+    zOffset: 1.1
+    isCustomPlaced: false
+location:
+  ==: Vector
+  x: -1095.5
+  y: 54.5
+  z: 149.5
+world: beelife
+vehicleStats:
+  className: me.legofreak107.vehiclesplus.vehicles.vehicles.objects.VehicleStats
+  speed: 100
+  steering: 7
+  fuelTank: 50
+  currentFuel: 50.0
+  acceleration: 50
+  health: 100
+  broken: false
+vehicleTrunk: §9§bTrunk-=-27-=-

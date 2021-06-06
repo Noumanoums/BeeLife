@@ -1,0 +1,30 @@
+lastAccountName: SweartyWasTaken
+timestamps:
+  login: 1617892149603
+  logout: 1617892135329
+  lastteleport: 1617892091730
+ipAddress: 86.216.21.178
+lastlocation:
+  world: beelife
+  x: -822.9932358674106
+  y: 102.43353248540983
+  z: 538.1824625187671
+  yaw: -138.76086
+  pitch: 21.0687
+logoutlocation:
+  world: beelife
+  x: -1095.5
+  y: 56.0
+  z: 230.5
+  yaw: -2.135326
+  pitch: 9.408746
+afk: false
+homes:
+  build1:
+    world: beelife
+    x: -1004.4681257376634
+    y: 96.62501989638282
+    z: 666.2410589216377
+    yaw: -0.085237354
+    pitch: 3.9178739
+money: '0'

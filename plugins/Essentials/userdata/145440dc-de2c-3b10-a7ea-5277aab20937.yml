@@ -1,0 +1,28 @@
+lastAccountName: kevinetlucas
+timestamps:
+  login: 1615385849494
+  logout: 1615386375234
+  lastteleport: 1614866244570
+ipAddress: 91.175.5.24
+logoutlocation:
+  world: beelife
+  x: -21.036759163556926
+  y: 20.537475039959606
+  z: 279.7492702894709
+  yaw: -82.6991
+  pitch: 25.148426
+lastlocation:
+  world: beelife
+  x: 301.1206913881277
+  y: 12.108012855101828
+  z: 213.24445751430443
+  yaw: -257.19904
+  pitch: 2.8590488
+homes:
+  in:
+    world: beelife
+    x: 294.59216058015653
+    y: 4.0
+    z: 172.17458493924755
+    yaw: 79.32743
+    pitch: 0.8323251

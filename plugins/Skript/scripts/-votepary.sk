@@ -1,0 +1,15 @@
+function addVote(i: integer):
+    add {_i} to {voteparty}
+    vpUpdate()
+
+function vpUpdate():
+    if {voteparty} is greater or equal than {@votes}:
+        set {voteparty} to 0
+        vp()
+
+function vp():
+    give 1 diamond to all players
+
+command /vp:
+    trigger:
+        addVote(1)

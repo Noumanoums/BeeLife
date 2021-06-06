@@ -1,0 +1,132 @@
+'2':
+    name: potweed
+    showname: '&ePot de Weed'
+    price: 200
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: DEAD_HORN_CORAL_FAN
+    custommodeldata: ""
+    slot: 9
+    isGun: false
+    job: 'fabriquantweed'
+'3':
+    name: potweed
+    showname: '&eSéchoir de Weed'
+    price: 1000
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: DIORITE_WALL
+    custommodeldata: ""
+    slot: 10
+    isGun: false
+    job: 'fabriquantweed'
+'4':
+    name: hackatm
+    showname: '&eOutil de piratage'
+    price: 2000
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: SLIME_BALL
+    custommodeldata: ""
+    slot: 9
+    isGun: false
+    job: 'hackatm'
+'5':
+    name: tank
+    showname: '&eCuve'
+    price: 1000
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: STRIPPED_OAK_WOOD
+    custommodeldata: ""
+    slot: 9
+    isGun: false
+    job: 'fabriquantmeth'
+'6':
+    name: fridge
+    showname: '&eRéfrigerateur'
+    price: 500
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: STRIPPED_SPRUCE_WOOD
+    custommodeldata: ""
+    slot: 10
+    isGun: false
+    job: 'fabriquantmeth'
+'7':
+    name: filter
+    showname: '&eFiltre'
+    price: 300
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: GOLDEN_HORSE_ARMOR
+    custommodeldata: "2002"
+    slot: 11
+    isGun: false
+    job: 'fabriquantmeth'
+'8':
+    name: aluminium
+    showname: '&eAluminium'
+    price: 200
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: GOLDEN_HORSE_ARMOR
+    custommodeldata: "2003"
+    slot: 12
+    isGun: false
+    job: 'fabriquantmeth'
+'9':
+    name: meth
+    showname: '&eMethylamine'
+    price: 200
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: GOLDEN_HORSE_ARMOR
+    custommodeldata: "2001"
+    slot: 13
+    isGun: false
+    job: 'fabriquantmeth'
+'10':
+    name: perceuse
+    showname: '&ePerceuse'
+    price: 20000
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: LIME_DYE
+    custommodeldata: ""
+    slot: 0
+    isGun: false
+    job: 'robber'
+'11':
+    name: c4
+    showname: '&eC4'
+    price: 15000
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: YELLOW_DYE
+    custommodeldata: ""
+    slot: 1
+    isGun: false
+    job: 'robber'
+'12':
+    name: lockpick
+    showname: '&eOutil de crochetage'
+    price: 1000
+    item:
+        ==: org.bukkit.inventory.ItemStack
+        v: 2230
+        type: MAGENTA_DYE
+    custommodeldata: ""
+    slot: 0
+    isGun: false
+    job: 'thief'

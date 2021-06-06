@@ -1,0 +1,102 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    propsLimit: 30
+
+
+#_____________
+# FUNCTIONS
+
+function propsBuy(p: Player, i: Item, price: Number):
+    if getBank({_p}) < {_price}:
+        send "{@prefix} §cVous n'avez pas assez d'argent en banque !" to {_p}
+        stop
+    
+    give {_i} to {_p}
+    removeBank({_p}, {_price})
+
+
+#_____________
+# COMMANDS
+
+command /props [<text>] [<text>] [<text>]:
+    permission: beelife.props.admin
+    trigger:
+        if arg-1 is "safezone":
+            if arg-2 isn't set:
+                make player execute command "/props safezone list"
+            else if arg-2 is "list":
+                send "§e» §8Safezones:"
+                loop {props::safezones::*}:
+                    send "§7%loop-value%"
+            else if arg-2 is "add":
+                if arg-3 isn't set:
+                    send "{@prefix} §c/props safezone add §l<region>"
+                    stop
+                
+                add arg-3 to {props::safezones::*}
+                send "{@prefix} §7Fait!"
+            else if arg-2 is "remove":
+                if arg-3 isn't set:
+                    send "{@prefix} §c/props safezone remove §l<region>"
+                    stop
+                
+                remove arg-3 from {props::safezones::*}
+                send "{@prefix} §7Fait!"
+
+
+#_____________
+# EVENTS
+
+on place:
+    if player has permission "beelife.props.bypass":
+        stop
+    
+    loop {props::safezones::*}:
+        if "%region at player%" contains loop-value:
+            send "{@prefix} §cVous ne pouvez pas construire ici !"
+            cancel event
+            stop
+
+    if size of {props::%player%::*} >= {@propsLimit}:
+        send "{@prefix} §cVous avez atteint la limite de props !"
+        cancel event
+        stop
+
+    if {props::*} doesn't contain player:
+        add player to {props::*}
+
+    add event-location to {props::%player%::*}
+
+on break:
+    if player has permission "beelife.props.bypass":
+        stop
+
+    if {props::%player%::*} contains event-location:
+
+        remove event-location from {props::%player%::*}
+
+    else:
+        cancel event
+
+on load:
+    loop {props::*}:
+        loop {props::%loop-value-1%::*}:
+            set block at loop-value-2 to air
+        clear {props::%loop-value%::*}
+    clear {props::*}
+
+on quit:
+    if player has permission "beelife.props.bypass":
+        stop
+
+    loop {props::%player%::*}:
+        set block at loop-value to air
+    clear {props::%player%::*}
+
+on job change:
+    if player has permission "beelife.props.bypass":
+        stop
+
+    loop {props::%player%::*}:
+        set block at loop-value to air
+    clear {props::%player%::*}

@@ -1,0 +1,162 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    token: ODIxMDkwOTk2NDgxNjg3NjIz.YE-qlA.ADBKLgiRC0MRR-52TKBtz9yhFIc
+
+
+#_____________
+# FUNCTIONS
+
+# Yaml
+
+function securityLoad():
+  if yaml "staffSecurity" is loaded:
+    unload yaml "staffSecurity"
+  load yaml "plugins/Skript/scripts/BeeLife/YML/staffSecurity.yml" as "staffSecurity"
+
+function securityUnload():
+  save yaml "staffSecurity"
+  unload yaml "staffSecurity"
+
+# Others
+
+function addStaff(p: Player, user: Text):
+    set skript-yaml value "Authorized.%{_p}%" from "staffSecurity" to "%{_user}%"
+
+function existStaff(p: Player) :: boolean:
+    if yaml node "Authorized.%{_p}%" from "staffSecurity" exists:
+        return true
+    return false
+
+function requestVerif(p: Player):
+    wait a tick
+    if existStaff({_p}) isn't true:
+        stop
+        
+    # Teleport player to verif room
+    set {staff::temp::%{_p}%::back} to {_p}'s location
+    teleport {_p} to {staff::waiting}
+    # Prevent unverified players to do anything
+    set {codeverif::%{_p}%} to true
+    
+    wait 1 tick
+    if {codeverif::%{_p}%} is true:
+
+        set {discordid} to skript-yaml value "Authorized.%{_p}%" from "staffSecurity"
+
+        make embed:
+            set the author info of the embed to author named "IP : %ip of {_p}%" with no url and no icon
+            set color of the embed to color from rgb 15, 135, 245
+            set the title of embed to "**Logs | Connexion**"
+            set the description of embed to "Nouvelle connexion sur le compte BeeLife de _%{_p}%_"
+        send last created embed to channel with id "822946666453270549" with "botsecurity"
+
+        clear {discordid}
+
+        wait 2 ticks
+        if {codeverif::%{_p}%} is true:
+            broadcast "yes pls verif"
+            send "{@prefix} §aMerci de réagir dans le salon §estaff-verif §a!" to {_p}
+
+function forceVerif(p: player):
+    clear {codeverif::%{_p}%}
+    teleport {_p} to {staff::temp::%{_p}%::back}
+
+#_____________
+# DISCORD COMMANDS
+
+discord command staff [<text>] [<text>]:
+    trigger:
+        if arg-1 is "register":
+            set {_mcUser} to {code::%arg 2%}
+            if existStaff({_mcUser}) is false:
+                if {_mcUser} is set:
+
+                    addStaff({_mcUser}, discord id of event-user)
+                    reply with "Ton compte minecraft est désormais relié à ton compte discord."
+                    send "§aCompte minecraft relié à discord." to {_mcUser}
+                    delete {code::%arg-2%}
+
+#_____________
+# COMMANDS
+
+command /staff <text> [<text>]:
+    permission: staff
+    trigger:
+        if arg-1 is "test":
+            make embed:
+                set color of the embed to color from rgb 15, 135, 245
+                set the title of embed to "**Staff | Connexion**"
+                set the description of embed to "Merci de réagir à ce message lors de votre connexion."
+            send last created embed to channel with id "822946400777273374" with "botsecurity" and store it in {_m}
+            add reaction "white_check_mark" to {_m} with "botsecurity"
+        if arg-1 is "discord":
+            if arg-2 is "link":
+                if existStaff(player) is false:     
+                    set {_e} to random 4 char string from charset `a-zA-Z0-9`
+                    set {code::%{_e}%} to player
+                    send "Ton code de vérification %{_e}% merci de MP le bot 'security' avec 'staff register' avec le code de vérification."
+        else if arg-1 is "setwaiting":
+            set {staff::waiting} to player's location
+            send "done!"
+
+#_____________
+# EVENTS
+
+on reaction add:   
+    if discord id of event-guild is "814950560692174869":
+        if discord id of event-user is not "821090996481687623":
+            if topic of event-channel is "Vérification lors de la connexion pour le staff":
+                if embed of event-message is set:
+                    set {_e} to embed of event-message
+                    if "%title of {_e}%" is "**Staff | Connexion**":
+                        remove event-emote added by event-user from event-message
+                        loop skript-yaml nodes with keys "Authorized" from "staffSecurity":
+                            if {codeverif::%loop-value%} is set:
+                                set {_id} to skript-yaml value "Authorized.%loop-value%" from "staffSecurity"
+                                if "%{_id}%" is discord id of event-user:
+                                    forceVerif(loop-value parsed as player)
+
+on join:
+    requestVerif(player)
+
+on unload:
+    securityUnload()
+
+on load:
+    clear {discordid::*}
+    if yaml "staffSecurity" isn't loaded:
+        securityLoad()
+
+    shutdown "botsecurity"
+    login to "{@token}" with the name "botsecurity"
+    mark "botsecurity" as playing "➥ BeeLife"
+
+    clear {codeverif::*}
+    clear {staff::temp::*}
+
+    loop all players:
+        wait 2 ticks
+        requestVerif(loop-player)
+
+# Enable whitelist after 30 seconds
+on command "whitelist off":
+    wait 30 seconds
+    execute console command "whitelist on"
+
+# Prevent player to do anything since he's not verified
+
+on click:
+    if {codeverif::%player%} is true:
+        cancel event
+
+on command:
+    if {codeverif::%player%} is true:
+        cancel event
+
+on talk:
+    if {codeverif::%player%} is true:
+        cancel event
+
+on jump:
+    if {codeverif::%player%} is true:
+        cancel event

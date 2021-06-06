@@ -1,0 +1,80 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Piratage
+    price: 1500
+    cooldown: 2 minutes
+
+#_____________
+# FUNCTIONS
+
+function startHack(p: Player, l: Location):
+    close {_p}'s inventory
+
+    set {_d} to difference between now and {hackatm::%{_p}%}
+    if {_d} < {@cooldown}:
+        send "{@prefix} §cVous devez attendre §e%translateDate(difference between {_d} and {@cooldown})% §cque le logiciel redémarre." to {_p}
+        stop
+
+    if {_d} > 0 second:
+        clear {hackatm::%{_p}%}
+
+    if {hackatm::%{_p}%} is set:
+        stop
+
+    if getJobPlayers(8) < 1:
+        send "{@prefix} §cIl n'y a pas assez de policiers !" to {_p}
+        stop
+
+    send "{@prefix} §7Chargement démarré, merci de ne pas partir loin." to {_p}
+    set {hackatm::%{_p}%} to true
+
+    # PREVENIR LA POLICE
+    loop all players:
+        if getJobRawName(getPlayerJob(loop-player)) is "agentdepolice":
+            send "{@prefix} §cAlerte : Piratage d'ATM en %{_l}%" to loop-player
+        else if getJobRawName(getPlayerJob(loop-player)) is "commissairepolice":
+            send "{@prefix} §cAlerte : Piratage d'ATM en %{_l}%" to loop-player
+
+    set {_c} to "█████████"
+    loop 9 times:
+        if distance between {_l} and {_p} is greater than 3:
+            send "{@prefix} §cVous vous êtes trop éloigné, le piratage est donc annulé." to {_p}
+            clear {hackatm::%{_p}%}
+            stop
+
+        if {_p}'s tool's name isn't "&eOutil de piratage":
+            send "{@prefix} §cVous n'avez plus votre outil de piratage en main, le piratage est donc annulé." to {_p}
+            clear {hackatm::%{_p}%}
+            stop
+
+        set {_c} to first (length of {_c} - 1) characters of {_c}
+        set {_c} to "§a█§8%{_c}%"
+        send subtitle "%{_c}%" to {_p}
+        if chance of 5.3%:
+            send "{@prefix} §cLe logiciel vient de planter, veuillez patienter pendant qu'il redémarre." to {_p}
+            set {hackatm::%{_p}%} to now
+            stop
+        wait 1 second
+    send subtitle "" to {_p} for 2 seconds with fade in 0 second and fade out 0 second
+
+    addBank({_p}, {@price})
+    clear {hackatm::%{_p}%}
+    send "{@prefix} §7Chargement terminé, piratage réussi." to {_p}
+
+#_____________
+# EVENTS
+
+on load:
+    wait a tick
+    clear {hackatm::*}
+
+on quit:
+    clear {hackatm::%player%}
+
+on rightclick on dropper:
+    if player's tool's name is "&eOutil de piratage":
+        if getJobRawName(getPlayerJob(player)) is "hackatm":
+            cancel event
+            startHack(player, event-block's location)
+        else:
+            send "{@prefix} §cTu n'as pas le bon métier !"

@@ -1,0 +1,29 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    gui_title: §e§lBee§fLife §8» Paramètres
+
+function settingsGui(p: player):
+    create a gui with virtual chest inventory with 1 row named "{@gui_title}":
+        make gui slot 3 with bread named "§fToasts §aactivés" with lore "§8Affiche les notifications en haut à droite de l'écran":
+            send "soon"
+
+        set {_n} to "§cdésactivé"
+        if scoreboardIsVisible({_p}) is true:
+            set {_n} to "§aactivé"
+        make gui slot 4 with paper named "§fScoreboard %{_n}%" with lore "§8Affiche les informations à droite de l'écran":
+            scoreboardToggle({_p})
+            settingsGui({_p})
+
+        set {_n} to "§cdésactivé"
+        if chatHrpIsVisible({_p}) is true:
+            set {_n} to "§aactivé"
+        make gui slot 5 with book named "§fChat HRP %{_n}%" with lore "§8Affiche les messages HRP":
+            chatHrpToggle({_p})
+            settingsGui({_p})
+
+    open last gui to {_p}
+
+on inventory click:
+    if player's inventory's type is player inventory:
+        if clicked slot type is result:
+            settingsGui(player)
