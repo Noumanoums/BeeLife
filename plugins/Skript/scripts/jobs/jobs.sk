@@ -1,0 +1,344 @@
+options:
+    prefix: §e§lBee§fLife §8»
+    spawn: 10.5, 6, 220.5
+
+# ______________________
+# FUNCTIONS
+
+# YAML
+function jobsLoad():
+    if yaml "beeJobs" is loaded:
+        unload yaml "beeJobs"
+    load yaml "plugins/BeeCaspere/config.yml" as "beeJSkins"
+    save yaml "beeJSkins"
+    load yaml "plugins/Skript/scripts/BeeLife/YML/jobs.yml" as "beeJobs"
+    if yaml "beeJobs" is empty:
+        set yaml value "0.name" from "beeJobs" to "citoyen"
+        set yaml value "0.showname" from "beeJobs" to "&eCitoyen"
+        set yaml value "0.salary" from "beeJobs" to 100
+        set yaml value "0.item" from "beeJobs" to book
+        set yaml value "0.custommodeldata" from "beeJobs" to ""
+        set yaml value "0.slot" from "beeJobs" to book
+        set yaml value "0.maxPlayers" from "beeJobs" to 1
+        set yaml value "0.vip" from "beeJobs" to false
+        set yaml value "0.location" from "beeJobs" to "10.5, 6, 220.5"
+        set yaml value "0.category" from "beeJobs" to "legal"
+    save yaml "beeJobs"
+
+function getPlayerJob(p: Player) :: Number:
+    return {job::player::%{_p}%}
+
+function getJobs() :: numbers:
+    loop skript-yaml nodes with keys "" from "beeJobs" without string checks:
+        add loop-value parsed as number to {_r::*}
+    return {_r::*}
+
+function getJobName(id: Number) :: Text:
+    return skript-yaml value "%{_id}%.showname" from "beeJobs"
+
+function getJobRawName(id: number) :: Text:
+    return skript-yaml value "%{_id}%.name" from "beeJobs"
+
+function getJobPlayers(id: Number) :: Number:
+    set {_r} to 0
+    loop all players:
+        if getPlayerJob(loop-player) is {_id}:
+            add 1 to {_r}
+    return {_r}
+
+function getJobMax(id: Number) :: Number:
+    return skript-yaml value "%{_id}%.maxPlayers" from "beeJobs"
+
+function getJobKit(id: number) :: items:
+    if yaml node "%{_id}%.kit" from "beeJobs" doesn't exist:
+        stop
+
+    loop yaml nodes with keys "%{_id}%.kit" from "beeJobs":
+        set {_i} to yaml value "%{_id}%.kit.%loop-value%" from "beeJobs"
+        if {_i} isn't air:
+            add {_i} to {_r::*}
+    return {_r::*}
+
+function isJob(id: number) :: boolean:
+    if yaml node "%{_id}%" from "beeJobs" exists:
+        return true
+    return false
+
+function setJobKit(id: number, i: objects):
+    clear yaml value "%{_id}%.kit" from "beeJobs"
+    loop {_i::*}:
+        if loop-value isn't air:
+            set yaml value "%{_id}%.kit.%loop-index parsed as number - 1%" from "beeJobs" to loop-value
+
+function setJob(p: Player, id: Number, silent: boolean = false):
+    if getPlayerJob({_p}) is {_id}:
+        if {_silent} is false:
+            send "{@prefix} §cTu possède déjà ce métier." to {_p}
+        stop
+
+    if getJobMax({_id}) <= getJobPlayers({_id}):
+        if {_p} doesn't have permission "beelife.premium":
+            if {_silent} is false:
+                send "{@prefix} §cIl n'y a plus de place. §7Achetez le grade §ePremium §7pour enlever cette restriction !" to {_p}
+            stop
+
+    # VIP todo
+    if skript-yaml value "%{_id}%.vip" from "beeJobs" is true:
+        if {_p} doesn't have permission "beelife.premium":
+            send "{@prefix} §cVous n'êtes pas Premium. §7Achetez le grade §ePremium §7pour enlever cette restriction !" to {_p}
+            stop
+
+    # Custom event
+    set {_values::player} to {_p}
+    set {_values::number} to {_id}
+    set {_event} to custom event "job change" with values {_values::*}
+    call event {_event}
+
+    if {_event} is cancelled:
+        stop
+    
+    clear {mNMissions::%{_p}%} # ?
+
+    if {_p}'s gamemode isn't creative:
+        inventoryReset({_p})
+
+    set {job::player::%{_p}%} to {_id}
+
+    if {_silent} is false:
+        send toast to {_p} entitled "Vous avez changé de métier !" with desc ""
+        send "{@prefix} §7Félicitations, tu es dorénavant §e%getJobName({_id})% §7!" to {_p}
+
+    # Giving his kit
+    loop getJobKit({_id}):
+        give loop-value to {_p}
+
+    # Teleport to job spawnpoint
+    set {_location} to skript-yaml value "%{_id}%.location" from "beeJobs"
+    set {_split::*} to {_location} split at ", "
+    set {_loc} to location at ({_split::1} parsed as number), ({_split::2} parsed as number), ({_split::3} parsed as number) of world "beelife"
+    # Prevent player to spawn at bed
+    wait 3 ticks
+    teleport {_p} to {_loc}
+
+function selSkins(p: Player, n: String, j: Number):
+    create a gui with virtual chest inventory with 1 rows named "§e§lBee§fLife §8» Skins":
+        set {_s} to 0
+        loop skript-yaml nodes with keys "skin" from "beeJSkins" without string checks:
+            add loop-value to {_r::*}
+
+            if "%loop-value%" contains "%{_n}%":
+                set {_v} to loop-value
+                set {_c} to last (length of {_v} - 13) characters of {_v}
+                set {_number} to last (length of {_v} - 14) characters of {_v}
+                if "%{_c}%" contains "h":
+                    set {_name} to "Homme"
+                else if "%{_c}%" contains "f":
+                    set {_name} to "Femme"
+
+                make gui slot {_s} with player skull named "§e%{_name}% n°%{_number}%":
+                    close {_p}'s inventory
+                    wait 2 ticks
+                    setJob({_p}, {_j})
+                    wait 5 ticks
+                    apply skin {_v} to {_p}
+
+                add 1 to {_s}
+
+        if "%{_r::*}%" doesn't contain "%{_n}%":
+            close {_p}'s inventory
+            wait 2 ticks
+            setJob({_p}, {_j})
+            wait 2 ticks
+            apply skin "" to {_p}
+
+    open last gui to {_p}
+
+
+function JobsGUI(p: Player):
+    create a gui with virtual chest inventory with 1 rows named "§e§lBee§fLife §8» Métiers":
+        make gui slot 3 with green wool named "§aMétiers légaux":
+            create a gui with virtual chest inventory with 4 rows named "§e§lBee§fLife §8» Métiers légaux":
+                #make gui slot 1, 2, 3, 4, 5, 6, 7 and 8 with black stained glass pane named " "
+                #make gui slot 27, 28, 29, 30, 31, 32, 33, 34 and 35 with black stained glass pane named " "
+                make gui slot 35 with getCustomItem(iron horse armor named "§cRetour", 2020):
+                    JobsGUI({_p})
+                loop skript-yaml nodes with keys "" from "beeJobs" without string checks:
+                    set {_category} to skript-yaml value "%loop-value%.category" from "beeJobs"
+                    if {_category} is "legal":
+                        set {_value} to loop-value
+                        if skript-yaml value "%{_value}%.name" from "beeJobs" is not "mayor":
+                            set {_item} to skript-yaml value "%loop-value%.item" from "beeJobs" named skript-yaml value "%loop-value%.showname" from "beeJobs"
+                            set {_salary} to skript-yaml value "%loop-value%.salary" from "beeJobs"
+                            set {_maximum} to skript-yaml value "%loop-value%.maxPlayers" from "beeJobs"
+                            set {_slot} to skript-yaml value "%loop-value%.slot" from "beeJobs"
+                            set {_vip} to skript-yaml value "%loop-value%.vip" from "beeJobs"
+                            set {_model} to skript-yaml value "%loop-value%.custommodeldata" from "beeJobs"
+                            set {_name} to skript-yaml value "%loop-value%.name" from "beeJobs"
+                            set line 1 of {_item}'s lore to ""
+                            set line 2 of {_item}'s lore to "§6Salaire§7: §e%{_salary}%€"
+                            set line 3 of {_item}'s lore to "§6Maximum§7: %getJobPlayers(loop-value parsed as integer)% / %getJobMax(loop-value parsed as Number)%"
+                            if {_vip} is true:
+                                set line 4 of {_item}'s lore to "§eCe métier est réservé aux membres Premium"
+                            if {_model} is not "":
+                                add "{CustomModelData:%{_model}%}" to nbt of {_item}
+                            make gui slot {_slot} with {_item}:
+                                close {_p}'s inventory
+                                if getPlayerJob({_p}) is {_value} parsed as Number:
+                                    send "{@prefix} §cTu possède déjà ce métier." to {_p}
+                                    stop
+                                selSkins({_p}, {_name}, {_value} parsed as Number)
+            open last gui to {_p}
+
+        make gui slot 5 with red wool named "§cMétiers illégaux":
+            create a gui with virtual chest inventory with 4 rows named "§e§lBee§fLife §8» Métiers illégaux":
+                #make gui slot 1, 2, 3, 4, 5, 6, 7 and 8 with black stained glass pane named " "
+                #make gui slot 27, 28, 29, 30, 31, 32, 33, 34 and 35 with black stained glass pane named " "
+                make gui slot 35 with getCustomItem(iron horse armor named "§cRetour", 2020):
+                    JobsGUI({_p})
+                loop skript-yaml nodes with keys "" from "beeJobs" without string checks:
+                    set {_category} to skript-yaml value "%loop-value%.category" from "beeJobs"
+                    if {_category} is "illegal":
+                        set {_value} to loop-value
+                        if skript-yaml value "%{_value}%.name" from "beeJobs" is not "mayor":
+                            set {_item} to skript-yaml value "%loop-value%.item" from "beeJobs" named skript-yaml value "%loop-value%.showname" from "beeJobs"
+                            set {_salary} to skript-yaml value "%loop-value%.salary" from "beeJobs"
+                            set {_maximum} to skript-yaml value "%loop-value%.maxPlayers" from "beeJobs"
+                            set {_slot} to skript-yaml value "%loop-value%.slot" from "beeJobs"
+                            set {_vip} to skript-yaml value "%loop-value%.vip" from "beeJobs"
+                            set {_model} to skript-yaml value "%loop-value%.custommodeldata" from "beeJobs"
+                            set line 1 of {_item}'s lore to ""
+                            set line 2 of {_item}'s lore to "§6Salaire§7: §e%{_salary}%€"
+                            set line 3 of {_item}'s lore to "§6Maximum§7: %getJobPlayers(loop-value parsed as integer)% / %getJobMax(loop-value parsed as Number)%"
+                            if {_vip} is true:
+                                set line 4 of {_item}'s lore to "§eCe métier est réservé aux Premium"
+                            if {_model} is not "":
+                                add "{CustomModelData:%{_model}%}" to nbt of {_item}
+                            make gui slot {_slot} with {_item}:
+                                if getPlayerJob({_p}) is {_value} parsed as Number:
+                                    send "{@prefix} §cTu possède déjà ce métier." to {_p}
+                                    stop
+                                setJob({_p}, {_value} parsed as Number)
+                                close {_p}'s inventory
+            open last gui to {_p}
+
+        make gui slot 8 with getCustomItem(iron horse armor named "§cRetour", 2020):
+            fmenuOpen({_p})
+    open last gui to {_p}
+
+# ______________________
+# COMMANDS
+
+command /jobs <text> [<text>] [<text>]:
+    permission: beelife.jobs.admin
+    permission message: §e§lBee§fLife §8» §cVous n'avez pas la permission !
+    usage: §8Essayez plutôt: §7/jobs §c<list/info/set/kit>
+    trigger:
+        if arg-1 is "info":
+            if arg-2 isn't set:
+                send "§8Essayez plutôt: §7/jobs info §c<joueur>"
+                stop
+
+            if arg-2 parsed as player is offline:
+                send "{@prefix} §cJoueur introuvable !"
+                stop
+
+            send "{@prefix} §7Le joueur §e%arg-2% §7est §e%getJobName(getPlayerJob(arg-2 parsed as player))% §7!"
+        else if arg-1 is "set":
+            if arg-3 isn't set:
+                send "§8Essayez plutôt: §7/jobs set §c<joueur> <job id>"
+                stop
+
+            if arg-2 parsed as player is offline:
+                send "{@prefix} §cJoueur introuvable !"
+                stop
+
+            if "%arg-3 parsed as integer%" is "<none>":
+                send "{@prefix} §cNombre incorrect !"
+                stop
+
+            setJob(arg-2 parsed as player, arg-3 parsed as number)
+            send "{@prefix} §7Le joueur §e%arg-2% §7est désormais §e%getJobName(getPlayerJob(arg-2 parsed as player))% §7!"
+        else if arg-1 is "kit":
+            if arg-2 isn't set:
+                send "§8Essayez plutôt: §7/jobs kit §c<job id>"
+                stop
+
+            if isJob(arg-2 parsed as number) is false:
+                send "{@prefix} §cMétier introuvable !"
+                stop
+            
+            # Displaying kit inside GUI
+            set {_id} to arg-2 parsed as number
+            create a gui with virtual chest inventory with 4 rows named "Kit §e%getJobName(arg-2 parsed as number)%" with stealable items:
+                set {_s} to 0
+                loop getJobKit(arg-2 parsed as number):
+                    make gui slot {_s} with loop-value
+                    add 1 to {_s}
+                # Saving kit on close
+                run on gui close:
+                    set {_s} to 0
+                    loop 36 times:
+                        set {_i} to slot {_s} of player's current inventory
+                        add 1 to {_s}
+                        add {_i} to {_i::*}
+                    setJobKit({_id}, {_i::*})
+            open last gui to player
+        else if arg-1 is "list":
+            create a gui with virtual chest inventory with 4 rows named "Jobs":
+                set {_s} to 0
+                loop getJobs():
+                    if loop-value is 0:
+                        continue
+                    set {_item} to getCustomItem(skript-yaml value "%loop-value%.item" from "beeJobs" named skript-yaml value "%loop-value%.showname" from "beeJobs", skript-yaml value "%loop-value%.custommodeldata" from "beeJobs")
+                    set {_salary} to skript-yaml value "%loop-value%.salary" from "beeJobs"
+                    set {_vip} to skript-yaml value "%loop-value%.vip" from "beeJobs"
+
+                    add " §8ID: §e%loop-value%" to {_item}'s lore
+                    add " §8Salaire: §e$%{_salary}%" to {_item}'s lore
+                    add " §8Joueurs: §e%getJobPlayers(loop-value)%§8/§7%getJobMax(loop-value)%" to {_item}'s lore
+                    add " §8Premium: §e%{_vip}%" to {_item}'s lore
+                    add "%nl%§7Clique-gauche pour modifier le §ekit" to {_item}'s lore
+
+                    set {_id} to loop-value
+                    make gui slot {_s} with {_item}:
+                        make player execute command "/jobs kit %{_id}%"
+                    add 1 to {_s}
+            open last gui to player
+
+
+# ______________________
+# EVENTS
+
+on load:    
+    # Set all players' job to 1
+    #loop all players:
+    #    setJob(loop-player, 1)
+
+    jobsLoad()
+
+on quit:
+    clear {job::player::%player%}
+
+on join:
+    setJob(player, 1, true)
+    wait 3 ticks
+    apply skin "" to player
+
+on respawn:
+    if getPlayerJob(player) isn't 0:
+        setJob(player, 0, true)
+        setJob(player, 1)
+
+# Payday
+every 30 minutes:
+    loop all players:
+        set {_salary} to skript-yaml value "%getPlayerJob(loop-player)%.salary" from "beeJobs"
+        addBank(loop-player, {_salary})
+        send toast to loop-player entitled "§eJour de paye ! §a+$%{_salary}%" with desc ""
+        wait a tick
+    send "{@prefix} §eJour de paye !" to all players
+
+# Preventing kits items to be drop (on death in inventory.sk)
+on drop:
+    if getJobKit(getPlayerJob(player)) contains event-item:
+        cancel event
